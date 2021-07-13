@@ -4,7 +4,6 @@
 #include "GameSpy_Available.h"
 #include "GameSpy_Patching.h"
 #include "GameSpy_HTTP.h"
-#include "GameSpy_Browser.h"
 #include "GameSpy_GP.h"
 #include "GameSpy_SAKE.h"
 #include "GameSpy_ATLAS.h"
@@ -17,7 +16,6 @@ CGameSpy_Full::CGameSpy_Full()
 	m_pGSA	= NULL;
 	m_pGS_Patching = NULL;
 	m_pGS_HTTP = NULL;
-	m_pGS_SB = NULL;
 	m_pGS_GP = NULL;
 
 	m_hGameSpyDLL	= NULL;
@@ -33,7 +31,6 @@ CGameSpy_Full::CGameSpy_Full()
 	CoreInitialize	();
 	m_pGS_Patching	= xr_new<CGameSpy_Patching>(m_hGameSpyDLL);
 	m_pGS_HTTP		= xr_new<CGameSpy_HTTP>(m_hGameSpyDLL);
-	m_pGS_SB		= xr_new<CGameSpy_Browser>(m_hGameSpyDLL);
 	m_pGS_GP		= xr_new<CGameSpy_GP>(m_hGameSpyDLL);
 	m_pGS_SAKE		= xr_new<CGameSpy_SAKE>(m_hGameSpyDLL);
 	m_pGS_ATLAS		= xr_new<CGameSpy_ATLAS>(m_hGameSpyDLL);
@@ -44,7 +41,6 @@ CGameSpy_Full::~CGameSpy_Full()
 	delete_data	(m_pGSA);
 	delete_data	(m_pGS_Patching);
 	delete_data	(m_pGS_HTTP);
-	delete_data	(m_pGS_SB);
 	delete_data	(m_pGS_GP);
 	delete_data	(m_pGS_SAKE);
 	delete_data	(m_pGS_ATLAS);
@@ -80,7 +76,6 @@ void	CGameSpy_Full::Update	()
 		MainMenu()->SetErrorDialog(CMainMenu::ErrGSServiceFailed);
 	}
 	m_pGS_HTTP->Think	();
-	m_pGS_SB->Update	();
 	m_pGS_GP->Think		();
 	CoreThink			(15);
 	m_pGS_ATLAS->Think	();

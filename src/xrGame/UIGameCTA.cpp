@@ -26,7 +26,6 @@
 #include "ui/UISkinSelector.h"
 //.#include "ui/UIInventoryWnd.h"
 #include "ui/UIPdaWnd.h"
-#include "ui/UIMapDesc.h"
 #include "ui/UISpawnWnd.h"
 #include "ui/UIBuyWndBase.h"
 #include "ui/UIMpTradeWnd.h"

@@ -262,8 +262,6 @@ bool CLevel::net_start6				()
 		{
 			DEL_INSTANCE	(g_pGameLevel);
 			Console->Execute("main_menu on");
-
-			MainMenu()->SwitchToMultiplayerMenu();
 		}
 		else
 		if (!map_data.m_map_loaded && map_data.m_name.size() && m_bConnectResult)	//if (map_data.m_name == "") - level not loaded, see CLevel::net_start_client3
@@ -280,12 +278,6 @@ bool CLevel::net_start6				()
 
 			DEL_INSTANCE	(g_pGameLevel);
 			Console->Execute("main_menu on");
-
-			if	(!g_dedicated_server)
-			{
-				MainMenu()->SwitchToMultiplayerMenu();
-				MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
-			}
 		}
 		else
 		if (map_data.IsInvalidClientChecksum())
@@ -303,11 +295,6 @@ bool CLevel::net_start6				()
 			g_pGameLevel->net_Stop();
 			DEL_INSTANCE	(g_pGameLevel);
 			Console->Execute("main_menu on");
-			if	(!g_dedicated_server)
-			{
-				MainMenu()->SwitchToMultiplayerMenu();
-				MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
-			}
 		}
 		else 
 		{

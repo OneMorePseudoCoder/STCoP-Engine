@@ -31,7 +31,6 @@ extern	float	g_cl_lvInterp;
 extern	int		g_cl_InterpolationType; //0 - Linear, 1 - BSpline, 2 - HSpline
 extern	u32		g_cl_InterpolationMaxPoints;
 extern	int		g_cl_save_demo;
-extern string64	gsCDKey;
 extern	u32		g_dwMaxCorpses;
 extern	float	g_fTimeFactor;
 extern	BOOL	g_b_COD_PickUpMode		;
@@ -266,53 +265,6 @@ public:
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"dbg Num Objects"); }
 };
 #endif // DEBUG
-
-
-extern	void	WriteCDKey_ToRegistry		(LPSTR cdkey);
-
-class CCC_GSCDKey: public CCC_String{
-public:
-						CCC_GSCDKey		(LPCSTR N, LPSTR V, int _size) : CCC_String(N, V, _size)  { bEmptyArgsHandled = true; };
-	virtual void		Execute			(LPCSTR arguments)
-	{
-		string64 cdkey;
-		if ( 0 == stricmp(arguments,"clear") )
-		{
-			cdkey[0] = 0;
-		}
-		else
-		{
-			xr_strcpy(cdkey, arguments);
-		}
-
-		u32 cdkey_len = xr_strlen( cdkey );
-		if ( (cdkey_len > 0) && g_pGamePersistent && MainMenu() )
-		{
-			if ( (cdkey_len > 5) && cdkey[4] != '-' )
-			{
-				LPCSTR res = AddHyphens( cdkey );
-				xr_strcpy( cdkey, res );
-			}
-
-			CCC_String::Execute( cdkey );	
-			WriteCDKey_ToRegistry( cdkey );
-
-			if ( !MainMenu()->ValidateCDKey() )
-			{
-#ifdef DEBUG
-				Msg( "! Invalid CD-Key" );
-#endif // DEBUG
-			}
-		}
-	}//Execute
-	virtual void		Save			(IWriter *F)	{};
-
-	virtual void	fill_tips			(vecTips& tips, u32 mode)
-	{
-		tips.push_back( "xxxx-xxxx-xxxx-xxxx" );
-		tips.push_back( "clear" );
-	}
-};
 
 //most useful predicates 
 struct SearcherClientByName
@@ -1987,7 +1939,6 @@ void register_mp_console_commands()
 	CMD3(CCC_Mask,		"net_dump_size",		&psNET_Flags,		NETFLAG_DBG_DUMPSIZE	);
 	CMD1(CCC_Dbg_NumObjects,"net_dbg_objects"				);
 #endif // DEBUG
-	CMD3(CCC_GSCDKey,	"cdkey",				gsCDKey,			sizeof(gsCDKey)			);
 	CMD4(CCC_Integer,	"g_eventdelay",			&g_dwEventDelay,	0,	1000);
 	CMD4(CCC_Integer,	"g_corpsenum",			(int*)&g_dwMaxCorpses,		0,	100);
 
@@ -2155,15 +2106,6 @@ void register_mp_console_commands()
 #endif
 
 	//GameSpy Presence and Messaging
-	CMD1(CCC_CreateGameSpyAccount,			"gs_create_account");
-	CMD1(CCC_GapySpyListProfiles,			"gs_list_profiles");
-	CMD1(CCC_GameSpyLogin,					"gs_login");
-	CMD1(CCC_GameSpyLogout,					"gs_logout");
-	CMD1(CCC_GameSpyDeleteProfile,			"gs_delete_profile");
-	CMD1(CCC_GameSpyPrintProfile,			"gs_print_profile");
-	CMD1(CCC_GameSpySuggestUNicks,			"gs_suggest_unicks");
-	CMD1(CCC_GameSpyRegisterUniqueNick,		"gs_register_unique_nick");
-	CMD1(CCC_GameSpyProfile,				"gs_profile");
 	CMD4(CCC_Integer,						"sv_write_update_bin",				&g_sv_write_updates_bin, 0, 1);
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
 }

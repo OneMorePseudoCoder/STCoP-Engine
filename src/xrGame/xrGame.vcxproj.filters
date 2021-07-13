@@ -2365,12 +2365,6 @@
     <Filter Include="UI\Multiplayer\MM_MP\CDkey">
       <UniqueIdentifier>{e4cc1b19-64a7-475a-a52a-9b44113e383b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\MapList">
-      <UniqueIdentifier>{992da492-8746-440c-881d-15753bd029cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\ServerList">
-      <UniqueIdentifier>{01968940-c0d1-4130-ad28-f12cc60583f8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\Multiplayer\MM_MP\TeamInfo">
       <UniqueIdentifier>{5adbdfe0-5f16-4393-a3d5-09ac05e46e9b}</UniqueIdentifier>
     </Filter>
@@ -2409,12 +2403,6 @@
     </Filter>
     <Filter Include="UI\Multiplayer\team_skin_info">
       <UniqueIdentifier>{fabc6e12-dda3-49a7-94b8-98f7b0cff48b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc">
-      <UniqueIdentifier>{3854fc6e-819a-453b-9195-71ebeeb12599}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc\MapInfo">
-      <UniqueIdentifier>{bfa2904a-5c5d-498d-be7d-e3238731f03c}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI\Multiplayer\team_skin_info\Spawn">
       <UniqueIdentifier>{775f1493-564c-49e5-b7b9-d6de5e670b05}</UniqueIdentifier>
@@ -6567,9 +6555,6 @@
     <ClInclude Include="GameSpy\GameSpy_Base_Defs.h">
       <Filter>Core\Server\GameSpy</Filter>
     </ClInclude>
-    <ClInclude Include="GameSpy\GameSpy_Browser.h">
-      <Filter>Core\Server\GameSpy</Filter>
-    </ClInclude>
     <ClInclude Include="gamespy\GameSpy_Full.h">
       <Filter>Core\Server\GameSpy</Filter>
     </ClInclude>
@@ -7044,15 +7029,6 @@
     <ClInclude Include="ui\UICDkey.h">
       <Filter>UI\Multiplayer\MM_MP\CDkey</Filter>
     </ClInclude>
-    <ClInclude Include="ui\UIMapList.h">
-      <Filter>UI\Multiplayer\MM_MP\MapList</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ServerList.h">
-      <Filter>UI\Multiplayer\MM_MP\ServerList</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIListItemServer.h">
-      <Filter>UI\Multiplayer\MM_MP\ServerList</Filter>
-    </ClInclude>
     <ClInclude Include="ui\TeamInfo.h">
       <Filter>UI\Multiplayer\MM_MP\TeamInfo</Filter>
     </ClInclude>
@@ -7119,12 +7095,6 @@
     <ClInclude Include="ui\UITabButtonMP.h">
       <Filter>UI\Multiplayer\BuyWeaponWnd\TAB</Filter>
     </ClInclude>
-    <ClInclude Include="ui\UIMapDesc.h">
-      <Filter>UI\Multiplayer\team_skin_info\MapDesc</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIMapInfo.h">
-      <Filter>UI\Multiplayer\team_skin_info\MapDesc\MapInfo</Filter>
-    </ClInclude>
     <ClInclude Include="ui\UISpawnWnd.h">
       <Filter>UI\Multiplayer\team_skin_info\Spawn</Filter>
     </ClInclude>
@@ -7141,9 +7111,6 @@
       <Filter>UI\Multiplayer\Voting</Filter>
     </ClInclude>
     <ClInclude Include="ui\UIKickPlayer.h">
-      <Filter>UI\Multiplayer\Voting</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UITextVote.h">
       <Filter>UI\Multiplayer\Voting</Filter>
     </ClInclude>
     <ClInclude Include="ui\UIVote.h">
@@ -10077,9 +10044,6 @@
     <ClCompile Include="GameSpy\GameSpy_Available.cpp">
       <Filter>Core\Server\GameSpy</Filter>
     </ClCompile>
-    <ClCompile Include="GameSpy\GameSpy_Browser.cpp">
-      <Filter>Core\Server\GameSpy</Filter>
-    </ClCompile>
     <ClCompile Include="gamespy\GameSpy_Full.cpp">
       <Filter>Core\Server\GameSpy</Filter>
     </ClCompile>
@@ -10671,18 +10635,6 @@
     <ClCompile Include="ui\UICDkey.cpp">
       <Filter>UI\Multiplayer\MM_MP\CDkey</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIMapList.cpp">
-      <Filter>UI\Multiplayer\MM_MP\MapList</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ServerList.cpp">
-      <Filter>UI\Multiplayer\MM_MP\ServerList</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ServerList_GameSpy_func.cpp">
-      <Filter>UI\Multiplayer\MM_MP\ServerList</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIListItemServer.cpp">
-      <Filter>UI\Multiplayer\MM_MP\ServerList</Filter>
-    </ClCompile>
     <ClCompile Include="ui\TeamInfo.cpp">
       <Filter>UI\Multiplayer\MM_MP\TeamInfo</Filter>
     </ClCompile>
@@ -10758,15 +10710,6 @@
     <ClCompile Include="ui\UITabButtonMP.cpp">
       <Filter>UI\Multiplayer\BuyWeaponWnd\TAB</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIMapDesc.cpp">
-      <Filter>UI\Multiplayer\team_skin_info\MapDesc</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIMapInfo.cpp">
-      <Filter>UI\Multiplayer\team_skin_info\MapDesc\MapInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIMapInfo_script.cpp">
-      <Filter>UI\Multiplayer\team_skin_info\MapDesc\MapInfo</Filter>
-    </ClCompile>
     <ClCompile Include="ui\UISpawnWnd.cpp">
       <Filter>UI\Multiplayer\team_skin_info\Spawn</Filter>
     </ClCompile>
@@ -10783,9 +10726,6 @@
       <Filter>UI\Multiplayer\Voting</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIKickPlayer.cpp">
-      <Filter>UI\Multiplayer\Voting</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UITextVote.cpp">
       <Filter>UI\Multiplayer\Voting</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIVote.cpp">
