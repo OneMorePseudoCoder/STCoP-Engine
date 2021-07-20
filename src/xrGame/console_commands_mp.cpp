@@ -18,7 +18,6 @@
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "string_table.h"
 #include "../xrGameSpy/xrGameSpy_MainDefs.h"
-#include "DemoPlay_Control.h"
 #include "account_manager_console.h"
 #include "gamespy/GameSpy_GP.h"
 
@@ -549,7 +548,6 @@ public:
 class DemoPlayControlArgParser
 {
 protected:
-	demoplay_control::EAction	m_action;
 	shared_str					m_action_param;
 	bool	ParseControlString		(LPCSTR args_string)
 	{
@@ -563,28 +561,6 @@ protected:
 			param_name, sizeof(param_name));
 		m_action_param = param_name;
 
-		if (!xr_strcmp(action_name, "roundstart"))
-		{
-			m_action = demoplay_control::on_round_start;
-		} else if (!xr_strcmp(action_name, "kill"))
-		{
-			m_action = demoplay_control::on_kill;
-		} else if (!xr_strcmp(action_name, "die"))
-		{
-			m_action = demoplay_control::on_die;
-		} else if (!xr_strcmp(action_name, "artefacttake"))
-		{
-			m_action = demoplay_control::on_artefactcapturing;
-		} else if (!xr_strcmp(action_name, "artefactdrop"))
-		{
-			m_action = demoplay_control::on_artefactloosing;
-		} else if (!xr_strcmp(action_name, "artefactdeliver"))
-		{
-			m_action = demoplay_control::on_artefactdelivering;
-		} else 
-		{
-			return false;
-		}
 		return true;
 	};
 	inline LPCSTR GetInfoString()
@@ -613,9 +589,6 @@ public:
 			Msg(tmp_info);
 			return;
 		}
-		demoplay_control* dp_control = Level().GetDemoPlayControl();
-		R_ASSERT(dp_control);
-		dp_control->pause_on(m_action, m_action_param);
 	};
 
 	virtual void	Info	(TInfo& I)
@@ -638,9 +611,6 @@ public:
 			Msg("! Demo play not started.");
 			return;
 		}
-		demoplay_control* dp_control = Level().GetDemoPlayControl();
-		R_ASSERT(dp_control);
-		dp_control->cancel_pause_on();
 	};
 
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"Cancels mpdemoplay_pause_on."); }
@@ -666,9 +636,6 @@ public:
 			Msg(tmp_info);
 			return;
 		}
-		demoplay_control* dp_control = Level().GetDemoPlayControl();
-		R_ASSERT(dp_control);
-		dp_control->rewind_until(m_action, m_action_param);
 	};
 
 	virtual void	Info	(TInfo& I)
@@ -691,9 +658,6 @@ public:
 			Msg("! Demo play not started.");
 			return;
 		}
-		demoplay_control* dp_control = Level().GetDemoPlayControl();
-		R_ASSERT(dp_control);
-		dp_control->stop_rewind();
 	};
 
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"Stops rewinding (mpdemoplay_rewind_until)."); }

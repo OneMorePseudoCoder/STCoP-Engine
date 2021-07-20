@@ -2416,9 +2416,6 @@
     <Filter Include="UI\Multiplayer\Voting">
       <UniqueIdentifier>{e2241740-7d81-4634-a522-bd9ff597994f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\Multiplayer\DemoPlayControl">
-      <UniqueIdentifier>{4d53f414-59e3-42bb-8f3c-038994de1bf9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\Multiplayer\Achivements">
       <UniqueIdentifier>{bd82763e-8bc7-4a97-84e7-7db1211a0560}</UniqueIdentifier>
     </Filter>
@@ -5361,15 +5358,6 @@
     <ClInclude Include="..\xrGameSpy\gamespy\md5.h">
       <Filter>Core\Client\Level\ClientDigestComputer</Filter>
     </ClInclude>
-    <ClInclude Include="DemoInfo.h">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoInfo_Loader.h">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoPlay_Control.h">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
-    </ClInclude>
     <ClInclude Include="Level_network_Demo.h">
       <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
     </ClInclude>
@@ -7118,9 +7106,6 @@
     </ClInclude>
     <ClInclude Include="ui\UIVotingCategory.h">
       <Filter>UI\Multiplayer\Voting</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\UIDemoPlayControl.h">
-      <Filter>UI\Multiplayer\DemoPlayControl</Filter>
     </ClInclude>
     <ClInclude Include="UIAchivementsIndicator.h">
       <Filter>UI\Multiplayer\Achivements</Filter>
@@ -8918,15 +8903,6 @@
     </ClCompile>
     <ClCompile Include="..\xrGameSpy\gamespy\md5c.c">
       <Filter>Core\Client\Level\ClientDigestComputer</Filter>
-    </ClCompile>
-    <ClCompile Include="DemoInfo.cpp">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
-    </ClCompile>
-    <ClCompile Include="DemoInfo_Loader.cpp">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
-    </ClCompile>
-    <ClCompile Include="DemoPLay_Control.cpp">
-      <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
     </ClCompile>
     <ClCompile Include="Level_network_Demo.cpp">
       <Filter>Core\Client\Level\LevelNetworkDemo</Filter>
@@ -10733,9 +10709,6 @@
     </ClCompile>
     <ClCompile Include="ui\UIVotingCategory.cpp">
       <Filter>UI\Multiplayer\Voting</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIDemoPlayControl.cpp">
-      <Filter>UI\Multiplayer\DemoPlayControl</Filter>
     </ClCompile>
     <ClCompile Include="UIAchivementsIndicator.cpp">
       <Filter>UI\Multiplayer\Achivements</Filter>

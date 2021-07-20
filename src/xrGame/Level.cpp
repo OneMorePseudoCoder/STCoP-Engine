@@ -44,8 +44,6 @@
 #include "UI/UIGameTutorial.h"
 #include "file_transfer.h"
 #include "message_filter.h"
-#include "demoplay_control.h"
-#include "demoinfo.h"
 #include "CustomDetector.h"
 #include "xrPhysics/IPHWorld.h"
 #include "xrPhysics/console_vars.h"
@@ -179,8 +177,6 @@ CLevel::~CLevel()
         }
     }
     xr_delete(m_msg_filter);
-    xr_delete(m_demoplay_control);
-    xr_delete(m_demo_info);
     if (IsDemoSave())
     {
         StopSaveDemo();

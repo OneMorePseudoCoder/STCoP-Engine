@@ -148,9 +148,7 @@ void CLevel::net_Stop		()
 		SetControlEntity(NULL); //m_current_spectator == CurrentControlEntity()
 		m_current_spectator = NULL;
 		
-	}else 
-	if(IsDemoSave() && !IsDemoInfoSaved())
-		SaveDemoInfo();
+	}
 
 	remove_objects				();
 	

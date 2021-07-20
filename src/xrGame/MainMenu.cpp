@@ -15,9 +15,6 @@
 #include "string_table.h"
 #include "../xrCore/os_clipboard.h"
 
-#include "DemoInfo.h"
-#include "DemoInfo_Loader.h"
-
 #include "ui/UICDkey.h"
 
 #include <shellapi.h>
@@ -72,8 +69,6 @@ CMainMenu::CMainMenu	()
 	m_NeedErrDialog					= ErrNoError;
 	m_start_time					= 0;
 
-	m_demo_info_loader				= NULL;
-
 	if(!g_dedicated_server)
 	{
 		g_btnHint						= xr_new<CUIButtonHint>();
@@ -98,7 +93,6 @@ CMainMenu::~CMainMenu	()
 	xr_delete						(m_startDialog);
 	g_pGamePersistent->m_pMainMenu	= NULL;
 	
-	xr_delete						(m_demo_info_loader);
 	delete_data						(m_pMB_ErrDlgs);	
 }
 
@@ -592,13 +586,4 @@ LPCSTR DelHyphens( LPCSTR c )
 LPCSTR CMainMenu::GetGameVer()
 {
 	return GAME_VERSION;
-}
-
-demo_info const * CMainMenu::GetDemoInfo(LPCSTR file_name)
-{
-	if (!m_demo_info_loader)
-	{
-		m_demo_info_loader = xr_new<demo_info_loader>();
-	}
-	return m_demo_info_loader->get_demofile_info(file_name);
 }

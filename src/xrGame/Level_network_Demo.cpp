@@ -9,8 +9,6 @@
 #include "game_cl_mp.h"
 #include "../xrCore/stream_reader.h"
 #include "Message_Filter.h"
-#include "DemoPlay_Control.h"
-#include "DemoInfo.h"
 #include "../xrEngine/CameraManager.h"
 
 void CLevel::PrepareToSaveDemo		()
@@ -147,7 +145,6 @@ void CLevel::SaveDemoHeader(shared_str const & server_options)
 	m_writer->w(&m_demo_header, sizeof(m_demo_header));
 	m_writer->w_stringZ(server_options);
 	m_demo_info_file_pos				=	m_writer->tell();
-	m_writer->seek(m_demo_info_file_pos + demo_info::max_demo_info_size);
 }
 
 void CLevel::SaveDemoInfo()
@@ -160,13 +157,6 @@ void CLevel::SaveDemoInfo()
 	
 	u32 old_pos = m_writer->tell();
 	m_writer->seek(m_demo_info_file_pos);
-	if (!m_demo_info)
-	{
-		m_demo_info = xr_new<demo_info>();
-	}
-	m_demo_info->load_from_game();
-	m_demo_info->write_to_file(m_writer);
-	m_writer->seek(old_pos);
 }
 
 void CLevel::SavePacket(NET_Packet& packet)
@@ -184,11 +174,6 @@ bool CLevel::LoadDemoHeader	()
 	m_reader->r_stringZ		(m_demo_server_options);
 	u32 demo_info_start_pos	= m_reader->tell();
 	
-	R_ASSERT(m_demo_info == NULL);
-	m_demo_info = xr_new<demo_info>();
-	m_demo_info->read_from_file(m_reader);
-
-	m_reader->seek			(demo_info_start_pos + demo_info::max_demo_info_size);
 	return (m_reader->elapsed() >= sizeof(DemoPacket));
 }
 
@@ -279,13 +264,7 @@ message_filter*	 CLevel::GetMessageFilter()
 	m_msg_filter = xr_new<message_filter>();
 	return m_msg_filter;
 }
-demoplay_control* CLevel::GetDemoPlayControl()
-{
-	if (m_demoplay_control)
-		return m_demoplay_control;
-	m_demoplay_control = xr_new<demoplay_control>();
-	return m_demoplay_control;
-}
+
 /*
 void CLevel::SetDemoPlayPos(float const pos)
 {

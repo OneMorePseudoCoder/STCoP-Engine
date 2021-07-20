@@ -1,14 +1,12 @@
 #include "stdafx.h"
 #include "UIGameMP.h"
 #include "UIAchivementsIndicator.h"
-#include "ui/UIDemoPlayControl.h"
 #include "ui/UIServerInfo.h"
 #include "UICursor.h"
 #include "Level.h"
 #include "game_cl_mp.h"
 
 UIGameMP::UIGameMP() :
-	m_pDemoPlayControl(NULL),
 	m_pServerInfo(NULL),
 	m_pAchivementIdicator(NULL),
 	m_game(NULL)
@@ -17,28 +15,14 @@ UIGameMP::UIGameMP() :
 
 UIGameMP::~UIGameMP()
 {
-	xr_delete	(m_pDemoPlayControl);
 	xr_delete	(m_pServerInfo);
 }
-
-void UIGameMP::ShowDemoPlayControl()
-{
-	if (!m_pDemoPlayControl)
-	{
-		m_pDemoPlayControl = xr_new<CUIDemoPlayControl>();
-		m_pDemoPlayControl->Init();
-	}
-	m_pDemoPlayControl->ShowDialog(false);
-	GetUICursor().SetUICursorPosition(m_pDemoPlayControl->GetLastCursorPos());
-}
-
 #include <dinput.h>
 
 bool UIGameMP::IR_UIOnKeyboardPress(int dik)
 {
 	if ( is_binded(kCROUCH, dik) && Level().IsDemoPlay())
 	{
-		ShowDemoPlayControl();
 		return true;
 	}
 #ifdef DEBUG
