@@ -277,22 +277,9 @@ void game_cl_CaptureTheArtefact::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 			if (ps->team == artefactOwnerTeam)
 			{
-				// player has returned team artefact
-				xr_sprintf(Text, "%s%s %s%s",
-					CTeamInfo::GetTeam_color_tag(ModifyTeam(artefactOwnerTeam) + 1),
-					ps->getName(), 
-					Color_Main,
-					st.translate("mp_returned_artefact").c_str());
 				PlayReturnedTheArtefact(ps);
 			} else if (ps != local_player)
 			{
-				// player has captured the artefact
-				xr_sprintf(Text, "%s%s %s%s",
-					CTeamInfo::GetTeam_color_tag(ModifyTeam(ps->team) + 1),
-					ps->getName(), 
-					Color_Main,
-					st.translate("mp_captured_artefact").c_str());
-				
 				PlayCapturedTheArtefact(ps);
 				if (m_reward_generator)
 					m_reward_generator->OnPlayerTakeArtefact(ps);
@@ -353,11 +340,6 @@ void game_cl_CaptureTheArtefact::TranslateGameMessage(u32 msg, NET_Packet& P)
 			}
 			if (ps)
 			{
-				xr_sprintf(Text, "%s%s %s%s",
-						CTeamInfo::GetTeam_color_tag(ModifyTeam(ps->team) + 1),
-						ps->getName(), 
-						Color_Main,
-						st.translate("mp_has_dropped_artefact").c_str()); //need translate
 				
 				if (m_reward_generator)
 					m_reward_generator->OnPlayerDropArtefact(ps);
@@ -684,7 +666,6 @@ void game_cl_CaptureTheArtefact::OnGameMenuRespond_ChangeSkin(NET_Packet& P)
 	local_player->skin				= NewSkin;
 	m_bSkinSelected					= TRUE;
 	m_bSpectatorSelected			= FALSE;
-	Msg("* player [%s][%d] changed skin to %d", local_player->getName(), local_player->GameID, local_player->skin);
 	ReInitRewardGenerator			(local_player);
 	//SpawnMe();
 }
@@ -712,10 +693,6 @@ void game_cl_CaptureTheArtefact::OnGameMenuRespond_ChangeTeam(NET_Packet& P)
 	local_player->team = newTeam;
 	m_bTeamSelected = TRUE;
 	VERIFY(local_player);
-	Msg("* player [%s][%d] changed team to %d", local_player->getName(), local_player->GameID, local_player->team);
-	/*shared_str const & teamSection = GetLocalPlayerTeamSection();
-	m_game_ui->UpdateBuyMenu(teamSection, BASECOST_SECTION);
-	m_game_ui->UpdateSkinMenu(teamSection);*/
 	OnTeamChanged();
 	if (m_reward_generator)
 		m_reward_generator->OnPlayerChangeTeam(local_player->team);
@@ -1067,9 +1044,6 @@ bool game_cl_CaptureTheArtefact::CanBeReady()
 		}
 		return false;
 	}
-#ifndef MASTER_GOLD
-	Msg("---CanBeReady = true: [%s][%d]", local_player->getName(), local_player->GameID);
-#endif // #ifndef MASTER_GOLD
 	return true;
 }
 
@@ -1596,11 +1570,6 @@ void game_cl_CaptureTheArtefact::OnRender()
 			if (m_bShowPlayersNames)
 			{
 				IPos.y -= pTS->Indicator_r2;
-				VERIFY(ps->getName());
-				string64 upper_name;
-				xr_strcpy(upper_name, ps->getName());
-				_strupr_s(upper_name);
-				pActor->RenderText(upper_name, IPos, &dup, PLAYER_NAME_COLOR);
 			}
 			if (m_bFriendlyIndicators)
 			{

@@ -37,11 +37,6 @@ void black_list::OnPlayerKilled(u16 killer_id,
 	game_PlayerState* victim_player = Game().GetPlayerByGameID(target_id);
 	if (!victim_player)
 		return;
-
-	m_victims.insert(
-		std::make_pair(
-			shared_str(victim_player->getName()),
-			Device.dwTimeGlobal));
 }
 
 void black_list::OnPlayerSpawned(game_PlayerState const * ps)

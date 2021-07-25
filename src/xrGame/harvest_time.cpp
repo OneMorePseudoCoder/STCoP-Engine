@@ -80,17 +80,6 @@ void harvest_time::OnPlayerKilled(u16 killer_id,
 	CObject* victim_obj = Level().Objects.net_Find(target_id);
 	if (!victim_obj)
 		return;
-
-	victim_raw_kill tmp_predicate(
-		tmp_local_player->getName(),
-		victim_obj->cName(),
-		m_spawn_time);
-
-	buffer_vector<kills_store::kill> tmp_fake_buffer(NULL, 0);
-
-	m_harvest_count		= m_owner->get_kills_store().fetch_kills(
-		tmp_predicate,
-		tmp_fake_buffer);
 }
 
 void harvest_time::OnPlayerSpawned(game_PlayerState const * ps)

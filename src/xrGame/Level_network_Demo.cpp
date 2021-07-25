@@ -231,7 +231,6 @@ void CLevel::SpawnDemoSpectator()
 	R_ASSERT2						(mp_cl_game->local_player, "player not spawned");
 	//mp_cl_game->local_player		= mp_cl_game->createPlayerState();
 	//xr_strcpy						(mp_cl_game->local_player->name, "demo_spectator");
-	specentity->set_name_replace	(mp_cl_game->local_player->getName());
 	specentity->s_flags.assign		(M_SPAWN_OBJECT_LOCAL | M_SPAWN_OBJECT_ASPLAYER | M_SPAWN_OBJECT_PHANTOM); //M_SPAWN_OBJECT_PHANTOM is ONLY to indicate thath this is a fake spectator
 	tmp_sv_game->assign_RP			(specentity, Level().game->local_player);
 	

@@ -164,15 +164,9 @@ void CUIKickPlayer::Update()
 	for( ; I != E; ++I)
 	{
 		game_PlayerState* pI = I->second;
-		if( m_selected_item_text.size() && !stricmp(pI->getName(), m_selected_item_text.c_str()) )
-			bHasSelected		= true;
-
 
 		fit = std::find(m_current_set.begin(), m_current_set.end(), pI);
 		if(fit==m_current_set.end())
-			bNeedRefresh = true;
-		else
-		if( stricmp( (*fit)->getName(), pI->getName()) )
 			bNeedRefresh = true;
 	}
 	if(m_current_set.size() != items.size())
@@ -184,12 +178,6 @@ void CUIKickPlayer::Update()
 		m_ui_players_list->Clear		();
 		m_current_set.clear				();
 	
-		for ( ;I!=E; ++I)
-		{
-			game_PlayerState* p			= I->second;
-			m_current_set.push_back		(p);
-			m_ui_players_list->AddTextItem	(p->getName());
-		}
 		if( bHasSelected )
 			m_ui_players_list->SetSelectedText(m_selected_item_text.c_str());
 	}

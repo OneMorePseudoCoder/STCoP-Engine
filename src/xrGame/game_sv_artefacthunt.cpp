@@ -354,9 +354,6 @@ void	game_sv_ArtefactHunt::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 	};
 	//-----------------------------------------------------------------------------
 	u32		Team				= RP_2_Use(E);
-#ifdef DEBUG
-	Msg("--- ArtefactHunt RPoint for %s uses team %d", ps_who->getName(), Team);
-#endif // #ifdef DEBUG
 	R_ASSERT					(rpoints[Team].size());
 	
 	xr_vector<RPoint>&	rps		= rpoints[Team];

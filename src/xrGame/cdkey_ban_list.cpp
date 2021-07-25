@@ -91,10 +91,7 @@ void cdkey_ban_list::ban_player(xrClientData const * player_data, s32 end_time_s
 	}
 	tmp_client->client_hexstr_digest = player_data->m_cdkey_digest;
 	tmp_client->client_ip_addr = player_data->m_cAddress;
-	if (player_data->ps)
-		tmp_client->client_name = player_data->ps->getName();
-	else
-		tmp_client->client_name = "unknown";
+	tmp_client->client_name = "unknown";
 	
 	time(&tmp_client->ban_start_time);
 	tmp_client->ban_end_time = tmp_client->ban_start_time + static_cast<u32>(end_time_sec);
@@ -102,10 +99,7 @@ void cdkey_ban_list::ban_player(xrClientData const * player_data, s32 end_time_s
 	{
 		tmp_client->admin_hexstr_digest = admin->m_cdkey_digest;
 		tmp_client->admin_ip_addr = admin->m_cAddress;
-		if (admin->ps)
-			tmp_client->admin_name = admin->ps->getName();
-		else
-			tmp_client->admin_name = "unknown";
+		tmp_client->admin_name = "unknown";
 	} else
 	{
 		tmp_client->admin_hexstr_digest = "";
@@ -134,10 +128,7 @@ void cdkey_ban_list::ban_player_ll(char const * hexstr_digest, s32 end_time_sec,
 	{
 		tmp_client->admin_hexstr_digest = admin->m_cdkey_digest;
 		tmp_client->admin_ip_addr = admin->m_cAddress;
-		if (admin->ps)
-			tmp_client->admin_name = admin->ps->getName();
-		else
-			tmp_client->admin_name = "unknown";
+		tmp_client->admin_name = "unknown";
 	} else
 	{
 		tmp_client->admin_hexstr_digest = "";

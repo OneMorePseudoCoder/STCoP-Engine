@@ -134,10 +134,6 @@ void game_cl_Deathmatch::net_import_state	(NET_Packet& P)
 		{
 			P.r_stringZ(WinnerName);
 			bool NeedSndMessage = (xr_strlen(WinnerName) != 0);
-			if (NeedSndMessage && local_player && !xr_strcmp(WinnerName, local_player->getName()))
-			{
-				PlaySndMessage(ID_YOU_WON);
-			}
 			if (NeedSndMessage && m_reward_generator)
 			{
 				m_reward_generator->OnRoundEnd();
@@ -1069,14 +1065,7 @@ void				game_cl_Deathmatch::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 		}break;
 	case GAME_PHASE_PLAYER_SCORES:
 		{
-			m_game_ui->UpdateTeamPanels();
-			if (local_player)
-			{
-				if (!xr_strcmp(WinnerName, local_player->getName()))
-				{
-					PlaySndMessage(ID_YOU_WON);
-				}
-			}			
+			m_game_ui->UpdateTeamPanels();		
 		}break;
 	default:
 		{			

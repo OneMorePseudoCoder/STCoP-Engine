@@ -518,9 +518,6 @@ void WeaponUsageStatistic::OnWeaponBought(game_PlayerState* ps, LPCSTR WeaponNam
 	statistic_sync_quard syncg(m_mutex);
 	if (!CollectData()) return;
 	if (!ps) return;
-	PLAYERS_STATS_it PlayerIt = FindPlayer(ps->getName());
-	WEAPON_STATS_it WeaponIt = PlayerIt->FindPlayersWeapon(WeaponName);
-	WeaponIt->NumBought++;
 	//-----------------------------------------------
 	int BasketPos = 0;
 	if (ps->money_for_round > 500)
@@ -534,7 +531,6 @@ void WeaponUsageStatistic::OnWeaponBought(game_PlayerState* ps, LPCSTR WeaponNam
 	{
 		return;
 	}
-	WeaponIt->m_Basket[team_index][bascet_pos]++;
 };
 
 void WeaponUsageStatistic::OnBullet_Fire(SBullet* pBullet, const CCartridge& cartridge)
@@ -770,50 +766,24 @@ void WeaponUsageStatistic::OnPlayerBringArtefact(game_PlayerState* ps)
 {
 	if (!CollectData())					return;
 	if (!ps)							return;
-	Player_Statistic& PlayerStat		= *(FindPlayer(ps->getName()));
-
-	PlayerStat.m_dwArtefacts[ConvertToTeamIndex(ps->team)]++;
 }
 
 void WeaponUsageStatistic::OnPlayerSpawned(game_PlayerState* ps)
 {
 	if (!CollectData()) return;
 	if (!ps) return;
-	Player_Statistic& PlayerStat		= *(FindPlayer(ps->getName()));
-	PlayerStat.m_dwNumRespawned[ConvertToTeamIndex(ps->team)]++;
-	PlayerStat.m_dwCurMoneyRoundDelta	= 0;
-	m_dwTotalNumRespawns[ConvertToTeamIndex(ps->team)]++;	
-	PlayerStat.m_dwCurrentTeam			= ConvertToTeamIndex(ps->team);
-	PlayerStat.last_alive_update_time	= Device.dwTimeGlobal;
 }
 
 void WeaponUsageStatistic::OnPlayerAddMoney(game_PlayerState* ps, s32 MoneyAmount)
 {
 	if (!CollectData())							return;
 	if (!ps || MoneyAmount<=0)					return;
-	Player_Statistic& PlayerStat				= *(FindPlayer(ps->getName()));
-	PlayerStat.m_dwCurMoneyRoundDelta			+= MoneyAmount;
 };
 
 void WeaponUsageStatistic::OnPlayerKillPlayer(game_PlayerState* ps, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType)
 {
 	if (!CollectData()) return;
 	if (!ps)			return;
-
-	Player_Statistic& PlayerStat				= *(FindPlayer(ps->getName()));
-
-//.	m_dwSpecialKills[0];//headshot, backstab, knifekill
-	switch(SpecialKillType)
-	{
-	case SKT_HEADSHOT:
-			PlayerStat.m_dwSpecialKills[0]++;break;
-	case SKT_BACKSTAB:
-			PlayerStat.m_dwSpecialKills[1]++;break;
-	case SKT_KNIFEKILL:
-			PlayerStat.m_dwSpecialKills[2]++;break;
-	case SKT_EYESHOT:
-			PlayerStat.m_dwSpecialKills[3]++;break;
-	};
 }
 
 void WeaponUsageStatistic::OnExplosionKill(game_PlayerState* ps, const SHit& hit)
@@ -832,14 +802,6 @@ void WeaponUsageStatistic::OnExplosionKill(game_PlayerState* ps, const SHit& hit
 	game_PlayerState* killerPS					= Game().GetPlayerByGameID(killer_id);
 	if (!killerPS)								return;
 
-	Player_Statistic& PlayerStatKiller			= *(FindPlayer(killerPS->getName()));
-
-	CObject* weapon_object						= Level().Objects.net_Find(hit.weaponID);
-	WEAPON_STATS_it WeaponIt					= PlayerStatKiller.FindPlayersWeapon(weapon_object->cNameSect().c_str());
-	++WeaponIt->m_dwHitsScored;
-	++WeaponIt->m_dwKillsScored;
-	++WeaponIt->m_explosion_kills;
-
 	HitData NewHit;
 	//---------------------------		
 	NewHit.Completed	= true;
@@ -848,12 +810,9 @@ void WeaponUsageStatistic::OnExplosionKill(game_PlayerState* ps, const SHit& hit
 	NewHit.TargetID		= ps->GameID;
 	NewHit.BulletID		= 0;
 	NewHit.Pos0			= killer->Position();
-	NewHit.Pos1			= weapon_object->Position();
-	NewHit.TargetName	= ps->getName();
 	NewHit.BoneName		= 0;
 	NewHit.count		= 1;
 	//---------------------------
-	WeaponIt->add_hit(NewHit);
 }
 
 void WeaponUsageStatistic::OnBleedKill(game_PlayerState* killer_ps, game_PlayerState* victim_ps, u16 weapon_id)
@@ -861,16 +820,6 @@ void WeaponUsageStatistic::OnBleedKill(game_PlayerState* killer_ps, game_PlayerS
 	statistic_sync_quard syncg(m_mutex);
 	if (!killer_ps || !victim_ps)
 		return;
-	Player_Statistic& PlayerStatKiller = *(FindPlayer(killer_ps->getName()));
-	CObject* weapon_object	= Level().Objects.net_Find(weapon_id);
-	if (!weapon_object)
-		return;
-
-	WEAPON_STATS_it WeaponIt = PlayerStatKiller.FindPlayersWeapon(weapon_object->cNameSect().c_str());
-
-	++WeaponIt->m_dwHitsScored;
-	++WeaponIt->m_dwKillsScored;
-	++WeaponIt->m_bleed_kills;
 	
 	HitData NewHit;
 	//---------------------------		
@@ -881,11 +830,9 @@ void WeaponUsageStatistic::OnBleedKill(game_PlayerState* killer_ps, game_PlayerS
 	NewHit.BulletID		= 0;
 	NewHit.Pos0			= Fvector3();
 	NewHit.Pos1			= Fvector3();
-	NewHit.TargetName	= victim_ps->getName();
 	NewHit.BoneName		= 0;
 	NewHit.count		= 1;
 	//---------------------------
-	WeaponIt->add_hit(NewHit);
 }
 
 u8 WeaponUsageStatistic::ConvertToTeamIndex(s16 team)
@@ -917,9 +864,6 @@ void WeaponUsageStatistic::OnPlayerKilled(game_PlayerState* ps)
 	if (!CollectData())							return;
 	if (!ps)									return;
 	u8 team = ConvertToTeamIndex(ps->team);
-	Player_Statistic& PlayerStat				= *(FindPlayer(ps->getName()));
-	PlayerStat.m_dwTotalMoneyRound[team]	+= PlayerStat.m_dwCurMoneyRoundDelta;
-	m_dwTotalPlayersMoneyRound[team]		+= PlayerStat.m_dwCurMoneyRoundDelta;
 };
 
 void WeaponUsageStatistic::SVUpdateAliveTimes()
@@ -943,14 +887,6 @@ void WeaponUsageStatistic::SVUpdateAliveTimes()
 			game_PlayerState* ps = tmp_client->ps;
 			if (ps && !ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 			{
-				if (xr_strlen(ps->getName()))
-				{
-					Player_Statistic& pstat = *(owner.FindPlayer(ps->getName()));
-					u8 team = owner.ConvertToTeamIndex(ps->team);
-					u32 time_dif = Device.dwTimeGlobal - pstat.last_alive_update_time;
-					pstat.m_dwTotalAliveTime[team]	+= time_dif;
-					pstat.last_alive_update_time = Device.dwTimeGlobal;
-				}
 			}
 		}
 	};
@@ -990,23 +926,7 @@ void WeaponUsageStatistic::Update()
 
 void WeaponUsageStatistic::OnUpdateRequest(NET_Packet*)
 {
-	if (aPlayersStatistic.empty() || !Game().local_player) return;
-	
-	statistic_sync_quard syncg(m_mutex);
-	
-	game_PlayerState* local_player = Game().local_player;
-	if (!xr_strlen(local_player->getName()))
-		return;
 
-	Player_Statistic& PS = *(FindPlayer(local_player->getName()));
-	//-------------------------------------------------
-	NET_Packet P;
-	P.w_begin(M_STATISTIC_UPDATE_RESPOND);
-	//-------------------------------------------------
-	P.w_stringZ(PS.PName);
-	PS.net_save(&P);
-	//-------------------------------------------------
-	Level().Send(P);
 };
 
 void WeaponUsageStatistic::OnUpdateRespond(NET_Packet* P, shared_str const & sender_digest, u32 sender_pid)

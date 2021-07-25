@@ -29,8 +29,6 @@
 #include "clsid_game.h"
 #include "mainmenu.h"
 #include "WeaponKnife.h"
-#include "RegistryFuncs.h"
-#include "../xrGameSpy/xrGameSpy_MainDefs.h"
 #include "screenshot_server.h"
 #include "../xrCore/ppmd_compressor.h"
 #include "../xrCore/rt_compressor.h"
@@ -40,8 +38,6 @@
 #include "reward_event_generator.h"
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "reward_manager.h"
-#include "login_manager.h"
-#include "stats_submitter.h"
 
 #include "xrServer_info.h" //for enum_server_info_type
 
@@ -425,10 +421,6 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			string1024 mess;
 			P.r_stringZ(mess);
 			Msg( mess );
-			if ( MainMenu() && !g_dedicated_server )
-			{
-				MainMenu()->OnSessionTerminate( mess );
-			}
 		}break;
 	case GAME_EVENT_MAKE_DATA:
 		{
@@ -491,7 +483,6 @@ void game_cl_mp::ChatSay(LPCSTR	phrase, bool bAll)
 	NET_Packet		P;	
 	P.w_begin		(M_CHAT_MESSAGE);
 	P.w_s16			((bAll)?-1:local_player->team); // -1 = all, 0 = green, 1 = blue
-	P.w_stringZ		(local_player->getName());
 	P.w_stringZ		(phrase);
 	P.w_s16			(team);
 	u_EventSend		(P);
@@ -674,8 +665,6 @@ void game_cl_mp::OnPlayerVoted			(game_PlayerState* ps)
 
 	CStringTable st;
 	string1024 resStr;
-	xr_sprintf(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[ps->team], ps->getName(), Color_Main, *st.translate("mp_voted"),
-		ps->m_bCurrentVoteAgreed ? Color_Green : Color_Red, *st.translate(ps->m_bCurrentVoteAgreed ? "mp_voted_yes" : "mp_voted_no"));
 	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(resStr);
 }
 void game_cl_mp::LoadTeamData			(const shared_str& TeamName)
@@ -836,7 +825,6 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 //	R_ASSERT(pKiller);
 	//-----------------------------------------------------------
 	KillMessageStruct KMS;
-	KMS.m_victim.m_name = pPlayer->getName();
 	KMS.m_victim.m_color = Color_Teams_u32[ModifyTeam(pPlayer->team) + 1];
 
 	KMS.m_killer.m_name = NULL;
@@ -902,7 +890,6 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 
 				if (pKiller)
 				{
-					KMS.m_killer.m_name = pKiller ? pKiller->getName() : *(pOKiller->cNameSect());
 					KMS.m_killer.m_color = pKiller ? Color_Teams_u32[ModifyTeam(pKiller->team) + 1] : Color_Neutral_u32;
 				};
 			};
@@ -1021,7 +1008,6 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 
 			if (pKiller)
 			{
-				KMS.m_killer.m_name = pKiller ? pKiller->getName() : *(pOKiller->cNameSect());
 				KMS.m_killer.m_color = pKiller ? Color_Teams_u32[ModifyTeam(pKiller->team) + 1] : Color_Neutral_u32;
 				//-----------------------------------------------------------------------				
 				Msg("%s died from bleeding, thanks to %s ", *KMS.m_victim.m_name, *KMS.m_killer.m_name);
@@ -1050,8 +1036,6 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 		CurrentGameUI()->m_pMessagesWnd->AddLogMessage(KMS);
 };
 
-extern	void	WritePlayerName_ToRegistry	(LPSTR name);
-
 void	game_cl_mp::OnPlayerChangeName		(NET_Packet& P)
 {
 	CStringTable st;
@@ -1071,11 +1055,6 @@ void	game_cl_mp::OnPlayerChangeName		(NET_Packet& P)
 	if (pObj)
 	{
 		pObj->cName_set(NewName);
-	}
-
-	if ( Game().local_player && Game().local_player->GameID == ObjID )
-	{
-		WritePlayerName_ToRegistry( NewName );
 	}
 }
 

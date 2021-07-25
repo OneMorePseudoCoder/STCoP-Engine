@@ -338,6 +338,7 @@ copy /Y "$(xrSdkDir)binaries\x64\BugTrap-x64.dll" "$(OutputPath)BugTrap-x64.dll"
     <ClInclude Include="line_editor.h" />
     <ClInclude Include="line_edit_control.h" />
     <ClInclude Include="MbHelpers.h" />
+    <ClInclude Include="md5.h" />
     <ClInclude Include="motion.h" />
     <ClInclude Include="mp_logging.h" />
     <ClInclude Include="no_single.h" />
@@ -483,6 +484,7 @@ copy /Y "$(xrSdkDir)binaries\x64\BugTrap-x64.dll" "$(OutputPath)BugTrap-x64.dll"
     <ClCompile Include="line_edit_control.cpp" />
     <ClCompile Include="mailSlot.cpp" />
     <ClCompile Include="MbHelpers.cpp" />
+    <ClCompile Include="md5c.c" />
     <ClCompile Include="motion.cpp" />
     <ClCompile Include="ObjectAnimator.cpp" />
     <ClCompile Include="ObjectDump.cpp" />

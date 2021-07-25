@@ -1024,11 +1024,6 @@ void CLevel::OnAlifeSimulatorLoaded()
     GameTaskManager().ResetStorage();
 }
 
-void CLevel::OnSessionTerminate(LPCSTR reason)
-{
-    MainMenu()->OnSessionTerminate(reason);
-}
-
 #include "../xrEngine/CameraManager.h"
 #include "ActorEffector.h"
 

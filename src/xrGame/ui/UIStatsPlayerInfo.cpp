@@ -103,9 +103,7 @@ const char* CUIStatsPlayerInfo::GetInfoByID(const char* id){
 	static string64 ans;
 	CStringTable st;
 
-	if (0 == xr_strcmp(id,"name"))
-		xr_strcpy(ans,m_pPlayerInfo->getName());
-	else if (0 == xr_strcmp(id,"frags"))
+	if (0 == xr_strcmp(id,"frags"))
 		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->frags());
 	else if (0 == xr_strcmp(id,"deaths"))
 		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->m_iDeaths);

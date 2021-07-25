@@ -76,15 +76,6 @@ void faster_than_bullets_time::OnPlayerKilled(u16 killer_id, u16 target_id, u16 
 	CObject* victim_obj = Level().Objects.net_Find(target_id);
 	if (!victim_obj)
 		return;
-
-	last_hits_fetcher tmp_predicate			(victim_obj->cName(), tmp_local_player->getName());
-	buffer_vector<hits_store::bullet_hit>	tmp_hits_result(NULL, 0);
-	
-	if (m_owner->get_hits_store().fetch_hits(tmp_predicate, tmp_hits_result))
-	{
-		VERIFY(tmp_predicate.m_last_hit_time);
-		m_no_demag_time = Device.dwTimeGlobal - tmp_predicate.m_last_hit_time;
-	}
 }
 
 }//namespace award_system

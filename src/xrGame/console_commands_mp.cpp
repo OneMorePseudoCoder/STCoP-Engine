@@ -7,7 +7,6 @@
 #include "game_cl_mp.h"
 #include "actor.h"
 #include "xrServer_Object_base.h"
-#include "RegistryFuncs.h"
 #include "gamepersistent.h"
 #include "MainMenu.h"
 #include "UIGameCustom.h"
@@ -17,9 +16,6 @@
 #include "date_time.h"
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "string_table.h"
-#include "../xrGameSpy/xrGameSpy_MainDefs.h"
-#include "account_manager_console.h"
-#include "gamespy/GameSpy_GP.h"
 
 EGameIDs	ParseStringToGameType	(LPCSTR str);
 LPCSTR		GameTypeToString		(EGameIDs gt, bool bShort);
@@ -281,13 +277,6 @@ struct SearcherClientByName
 		if (!temp_client->ps)
 			return false;
 
-		STRCONCAT(tmp_player, temp_client->ps->getName());
-		xr_strlwr(tmp_player);
-
-		if (!xr_strcmp(player_name, tmp_player))
-		{
-			return true;
-		}
 		return false;
 	}
 };
@@ -308,13 +297,6 @@ public:
 			return;
 		}
 		string4096 PlayerName	= "";
-		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
-		if (xr_strlen(args)>max_name_length)
-		{
-			strncpy_s				(PlayerName, args, max_name_length);
-			PlayerName[max_name_length]		= 0;
-		}else
-			xr_strcpy(PlayerName, args);
 
 		xr_strlwr			(PlayerName);
 		IClient*	tmp_client = Level().Server->FindClient(SearcherClientByName(PlayerName));
@@ -975,14 +957,6 @@ public:
 			return;
 		}
 		string4096 PlayerName		= "";
-		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
-		if (xr_strlen(buff)>max_name_length)
-		{
-
-			strncpy_s				(PlayerName, buff, max_name_length);
-			PlayerName[max_name_length]		= 0;
-		}else
-			xr_strcpy				(PlayerName, buff);
 
 		xr_strlwr			(PlayerName);
 
@@ -1101,11 +1075,7 @@ public:
 				DWORD dwPort		= 0;
 				Level().Server->GetClientAddress(client->ID, Address, &dwPort);
 				string512 tmp_string;
-				xr_sprintf(tmp_string, "- (player session id : %u), (name : %s), (ip: %s), (ping: %u);",
-					client->ID.value(),
-					l_pC->ps->getName(),
-					Address.to_string().c_str(),
-					l_pC->ps->ping);
+
 				if (filter_string)
 				{
 					if (strstr(tmp_string, filter_string))
@@ -1151,7 +1121,6 @@ public:
 		if (!(&Game()))												return;
 		game_PlayerState* tmp_player = Game().local_player;
 		if (!tmp_player)											return;
-		xr_sprintf( S, "is \"%s\" ", tmp_player->getName());
 	}
 
 	virtual void	Save	(IWriter *F)	{}
@@ -1165,12 +1134,6 @@ public:
 		game_PlayerState* tmp_player = Game().local_player;
 		if (!tmp_player)			return;
 
-		if (tmp_player->m_account.is_online())
-		{
-			Msg("! Can't change name in online mode.");
-			return;
-		}
-
 		if (!xr_strlen(args)) return;
 		if (strchr(args, '/'))
 		{
@@ -1178,14 +1141,6 @@ public:
 			return;
 		}
 		string4096 NewName = "";
-		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
-		if (xr_strlen(args)>max_name_length)
-		{
-			strncpy_s(NewName, args, max_name_length);
-			NewName[max_name_length] = 0;
-		}
-		else
-			xr_strcpy(NewName, args);
 	
 		NET_Packet				P;
 		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);

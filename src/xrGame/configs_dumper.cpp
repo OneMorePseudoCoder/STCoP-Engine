@@ -159,7 +159,7 @@ void configs_dumper::sign_configs		()
 	game_cl_mp*	tmp_cl_game			= smart_cast<game_cl_mp*>(&Game());
 	R_ASSERT						(tmp_cl_game);
 	STRCONCAT						(tmp_player_name, "\"", 
-		tmp_cl_game->local_player ? tmp_cl_game->local_player->getName() : "unknown_just_connected",
+		"unknown_just_connected",
 		"\"");
 	LPCSTR		tmp_cdkey_digest	= Level().get_cdkey_digest().c_str();
 	if (!tmp_cdkey_digest)

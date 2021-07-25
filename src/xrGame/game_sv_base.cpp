@@ -73,13 +73,13 @@ LPCSTR				game_sv_GameState::get_name_it				(u32 it)
 LPCSTR				game_sv_GameState::get_name_id				(ClientID id)							
 {
 	xrClientData*	C	= (xrClientData*)m_server->ID_to_client	(id);
-	return C == NULL ? NULL : C->ps->getName();
+	return NULL;
 }
 
 LPCSTR				game_sv_GameState::get_player_name_id				(ClientID id)								
 {
 	xrClientData* xrCData	=	m_server->ID_to_client(id);
-	return xrCData == NULL ? "unknown" : xrCData->ps->getName();
+	return "unknown";
 }
 
 u32					game_sv_GameState::get_players_count		()
@@ -827,25 +827,9 @@ bool game_sv_GameState::CheckNewPlayer(xrClientData* CL)
 	
 	if (gs_server->IsPublicServer())
 	{
-		if (!CL->ps->m_account.is_online())
-		{
-			error_msg = "mp_please_login";
-		} else
-		{
-			if (FindPlayerName(CL->ps->getName(), CL))
-			{
-				error_msg = "mp_already_logged_in";
-			}
-		}
 	} else
 	{
-		if (CL->ps->m_account.is_online())
-		{
-			error_msg = "mp_use_offline_mode";
-		} else
-		{
 			CheckPlayerName(CL);
-		}
 	}
 
 	if (error_msg)
@@ -1246,14 +1230,7 @@ public:
 
 	inline bool operator()(IClient* client) const
 	{
-		if (client == m_exclude)
-			return false;
-
-		xrClientData* tmp_cl = static_cast<xrClientData*>(client);
-		if (!tmp_cl || !tmp_cl->ps)
-			return false;
-		
-		return (xr_strcmp(tmp_cl->ps->getName(), m_name) == 0);
+		return false;
 	}
 private:
 	char const *	m_name;
@@ -1301,28 +1278,15 @@ void game_sv_GameState::GenerateNewName			(char const * old_name, char * dest, u
 void game_sv_GameState::CheckPlayerName(xrClientData* CL)
 {
 	R_ASSERT	(CL && CL->ps);
-	R_ASSERT	(!CL->ps->m_account.is_online());
 
 	char const *	current_name = NULL;
-	if (CL->ps->m_account.name().size())	//in case of logging from gamespy login page
-	{
-		current_name = CL->ps->getName();
-	} else
-	{
-		current_name = CL->name.c_str();
-		CL->ps->m_account.set_player_name(current_name);
-	}
 	u32				current_name_length = xr_strlen(current_name);
-
-
 	u32				new_name_dest_size = current_name_length + 16;
-	char *			new_name_dest = static_cast<char*>(
-		_alloca(new_name_dest_size));
+	char *			new_name_dest = static_cast<char*>(_alloca(new_name_dest_size));
 
 	while (FindPlayerName(current_name, CL))
 	{
 		GenerateNewName(current_name, new_name_dest, new_name_dest_size);
-		CL->ps->m_account.set_player_name(new_name_dest);
 		current_name = new_name_dest;
 	}
 }

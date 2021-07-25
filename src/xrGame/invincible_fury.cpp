@@ -63,11 +63,9 @@ void player_state_invincible_fury::OnPlayerKilled(u16 killer_id, u16 target_id, 
 	if (killer_id != tmp_local_player->GameID)
 		return;
 
-	fury_killer tmp_predicate(tmp_local_player->getName(), Device.dwTimeGlobal - max_fury_time);
 	kills_store::kill					tmp_kills_store[kills_store::max_kills_count];
 	buffer_vector<kills_store::kill>	tmp_buffer(tmp_kills_store, kills_store::max_kills_count);
 
-	m_owner->get_kills_store().fetch_kills(tmp_predicate, tmp_buffer);
 	m_last_kills = 0;
 	for (buffer_vector<kills_store::kill>::const_iterator i = tmp_buffer.begin(),
 		ie = tmp_buffer.end(); i != ie; ++i)

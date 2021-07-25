@@ -5,7 +5,11 @@
 #include "pch_script.h"
 #include "script_export_space.h"
 #include "script_callback_ex.h"
-#include "mixed_delegate_unique_tags.h"
+
+enum enum_mixed_delegate_unique_tags
+{
+	mdut_no_unique_tag = 0x00,	//in this case you can have c2084 compile error
+}; //enum enum_mixed_delegate_unique_tags
 
 template<typename Signature, int UniqueTag = mdut_no_unique_tag>
 class mixed_delegate;

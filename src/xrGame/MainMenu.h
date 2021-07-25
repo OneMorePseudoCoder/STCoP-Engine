@@ -4,29 +4,12 @@ class CUIWindow;
 class CUIDialogWnd;
 class CUICursor;
 class CUIMessageBoxEx;
-class CGameSpy_HTTP;
-class CGameSpy_Full;
 
 #include "../xrEngine/IInputReceiver.h"
 #include "../xrEngine/IGame_Persistent.h"
 #include "UIDialogHolder.h"
 #include "ui/UIWndCallback.h"
 #include "ui_base.h"
-
-namespace gamespy_gp
-{
-
-class account_manager;
-class login_manager;
-
-} //namespace gamespy_gp
-namespace gamespy_profile
-{
-	class profile_store;
-	class stats_submitter;
-} //namespace gamespy_profile
-
-class atlas_submit_queue;
 
 class CMainMenu :
 	public IMainMenu,
@@ -57,36 +40,10 @@ class CMainMenu :
 
 
 	xr_vector<CUIWindow*>				m_pp_draw_wnds;
-public:
-	enum	EErrorDlg 
-	{
-		ErrInvalidPassword,
-		ErrInvalidHost,
-		ErrSessionFull,
-		ErrServerReject,
-		ErrCDKeyInUse,
-		ErrCDKeyDisabled,
-		ErrCDKeyInvalid,
-		ErrDifferentVersion,
-		ErrGSServiceFailed,
-		ErrMasterServerConnectFailed,
-		NoNewPatch,
-		NewPatchFound,
-		PatchDownloadError,
-		PatchDownloadSuccess,
-		ConnectToMasterServer,
-		SessionTerminate,
-		LoadingError,
-		DownloadMPMap,
-		ErrMax,
-		ErrNoError = ErrMax,
-	};
-	
+
 protected:
-	EErrorDlg		m_NeedErrDialog;	
 	u32				m_start_time;
 
-	xr_vector<CUIMessageBoxEx*>	m_pMB_ErrDlgs;
 	bool			ReloadUI						();
 public:
 	u32				m_deactivated_frame;
@@ -129,11 +86,6 @@ public:
 	void			RegisterPPDraw					(CUIWindow* w);
 	void			UnregisterPPDraw				(CUIWindow* w);
 
-	void			SetErrorDialog					(EErrorDlg ErrDlg);
-	EErrorDlg		GetErrorDialogType				() const { return m_NeedErrDialog; } ;
-	void			CheckForErrorDlg				();
-
-	void			OnSessionTerminate				(LPCSTR reason);
 	void			OnLoadError						(LPCSTR module);
 	void			SetNeedVidRestart				();
 	virtual void	OnDeviceReset					();

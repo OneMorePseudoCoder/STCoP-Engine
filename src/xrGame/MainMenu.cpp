@@ -11,38 +11,14 @@
 #include <dinput.h>
 #include "ui\UIBtnHint.h"
 #include "UICursor.h"
-#include "gamespy/CdkeyDecode/cdkeydecode.h"
 #include "string_table.h"
 #include "../xrCore/os_clipboard.h"
-
-#include "ui/UICDkey.h"
 
 #include <shellapi.h>
 
 #include "object_broker.h"
 
 #define GAME_VERSION "1.6.02"
-
-string128	ErrMsgBoxTemplate	[]	= {
-		"message_box_invalid_pass",
-		"message_box_invalid_host",
-		"message_box_session_full",
-		"message_box_server_reject",
-		"message_box_cdkey_in_use",
-		"message_box_cdkey_disabled",
-		"message_box_cdkey_invalid",
-		"message_box_different_version",
-		"message_box_gs_service_not_available",
-		"message_box_sb_master_server_connect_failed",
-		"msg_box_no_new_patch",
-		"msg_box_new_patch",
-		"msg_box_patch_download_error",		
-		"msg_box_patch_download_success",
-		"msg_box_connect_to_master_server",
-		"msg_box_kicked_by_server",
-		"msg_box_error_loading",
-		"message_box_download_level"
-};
 
 extern bool b_shniaganeed_pp;
 
@@ -66,20 +42,12 @@ CMainMenu::CMainMenu	()
 	
 	//-------------------------------------------
 
-	m_NeedErrDialog					= ErrNoError;
 	m_start_time					= 0;
 
 	if(!g_dedicated_server)
 	{
 		g_btnHint						= xr_new<CUIButtonHint>();
 		g_statHint						= xr_new<CUIButtonHint>();
-		
-		for (u32 i=0; i<u32(ErrMax); i++)
-		{
-			CUIMessageBoxEx*			pNewErrDlg;
-			INIT_MSGBOX					(pNewErrDlg, ErrMsgBoxTemplate[i]);
-			m_pMB_ErrDlgs.push_back		(pNewErrDlg);
-		}
 	}
 	
 	Device.seqFrame.Add		(this,REG_PRIORITY_LOW-1000);
@@ -92,8 +60,6 @@ CMainMenu::~CMainMenu	()
 	xr_delete						(g_statHint);
 	xr_delete						(m_startDialog);
 	g_pGamePersistent->m_pMainMenu	= NULL;
-	
-	delete_data						(m_pMB_ErrDlgs);	
 }
 
 void CMainMenu::ReadTextureInfo()
@@ -424,7 +390,6 @@ void CMainMenu::OnFrame()
 
 	if(IsActive())
 	{
-		CheckForErrorDlg();
 		bool b_is_16_9	= (float)Device.dwWidth/(float)Device.dwHeight > (UI_BASE_WIDTH/UI_BASE_HEIGHT+0.01f);
 		if(b_is_16_9 !=m_activatedScreenRatio)
 		{
@@ -475,45 +440,10 @@ void CMainMenu::UnregisterPPDraw				(CUIWindow* w)
 	);
 }
 
-void CMainMenu::SetErrorDialog					(EErrorDlg ErrDlg)	
-{ 
-	m_NeedErrDialog = ErrDlg;
-};
-
-void CMainMenu::CheckForErrorDlg()
-{
-	if (m_NeedErrDialog == ErrNoError)	return;
-	m_pMB_ErrDlgs[m_NeedErrDialog]->ShowDialog(false);
-	m_NeedErrDialog						= ErrNoError;
-};
-
 void CMainMenu::DestroyInternal(bool bForce)
 {
 	if(m_startDialog && ((m_deactivated_frame < Device.dwFrame+4)||bForce) )
 		xr_delete		(m_startDialog);
-}
-
-void	CMainMenu::OnSessionTerminate				(LPCSTR reason)
-{
-	if ( m_NeedErrDialog == SessionTerminate && (Device.dwTimeGlobal - m_start_time) < 8000 )
-		return;
-
-	m_start_time = Device.dwTimeGlobal;
-	CStringTable	st;
-	LPCSTR str = st.translate("ui_st_kicked_by_server").c_str();
-	LPSTR		text;
-
-	if ( reason && xr_strlen(reason) && reason[0] == '@' )
-	{
-		STRCONCAT( text, reason + 1 );
-	}
-	else
-	{
-		STRCONCAT( text, str, " ", reason );
-	}
-	
-	m_pMB_ErrDlgs[SessionTerminate]->SetText(st.translate(text).c_str());
-	SetErrorDialog(CMainMenu::SessionTerminate);
 }
 
 void	CMainMenu::OnLoadError				(LPCSTR module)
@@ -522,8 +452,6 @@ void	CMainMenu::OnLoadError				(LPCSTR module)
 	string1024 Text;
 	strconcat(sizeof(Text),Text,str," ");
 	xr_strcat(Text,sizeof(Text),module);
-	m_pMB_ErrDlgs[LoadingError]->SetText(Text);
-	SetErrorDialog(CMainMenu::LoadingError);
 }
 
 extern ENGINE_API string512  g_sLaunchOnExit_app;

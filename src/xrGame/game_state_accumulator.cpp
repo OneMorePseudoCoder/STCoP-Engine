@@ -303,7 +303,6 @@ bool game_state_accumulator::check_hit_params(u32 count,
 		return false;
 
 	hit_fetcher						tmp_fetcher;
-	tmp_fetcher.m_hitter_name		= m_local_player->getName();
 	tmp_fetcher.m_owner				= this;
 	tmp_fetcher.m_weapon_gid		= weapon_group_id;
 	tmp_fetcher.m_bone_gid			= bone_group_id;
@@ -363,7 +362,6 @@ bool game_state_accumulator::check_kill_params(u32 count,
 		return false;
 
 	kills_fetcher					tmp_predicate;
-	tmp_predicate.m_killer_name		= m_local_player->getName();
 	if (time_period == u32(-1))
 	{
 		tmp_predicate.m_after_time		= m_last_player_spawn_time;

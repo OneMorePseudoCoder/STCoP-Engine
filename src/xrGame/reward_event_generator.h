@@ -2,18 +2,13 @@
 #define REWARD_EVENT_GENERATOR_INCLUDED
 
 #include "game_cl_base_weapon_usage_statistic.h"
-#include "profile_data_types.h"
 #include <boost/noncopyable.hpp>
-
-class atlas_submit_queue;
 
 namespace award_system
 {
 
 class game_state_accumulator;
 class rewarding_state_events;
-class rewarding_event_handlers;
-class best_scores_helper;
 
 class reward_event_generator : public boost::noncopyable
 {
@@ -44,10 +39,6 @@ private:
 	game_PlayerState*						m_local_player;
 	game_state_accumulator*					m_state_accum;
 	rewarding_state_events*					m_state_event_checker;
-	
-	best_scores_helper*						m_best_scores_helper;
-
-	rewarding_event_handlers*				m_event_handlers;
 	
 	u32 const								m_max_rewards;
 	u32										m_rewarded;

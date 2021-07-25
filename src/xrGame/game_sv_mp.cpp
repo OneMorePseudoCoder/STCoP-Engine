@@ -21,7 +21,6 @@
 #include "xrGameSpyServer.h"
 
 #include "game_sv_mp_vote_flags.h"
-#include "player_name_modifyer.h"
 
 u32		g_dwMaxCorpses = 10;
 //-----------------------------------------------------------------
@@ -241,16 +240,9 @@ void	game_sv_mp::KillPlayer				(ClientID id_who, u16 GameID)
 	if (!pObject || !smart_cast<CActor*>(pObject)) return;
 	// Remove everything	
 	xrClientData* xrCData	=	m_server->ID_to_client(id_who);
-#ifdef DEBUG
-	if (xrCData && xrCData->ps && xrCData->ps->getName())
-		Msg("--- Killing player [%s]", xrCData->ps->getName());
-#endif // #ifdef DEBUG
 	
 	if (xrCData && xrCData->ps && xrCData->ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 	{
-#ifdef DEBUG
-		Msg("--- Killing dead player [%s]", xrCData->ps->getName());
-#endif // #ifdef DEBUG
 		return;
 	}
 	if (xrCData) 
@@ -999,11 +991,6 @@ struct SearcherClientByName
 	bool operator()(IClient* client)
 	{
 		xrClientData*	temp_client = smart_cast<xrClientData*>(client);
-
-		if (!xr_strcmp(player_name, temp_client->ps->getName()))
-		{
-			return true;
-		}
 		return false;
 	}
 };
@@ -1158,7 +1145,7 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 		m_voting_string = VoteCommand + 1;
 	}
 	P.w_stringZ(m_voting_string);
-	m_started_player = tmp_functor.pStartedPlayer ? tmp_functor.pStartedPlayer->ps->getName() : "";
+	m_started_player = "";
 	P.w_stringZ(m_started_player);
 	P.w_u32(u32(g_sv_mp_fVoteTime*60000));
 	u_EventSend(P);
@@ -1292,7 +1279,6 @@ void		game_sv_mp::OnPlayerEnteredGame		(ClientID id_who)
 	GenerateGameMessage (P);
 	P.w_u32				(GAME_EVENT_PLAYER_ENTERED_GAME);
 	VERIFY				( xrCData->ps);
-	P.w_stringZ			( xrCData->ps->getName());
 	u_EventSend(P);
 };
 
@@ -1415,7 +1401,7 @@ void game_sv_mp::OnPlayerKilled(NET_Packet P)
 #ifndef MASTER_GOLD
 		Msg("! ERROR:  killed entity is null ! (entitty [%d][%s]), killer id [%d][%s], Frame [%d]",
 			KilledID, entity ? entity->cName().c_str() : "unknown",
-			KillerID, ps_killer ? ps_killer->getName() : "unknown",
+			KillerID, "unknown",
 			Device.dwFrame);
 #endif // #ifndef MASTER_GOLD
 		return;
@@ -1933,11 +1919,8 @@ void game_sv_mp::DumpOnlineStatistic()
 
 void game_sv_mp::WritePlayerStats(CInifile& ini, LPCSTR sect, xrClientData* pCl)
 {
-	ini.w_string(sect,"player_name",	pCl->ps->getName());
-	if (pCl->ps->m_account.is_online())
-	{
-		ini.w_u32(sect,"player_profile_id",	pCl->ps->m_account.profile_id());
-	}
+	ini.w_string(sect,"player_name",	"");
+	ini.w_u32(sect,"player_profile_id",	0);
 	ini.w_u32	(sect,"player_team",	pCl->ps->team);
 	ini.w_u32	(sect,"kills_rival",	pCl->ps->m_iRivalKills);
 	ini.w_u32	(sect,"kills_self",		pCl->ps->m_iSelfKills);
@@ -1953,19 +1936,6 @@ void game_sv_mp::WritePlayerStats(CInifile& ini, LPCSTR sect, xrClientData* pCl)
 	ini.w_u32	(sect,"money",			pCl->ps->money_for_round);
 	ini.w_u32	(sect,"online_time_sec",(Level().timeServer()-pCl->ps->m_online_time)/1000);
 
-	if(Game().m_WeaponUsageStatistic->CollectData())
-	{
-		Player_Statistic& plstats		= *(Game().m_WeaponUsageStatistic->FindPlayer(pCl->ps->getName()));
-		u32 hs		= plstats.m_dwSpecialKills[0];
-		u32 bks		= plstats.m_dwSpecialKills[1];
-		u32 knf		= plstats.m_dwSpecialKills[2];
-		u32 es		= plstats.m_dwSpecialKills[3];
-
-		ini.w_u32	(sect,"headshots_kills",	hs);
-		ini.w_u32	(sect,"backstab_kills",		bks);
-		ini.w_u32	(sect,"knife_kills",		knf);
-		ini.w_u32	(sect,"eye_kills",			es);
-	}
 }
 
 void game_sv_mp::WriteGameState(CInifile& ini, LPCSTR sect, bool bRoundResult)
@@ -2140,9 +2110,6 @@ void game_sv_mp::DestroyAllPlayerItems(ClientID id_who)	//except rukzak
 		make_string("client (ClientID = 0x%08x) not found", id_who.value()).c_str());
 	VERIFY(xrCData->ps);
 	game_PlayerState*	ps	=	xrCData->ps;
-#ifndef MASTER_GOLD
-	Msg("---Destroying player [%s] items before spawning new bought items.", ps->getName());
-#endif // #ifndef MASTER_GOLD
 	
 	CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
 	if (!pActor)
@@ -2247,7 +2214,6 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 	string1024 received_name = "";
 	P.r_stringZ_s		(received_name);
 	string256 NewName;
-	modify_player_name	(received_name, NewName);
 
 	xrClientData*	pClient	= (xrClientData*)m_server->ID_to_client	(sender);
 	
@@ -2258,8 +2224,6 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 	xrGameSpyServer* sv = smart_cast<xrGameSpyServer*>( m_server );
 	if( sv && sv->IsPublicServer() )
 	{
-		Msg( "Player \"%s\" try to change name on \"%s\" at public server.", ps->getName(), NewName );
-
 		NET_Packet			P;
 		GenerateGameMessage (P);
 		P.w_u32				(GAME_EVENT_SERVER_STRING_MESSAGE);
@@ -2268,9 +2232,7 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 		return;
 	}
 
-	shared_str old_name = ps->getName();
 	pClient->name					= NewName;
-	ps->m_account.set_player_name	(NewName);
 	CheckPlayerName					(pClient);
 	
 	if (pClient->owner)
@@ -2280,16 +2242,11 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 		P.w_u32(GAME_EVENT_PLAYER_NAME);
 		P.w_u16(pClient->owner->ID);
 		P.w_s16(ps->team);
-		P.w_stringZ(old_name.c_str());
-		P.w_stringZ(ps->getName());
 		//---------------------------------------------------
 		real_sender tmp_functor(m_server, &P);
 		m_server->ForEachClientDoSender(tmp_functor);
 		//---------------------------------------------------
-		pClient->owner->set_name_replace(ps->getName());
 	};
-
-	Game().m_WeaponUsageStatistic->ChangePlayerName( old_name.c_str(), ps->getName() );
 
 	signal_Syncronize();
 };

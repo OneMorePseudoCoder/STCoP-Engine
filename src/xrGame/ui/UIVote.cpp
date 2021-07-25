@@ -83,16 +83,6 @@ void CUIVote::Update()
 	list[0]->Clear();
 	list[1]->Clear();
 	list[2]->Clear();
-
-	for (u32 i = 0; i<items.size(); i++){
-		game_PlayerState* p					= items[i];
-		if (p->m_bCurrentVoteAgreed == 1)
-			list[0]->AddTextItem(p->getName());
-		else if (p->m_bCurrentVoteAgreed == 0)
-			list[1]->AddTextItem(p->getName());
-		else
-			list[2]->AddTextItem(p->getName());
-	}
 }
 
 void CUIVote::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)

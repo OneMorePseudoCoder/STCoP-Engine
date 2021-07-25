@@ -128,11 +128,6 @@ void CUIMpPlayersAdm::FillPlayersList(u32 const)
 //		if(b->first!=Game().local_svdpnid)
 		{
 			string512 tmp_string;
-			xr_sprintf(	tmp_string, "%s, id:%u, ip:%s, ping:%u",
-						b->second->getName(),
-						b->first.value(),
-						b->second->m_player_ip.c_str(),
-						b->second->ping);
 
 			CUIListBoxItem* itm = m_pPlayersList->AddTextItem(tmp_string);
 			itm->SetTAG(b->first.value());

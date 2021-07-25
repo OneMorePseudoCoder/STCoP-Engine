@@ -60,12 +60,7 @@ void player_team_win_score::save_round_scores()
 		}break;
 	case eGameIDDeathmatch:
 		{
-			game_cl_Deathmatch* tmp_game		= smart_cast<game_cl_Deathmatch*>(Level().game);
-			if (!xr_strcmp(tmp_local_player->getName(), tmp_game->WinnerName))
-			{
-				m_win_score = tmp_local_player->m_iRivalKills;
-				return;
-			}
+
 		}break;
 	};//switch (Game().Type())
 	if (static_cast<ETeam>(m_player_team) == etGreenTeam)

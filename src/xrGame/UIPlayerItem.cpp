@@ -128,10 +128,7 @@ void UIPlayerItem::GetTextParamValue(game_PlayerState const * ps,
 									 buffer_vector<char> & dest)
 {
 	VERIFY(ps);
-	if (param_name.equal("mp_name"))
-	{
-		xr_strcpy(dest.begin(), dest.size(), ps->getName());
-	} else if (param_name.equal("mp_frags"))
+	if (param_name.equal("mp_frags"))
 	{
 		xr_sprintf(dest.begin(), dest.size(), "%d", ps->m_iRivalKills - ps->m_iSelfKills);
 	} else if (param_name.equal("mp_deaths"))

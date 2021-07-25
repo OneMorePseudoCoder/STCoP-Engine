@@ -405,7 +405,6 @@ u32 xrServer::OnDelayedMessage	(NET_Packet& P, ClientID sender)			// Non-Zero me
 			{
 				string1024			buff;
 				P.r_stringZ			(buff);
-				Msg("* Radmin [%s] is running command: %s", CL->ps->getName(), buff);
 				SetLogCB			(console_log_cb);
 				_tmp_log.clear		();
 				LPSTR		result_command;
@@ -612,7 +611,7 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 					if (static_cast<IClient*>(CL) != GetServerClient())
 					{
 						game_PlayerState* tmp_ps = CL->ps;
-						u32 tmp_pid = tmp_ps != NULL ? tmp_ps->m_account.profile_id() : 0;
+						u32 tmp_pid = 0;
 						Game().m_WeaponUsageStatistic->OnUpdateRespond(&P, CL->m_cdkey_digest, tmp_pid);
 					}
 				} else

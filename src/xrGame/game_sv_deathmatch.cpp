@@ -387,7 +387,6 @@ void	game_sv_Deathmatch::OnPlayerScores()
 	game_PlayerState* pWinner = GetWinningPlayer();
 	if (pWinner)
 	{
-		pWinnigPlayerName = pWinner->getName();
 		m_phase = GAME_PHASE_PLAYER_SCORES;
 		switch_Phase		(m_phase);
 		//OnDelayedRoundEn_d("Player Scores");
@@ -759,9 +758,6 @@ void game_sv_Deathmatch::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 {
 	VERIFY				(E);
 	u32		Team		= RP_2_Use(E);
-#ifdef DEBUG
-	Msg("--- Deathmatch RPoint for %s uses team %d", ps_who->getName(), Team);
-#endif // #ifdef DEBUG
 	VERIFY				(rpoints[Team].size());
 
 	CSE_Spectator		*pSpectator = smart_cast<CSE_Spectator*>(E);
@@ -1043,9 +1039,7 @@ void	game_sv_Deathmatch::SpawnWeaponsForActor(CSE_Abstract* pE, game_PlayerState
 	while (ps->pItemList.size())
 	{
 		u16 ItemID			= ps->pItemList.front();
-#ifdef DEBUG
-		Msg("--- Server: spawning item [%d] for actor [%s]", ItemID, ps->getName());
-#endif // #ifdef DEBUG
+
 		SpawnWeapon4Actor	(pA->ID, *m_strWeaponsData->GetItemName(ItemID& 0x00FF), u8((ItemID & 0xFF00)>>0x08), ps->pItemList);
 		//Game().m_WeaponUsageStatistic->OnWeaponBought(ps, *m_strWeaponsData->GetItemName(ItemID& 0x00FF));
 		R_ASSERT(ps->pItemList.size());
@@ -2219,7 +2213,7 @@ void game_sv_Deathmatch::WriteGameState(CInifile& ini, LPCSTR sect, bool bRoundR
 		game_PlayerState*	ps = GetWinningPlayer();
 		if(ps)
 		{
-			ini.w_string	(sect,"best_killer", ps->getName());
+			ini.w_string	(sect,"best_killer", "");
 		}
 	}
 	ini.w_s32			(sect,"timelimit_mins", GetTimeLimit());

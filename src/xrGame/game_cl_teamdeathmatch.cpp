@@ -156,17 +156,7 @@ void game_cl_TeamDeathmatch::TranslateGameMessage	(u32 msg, NET_Packet& P)
 
 			game_PlayerState* pPlayer = GetPlayerByGameID(PlayerID);
 			if (!pPlayer) break;
-
-			xr_sprintf(Text, "%s%s %s%s %s%s", 
-							CTeamInfo::GetTeam_color_tag(int(OldTeam)), 
-							pPlayer->getName(), 
-							Color_Main, 
-							*st.translate("mp_switched_to"),
-							CTeamInfo::GetTeam_color_tag(int(NewTeam)), 
-							CTeamInfo::GetTeam_name(int(NewTeam)));
 			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
-			//---------------------------------------
-			Msg("%s *s %s", pPlayer->getName(), *st.translate("mp_switched_to"), CTeamInfo::GetTeam_name(int(NewTeam)));
 		}break;
 
 	default:
@@ -551,7 +541,6 @@ void	game_cl_TeamDeathmatch::OnRender				()
 				VERIFY(pActor); 
 				Fvector IPos = pTS->IndicatorPos;
 				IPos.y -= pTS->Indicator_r2;
-				pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR);
 			}
 			if (m_bFriendlyIndicators)
 			{

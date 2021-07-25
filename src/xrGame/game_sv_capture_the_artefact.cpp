@@ -505,11 +505,6 @@ void game_sv_CaptureTheArtefact::OnPlayerReady(ClientID id_who)
 		}
 		//------------------------------------------------------------
 		
-		
-#ifndef MASTER_GOLD
-		VERIFY(xrCData->ps);
-		Msg("---Respawning player %s - he's ready", xrCData->ps->getName());
-#endif // #ifndef MASTER_GOLD
 		RespawnPlayer(id_who, false);
 		pOwner = xrCData->owner;
 		CSE_ALifeCreatureActor	*pA	=	smart_cast<CSE_ALifeCreatureActor*>(pOwner);
@@ -2027,10 +2022,6 @@ void game_sv_CaptureTheArtefact::RespawnClient(xrClientData const * pclient)
 {
 	if (pclient->ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 	{
-#ifndef MASTER_GOLD
-		VERIFY(pclient->ps);
-		Msg("---Respawning dead player [%s]", pclient->ps->getName());
-#endif // #ifndef MASTER_GOLD
 		RespawnPlayer(pclient->ID, true);
 		VERIFY(pclient->ps);
 		TGameIDToBoughtFlag::const_iterator buyer_iter = m_dead_buyers.find(pclient->ID);

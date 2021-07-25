@@ -30,7 +30,6 @@ void player_state_cherub::OnPlayerTakeArtefact	(game_PlayerState const * ps)
 		return;
 
 	m_bearer_id			= ps->GameID;
-	m_bearer_name		= ps->getName();
 	m_art_take_time		= Device.dwTimeGlobal;
 }
 
@@ -84,16 +83,12 @@ void player_state_cherub::OnPlayerKilled		(u16 killer_id, u16 target_id, u16 wea
 	if (m_bearer_id == u16(-1))
 		return;
 
-	if (m_bearer_name == tmp_player_state->getName())
-		return;
-
 	game_PlayerState* tmp_victim_player	= Game().GetPlayerByGameID(target_id);
 	if (!tmp_victim_player)
 		return;
 
 	hit_fetcher								tmp_fetcher;
 	tmp_fetcher.m_victim_name				= m_bearer_name;
-	tmp_fetcher.m_hitter_name				= tmp_victim_player->getName();
 	tmp_fetcher.m_art_take_time				= m_art_take_time;
 
 	buffer_vector<hits_store::bullet_hit>	tmp_fake_buffer(NULL, 0);

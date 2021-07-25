@@ -61,7 +61,6 @@ void player_state_avenger::OnPlayerKilled(u16 killer_id, u16 target_id, u16 weap
 
 	shared_str	team_players_store[MAX_PLAYERS_COUNT];
 	need_revenge						tmp_predicate(team_players_store, sizeof(team_players_store) / sizeof(shared_str));
-	tmp_predicate.m_killer_name			= tmp_victim->getName();
 
 	player_spawn_times_t::const_iterator tmp_spawn_time = m_player_spawns.find(
 		tmp_predicate.m_killer_name);
@@ -88,11 +87,6 @@ void player_state_avenger::feel_my_team_players(game_PlayerState const * of_play
 	{
 		if (i->second == tmp_local_player)
 			continue;
-
-		if (!m_owner->is_enemies(of_player, i->second))
-		{
-			dest.push_back(i->second->getName());
-		}
 	};
 }
 
@@ -103,11 +97,6 @@ void player_state_avenger::OnPlayerSpawned(game_PlayerState const * ps)
 	{
 		m_aveng_count = 0;
 		return;
-	}
-	if (tmp_local_player && m_owner->is_enemies(tmp_local_player, ps))
-	{
-		m_player_spawns.insert(
-			std::make_pair(shared_str(ps->getName()), Device.dwTimeGlobal));
 	}
 }
 

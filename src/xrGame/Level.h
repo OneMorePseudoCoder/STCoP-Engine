@@ -131,7 +131,6 @@ private:
     void UpdateDeltaUpd(u32 LastTime);
     void BlockCheatLoad();
     bool Connect2Server(const char* options);
-    void SendClientDigestToServer();
     shared_str m_client_digest;	// for screenshots
 
 public:
@@ -310,7 +309,6 @@ public:
 
 public:
     void remove_objects();
-    virtual void OnSessionTerminate(LPCSTR reason);
     file_transfer::client_site* m_file_transfer = nullptr;
     compression::ppmd_trained_stream* m_trained_stream = nullptr;
     compression::lzo_dictionary_buffer m_lzo_dictionary;

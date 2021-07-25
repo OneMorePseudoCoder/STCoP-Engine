@@ -46,9 +46,6 @@
 #include "character_hit_animations_params.h"
 #include "inventory_upgrade_manager.h"
 
-#include "GameSpy/GameSpy_Full.h"
-#include "GameSpy/GameSpy_Patching.h"
-
 #include "ai_debug_variables.h"
 #include "../xrphysics/console_vars.h"
 #ifdef DEBUG

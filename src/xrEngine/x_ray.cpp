@@ -66,7 +66,7 @@ static int start_year = 2019; // 1999
 
 #ifndef DEDICATED_SERVER
 
-#include "../xrGameSpy/gamespy/md5c.c"
+#include "md5.h"
 #include <ctype.h>
 
 //#include <wincodec.h>

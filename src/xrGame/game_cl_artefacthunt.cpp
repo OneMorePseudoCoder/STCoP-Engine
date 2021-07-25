@@ -185,12 +185,6 @@ void game_cl_ArtefactHunt::TranslateGameMessage	(u32 msg, NET_Packet& P)
 				m_reward_generator->OnPlayerTakeArtefact(pPlayer);
 
 			xr_sprintf(tmp, "%s%s", "%s%s %s", *st.translate("mp_has_tak_art"));
-
-			xr_sprintf(Text, tmp, 
-				CTeamInfo::GetTeam_color_tag(int(Team)), 
-				pPlayer->getName(), 
-				Color_Main,
-				Color_Artefact);
 			
 			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 
@@ -217,11 +211,6 @@ void game_cl_ArtefactHunt::TranslateGameMessage	(u32 msg, NET_Packet& P)
 
             xr_sprintf(tmp, "%s%s", "%s%s %s", *st.translate("mp_has_drop_art"));
 
-			xr_sprintf(Text, tmp, 
-				CTeamInfo::GetTeam_color_tag(int(Team)), 
-				pPlayer->getName(), 
-				Color_Main,
-				Color_Artefact);
 			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 
 //			pMessageSounds[0].play_at_pos(NULL, Fvector().set(0,0,0), sm_2D, 0);

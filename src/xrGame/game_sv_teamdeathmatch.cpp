@@ -263,7 +263,6 @@ void	game_sv_TeamDeathmatch::OnPlayerConnectFinished	(ClientID id_who)
 	// Send Message About Client join Team
 	GenerateGameMessage 		(P);
 	P.w_u32						(GAME_EVENT_PLAYER_JOIN_TEAM);
-	P.w_stringZ					(xrCData->ps->getName());
 	P.w_u16						(xrCData->ps->team);
 	u_EventSend					(P);
 
@@ -399,9 +398,6 @@ void game_sv_TeamDeathmatch::OnPlayerKillPlayer(game_PlayerState* ps_killer, gam
 					);
 					if (tmp_client)
 					{
-#ifdef DEBUG
-						Msg("--- Kicking player %s", tmp_client->ps->getName());
-#endif
 						LPSTR	reason;
 						STRCONCAT( reason, CStringTable().translate("st_kicked_by_server").c_str() );
 						m_server->DisconnectClient( tmp_client, reason );

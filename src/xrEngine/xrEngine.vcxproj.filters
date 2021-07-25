@@ -624,6 +624,7 @@
     <ClInclude Include="CPU\PLC.h">
       <Filter>CPU</Filter>
     </ClInclude>
+    <ClInclude Include="md5.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="defines.cpp">
@@ -969,6 +970,7 @@
       <Filter>OpenAutomate</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sdk\include\OpenAutomate\src\OpenAutomate.c" />
+    <ClCompile Include="md5c.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">

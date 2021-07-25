@@ -12,7 +12,6 @@
 #include "MainMenu.h"
 #include "string_table.h"
 #include "UIGameCustom.h"
-#include "ui/UICDkey.h"
 
 int		g_cl_save_demo = 0;
 extern XRCORE_API bool g_allow_heap_min;
@@ -34,12 +33,8 @@ bool CLevel::net_Start(const char* op_server, const char* op_client)
 	pApp->LoadBegin				();
 
 	string64	player_name;
-	GetPlayerName_FromRegistry( player_name, sizeof(player_name) );
-
-	if ( xr_strlen(player_name) == 0 )
-	{
-		xr_strcpy( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
-	}
+	xr_strcpy( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
+	
 	VERIFY( xr_strlen(player_name) );
 
 	//make Client Name if options doesn't have it
@@ -111,7 +106,7 @@ bool CLevel::net_start1				()
 
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
-		// Connect
+		// Connect  - ???
 		if (!xr_strcmp(p.m_game_type,"single"))
 		{
 			Server					= xr_new<xrServer>();

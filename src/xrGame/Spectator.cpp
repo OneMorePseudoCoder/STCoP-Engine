@@ -536,10 +536,6 @@ bool			CSpectator::SelectNextPlayerToLook	(bool const search_next)
 		if (!pObject) continue;
 		CActor* A = smart_cast<CActor*>(pObject);
 		if (!A) continue;
-		if (m_last_player_name.size() && (m_last_player_name == ps->getName()))
-		{
-			last_player_idx		= PPCount;
-		}
 		PossiblePlayers[PPCount++] = A;
 	};
 	if (!search_next)
@@ -559,8 +555,7 @@ bool			CSpectator::SelectNextPlayerToLook	(bool const search_next)
 		look_idx %= PPCount;
 		m_pActorToLookAt = PossiblePlayers[look_idx];
 		game_PlayerState* tmp_state = Game().GetPlayerByGameID(m_pActorToLookAt->ID());
-		if (tmp_state)
-			m_last_player_name = tmp_state->getName();
+
 		return true;
 	};
 	return false;
