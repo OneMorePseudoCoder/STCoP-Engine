@@ -540,11 +540,6 @@ copy /Y "$(xrSdkDir)binaries\x64\BugTrap-x64.dll" "$(OutputPath)BugTrap-x64.dll"
     <Image Include="stcop engine splash.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="My Amplifier Results\r000hs\r000hs.ampl" />
-    <None Include="My Amplifier Results\r001hs\r001hs.ampl" />
-    <None Include="My Amplifier Results\r002cc\r002cc.ampl" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="ClientServer.txt" />
     <Text Include="Effects description.txt" />
     <Text Include="features.txt" />

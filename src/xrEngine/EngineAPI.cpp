@@ -6,8 +6,6 @@
 #include "EngineAPI.h"
 #include "../xrcdb/xrXRC.h"
 
-#include "securom_api.h"
-
 extern xr_token* vid_quality_token;
 
 //////////////////////////////////////////////////////////////////////
@@ -49,22 +47,16 @@ ENGINE_API bool is_enough_address_space_available()
 {
     SYSTEM_INFO system_info;
 
-    SECUROM_MARKER_HIGH_SECURITY_ON(12)
+    GetSystemInfo(&system_info);
 
-        GetSystemInfo(&system_info);
-
-    SECUROM_MARKER_HIGH_SECURITY_OFF(12)
-
-        return (*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
+    return (*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
 
 #ifndef DEDICATED_SERVER
 
 void CEngineAPI::InitializeNotDedicated()
 {
-    SECUROM_MARKER_HIGH_SECURITY_ON(2)
-
-        LPCSTR r2_name = "xrRender_R2.dll";
+    LPCSTR r2_name = "xrRender_R2.dll";
     LPCSTR r3_name = "xrRender_R3.dll";
     LPCSTR r4_name = "xrRender_R4.dll";
 
@@ -111,8 +103,6 @@ void CEngineAPI::InitializeNotDedicated()
         else
             g_current_renderer = 2;
     }
-
-    SECUROM_MARKER_HIGH_SECURITY_OFF(2)
 }
 #endif // DEDICATED_SERVER
 
