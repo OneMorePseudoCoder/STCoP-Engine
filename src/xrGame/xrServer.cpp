@@ -981,7 +981,6 @@ void xrServer::AddDelayedPacket	(NET_Packet& Packet, ClientID Sender)
 	DelayedPackestCS.Leave();
 }
 
-u32 g_sv_dwMaxClientPing		= 2000;
 u32 g_sv_time_for_ping_check	= 15000;// 15 sec
 u8	g_sv_maxPingWarningsCount	= 5;
 
@@ -1002,41 +1001,12 @@ void xrServer::PerformCheckClientsForMaxPing()
 			
 			if (client == m_owner->GetServerClient())
 				return;
-
-			if(	ps->ping > g_sv_dwMaxClientPing && 
-				Client->m_ping_warn.m_dwLastMaxPingWarningTime+g_sv_time_for_ping_check < Device.dwTimeGlobal )
-			{
-				++Client->m_ping_warn.m_maxPingWarnings;
-				Client->m_ping_warn.m_dwLastMaxPingWarningTime	= Device.dwTimeGlobal;
-				
-				if(Client->m_ping_warn.m_maxPingWarnings >= g_sv_maxPingWarningsCount)
-				{  //kick
-					LPSTR	reason;
-					STRCONCAT( reason, CStringTable().translate("st_kicked_by_server").c_str() );
-					Level().Server->DisconnectClient( Client, reason );
-				}
-				else
-				{ //send warning
-					NET_Packet		P;	
-					P.w_begin		(M_CLIENT_WARN);
-					P.w_u8			(1); // 1 means max-ping-warning
-					P.w_u16			(ps->ping);
-					P.w_u8			(Client->m_ping_warn.m_maxPingWarnings);
-					P.w_u8			(g_sv_maxPingWarningsCount);
-					m_owner->SendTo	(Client->ID,P,net_flags(FALSE,TRUE));
-				}
-			}
 		}
 	};
 	MaxPingClientDisconnector temp_functor(this);
 	ForEachClientDoSender(temp_functor);
 }
 
-extern	s32		g_sv_dm_dwFragLimit;
-extern  s32		g_sv_ah_dwArtefactsNum;
-extern	s32		g_sv_dm_dwTimeLimit;
-extern	int		g_sv_ah_iReinforcementTime;
-extern	int		g_sv_mp_iDumpStatsPeriod;
 extern	BOOL	g_bCollectStatisticData;
 
 //xr_token game_types[];
@@ -1053,51 +1023,12 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 //	xr_strcpy( tmp256, get_token_name(game_types, game->Type() ) );
 	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
-	if ( game->Type() == eGameIDDeathmatch || game->Type() == eGameIDTeamDeathmatch )
-	{
-		xr_strcat( tmp256, " [" );
-		xr_strcat( tmp256, itoa( g_sv_dm_dwFragLimit, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
-	}
-	else if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
-	{
-		xr_strcat( tmp256, " [" );
-		xr_strcat( tmp256, itoa( g_sv_ah_dwArtefactsNum, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
-		g_sv_ah_iReinforcementTime;
-	}
-	
-	//if ( g_sv_dm_dwTimeLimit > 0 )
-	{
-		xr_strcat( tmp256, " time limit [" );
-		xr_strcat( tmp256, itoa( g_sv_dm_dwTimeLimit, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
-	}
-	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
-	{
-		xr_strcat( tmp256, " RT [" );
-		xr_strcat( tmp256, itoa( g_sv_ah_iReinforcementTime, tmp, 10 ) );
-		xr_strcat( tmp256, "]" );
-	}
+
 	si->AddItem( "Game type", tmp256, RGB(128,255,255) );
 
 	if ( g_pGameLevel )
 	{
 		time = InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str();
-		
-		xr_strcpy( tmp256, time );
-		if ( g_sv_mp_iDumpStatsPeriod > 0 )
-		{
-			xr_strcat( tmp256, " statistic [" );
-			xr_strcat( tmp256, itoa( g_sv_mp_iDumpStatsPeriod, tmp, 10 ) );
-			xr_strcat( tmp256, "]" );
-			if ( g_bCollectStatisticData )
-			{
-				xr_strcat( tmp256, "[weapons]" );
-			}
-			
-		}
-		si->AddItem( "Game time", tmp256, RGB(205,228,178) );
 	}
 }
 

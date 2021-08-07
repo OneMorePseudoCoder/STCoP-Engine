@@ -94,8 +94,6 @@ public:
 	virtual		void				OnPrevMap				()									{}
 	virtual		bool				SwitchToNextMap			()	{ return m_bMapNeedRotation; };
 	
-	virtual		BOOL				IsVotingEnabled			();
-	virtual		BOOL				IsVotingEnabled			(u16 flag);
 	virtual		bool				IsVotingActive			()	{ return false; };
 	virtual		void				SetVotingActive			( bool Active )	{ };
 	virtual		void				OnVoteStart				(LPCSTR VoteCommand, ClientID sender)			{};

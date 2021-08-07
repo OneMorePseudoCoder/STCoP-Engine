@@ -147,11 +147,9 @@ void server_updates_compressor::deinit_compression()
 void server_updates_compressor::begin_updates()
 {
 	m_current_update = 0;
-	if ((g_sv_traffic_optimization_level & eto_ppmd_compression) ||
-		(g_sv_traffic_optimization_level & eto_lzo_compression))
+	if (eto_ppmd_compression || eto_lzo_compression)
 	{
 		m_ready_for_send.front()->w_begin(M_COMPRESSED_UPDATE_OBJECTS);
-		m_ready_for_send.front()->w_u8(static_cast<u8>(g_sv_traffic_optimization_level));
 		m_acc_buff.write_start();
 	} else
 	{
@@ -180,10 +178,9 @@ NET_Packet*	server_updates_compressor::goto_next_dest()
 		new_dest = m_ready_for_send[m_current_update];
 	}
 
-	if (g_sv_traffic_optimization_level & eto_ppmd_compression)
+	if (eto_ppmd_compression)
 	{
 		new_dest->w_begin(M_COMPRESSED_UPDATE_OBJECTS);
-		m_ready_for_send.front()->w_u8(static_cast<u8>(g_sv_traffic_optimization_level));
 	} else
 	{
 		new_dest->write_start();
@@ -195,12 +192,11 @@ NET_Packet*	server_updates_compressor::goto_next_dest()
 void server_updates_compressor::flush_accumulative_buffer()
 {
 	NET_Packet*	dst_packet = get_current_dest();
-	if ((g_sv_traffic_optimization_level & eto_ppmd_compression) ||
-		(g_sv_traffic_optimization_level & eto_lzo_compression))
+	if (eto_ppmd_compression || eto_lzo_compression)
 	{
 		Device.Statistic->netServerCompressor.Begin();
 		R_ASSERT(m_trained_stream);
-		if (g_sv_traffic_optimization_level & eto_ppmd_compression)
+		if (eto_ppmd_compression)
 		{
 			m_compress_buf.B.count = ppmd_trained_compress(
 				m_compress_buf.B.data,
@@ -244,15 +240,13 @@ void server_updates_compressor::flush_accumulative_buffer()
 
 void server_updates_compressor::write_update_for(u16 const enity, NET_Packet & update)
 {
-	if (g_sv_traffic_optimization_level & eto_last_change)
+	if (eto_last_change)
 	{
-		//if (m_updates_cache.get_last_equpdates(enity, update) >= max_eq_packets)
 		if (m_updates_cache.add_update(enity, update) >= max_eq_packets)
 		{
 			return;
 		}
 	}
-	//(sizeof(u16)*2 + 1) ::= w_begin(2) + compress_type(1) + zero_end(2)
 	if (m_acc_buff.w_tell() + update.w_tell() + (sizeof(u16)*2 + 1) >= sizeof(m_acc_buff.B.data))
 	{
 		flush_accumulative_buffer();
@@ -266,8 +260,7 @@ void server_updates_compressor::end_updates(send_ready_updates_t::const_iterator
 	if (m_acc_buff.w_tell() > 2)
 		flush_accumulative_buffer();
 	
-	if ((g_sv_traffic_optimization_level & eto_ppmd_compression) ||
-		(g_sv_traffic_optimization_level & eto_lzo_compression))
+	if (eto_ppmd_compression ||	eto_lzo_compression)
 	{
 		get_current_dest()->w_u16(0);
 	}

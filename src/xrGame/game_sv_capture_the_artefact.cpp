@@ -33,48 +33,10 @@ u32			g_sv_cta_PlayerScoresDelayTime	=		3;	//3 seconds
 float		g_sv_cta_artefactsBaseRadius	=		1.0f;
 u32			g_sv_cta_rankUpToArtsCountDiv	=		1;
 //-------------------------------------------------------------
-extern	BOOL		g_sv_dm_bAnomaliesEnabled;
-extern	u32			g_sv_dm_dwAnomalySetLengthTime;
-extern	BOOL		g_sv_dm_bPDAHunt;
-extern	BOOL		g_sv_dm_bDamageBlockIndicators;
-extern	u32			g_sv_dm_dwWarmUp_MaxTime;
-extern	s32			g_sv_dm_dwTimeLimit;
-//-------------------------------------------------------------
-extern	BOOL		g_sv_tdm_bAutoTeamBalance;
-extern	BOOL		g_sv_tdm_bAutoTeamSwap;
-extern	BOOL		g_sv_tdm_bFriendlyIndicators;
-extern	BOOL		g_sv_tdm_bFriendlyNames;
-extern	float		g_sv_tdm_fFriendlyFireModifier;
-//-------------------------------------------------------------
-extern	int			g_sv_tdm_iTeamKillLimit;
-extern	int			g_sv_tdm_bTeamKillPunishment;
-//-------------------------------------------------------
-extern	int			g_sv_ah_iReinforcementTime;
-extern	BOOL		g_sv_ah_bBearerCantSprint;
-extern	int			g_sv_ah_dwArtefactsNum;
-extern	BOOL		g_sv_ah_bBearerCantSprint;
-//-------------------------------------------------------
-BOOL	game_sv_CaptureTheArtefact::isAnomaliesEnabled				() {return g_sv_dm_bAnomaliesEnabled;};
-BOOL	game_sv_CaptureTheArtefact::isPDAHuntEnabled				() {return g_sv_dm_bPDAHunt;};
 u32		game_sv_CaptureTheArtefact::Get_InvincibilityTime_msec		() {return g_sv_cta_dwInvincibleTime * 1000;};
-u32		game_sv_CaptureTheArtefact::Get_AnomalySetLengthTime_msec	() {return g_sv_dm_dwAnomalySetLengthTime * 60 * 1000;};
 u32		game_sv_CaptureTheArtefact::Get_ArtefactReturningTime_msec	() {return g_sv_cta_artefactReturningTime * 1000;};
 u32		game_sv_CaptureTheArtefact::Get_ActivatedArtefactRet		() {return g_sv_cta_activatedArtefactRet;};	
 u32		game_sv_CaptureTheArtefact::Get_PlayerScoresDelayTime_msec	() {return g_sv_cta_PlayerScoresDelayTime * 1000;};
-
-BOOL	game_sv_CaptureTheArtefact::isFriendlyFireEnabled	()	{return (int(g_sv_tdm_fFriendlyFireModifier*100.0f) > 0);};
-float	game_sv_CaptureTheArtefact::GetFriendlyFire			()	{return (int(g_sv_tdm_fFriendlyFireModifier*100.0f) > 0) ? g_sv_tdm_fFriendlyFireModifier : 0.0f;};
-int		game_sv_CaptureTheArtefact::Get_TeamKillLimit		()	{return g_sv_tdm_iTeamKillLimit;};
-BOOL	game_sv_CaptureTheArtefact::Get_TeamKillPunishment	()	{return g_sv_tdm_bTeamKillPunishment;};
-BOOL	game_sv_CaptureTheArtefact::Get_FriendlyIndicators	()	{return g_sv_tdm_bFriendlyIndicators	; };
-BOOL	game_sv_CaptureTheArtefact::Get_FriendlyNames		()	{return g_sv_tdm_bFriendlyNames			; };
-int		game_sv_CaptureTheArtefact::Get_ReinforcementTime_msec	() {return g_sv_ah_iReinforcementTime ? g_sv_ah_iReinforcementTime * 1000 : 1000; };
-s32		game_sv_CaptureTheArtefact::Get_ScoreLimit				() {return g_sv_ah_dwArtefactsNum; };
-BOOL	game_sv_CaptureTheArtefact::Get_BearerCanSprint			() {return !g_sv_ah_bBearerCantSprint; };
-u32		game_sv_CaptureTheArtefact::GetWarmUpTime				() {return g_sv_dm_dwWarmUp_MaxTime; };
-s32		game_sv_CaptureTheArtefact::GetTimeLimit				() {return g_sv_dm_dwTimeLimit; };
-
-
 
 game_sv_CaptureTheArtefact::game_sv_CaptureTheArtefact()
 {
@@ -122,15 +84,6 @@ void game_sv_CaptureTheArtefact::Update()
 			{
 				SM_CheckViewSwitching();
 			}
-
-			if (Get_ReinforcementTime_msec())
-			{
-				if (nextReinforcementTime <= currentTime)
-				{
-					RespawnDeadPlayers();
-					nextReinforcementTime = currentTime + Get_ReinforcementTime_msec();
-				}
-			}
 			if (CheckForRoundEnd())
 			{
 				DumpRoundStatisticsAsync();
@@ -146,18 +99,6 @@ void game_sv_CaptureTheArtefact::Update()
 			{
 				if (CheckForAllPlayersReady())
 				{
-					if (HasMapRotation() && SwitchToNextMap())
-					{
-						if (g_sv_tdm_bAutoTeamSwap && teams_swaped)
-						{
-							OnNextMap();
-							break;
-						} else if (!g_sv_tdm_bAutoTeamSwap)
-						{
-							OnNextMap();
-							break;
-						}
-					}
 					OnRoundStart();
 				} else if (CheckForRoundStart())
 				{
@@ -313,18 +254,13 @@ void game_sv_CaptureTheArtefact::net_Export_State(NET_Packet& P, ClientID id_to)
 	P.w_vec3(greenTeam.artefactRPoint.P);
 	P.w_vec3(blueTeam.artefactRPoint.P);
 
-	P.w_s32(Get_ScoreLimit());
 	P.w_s32(greenTeam.score);
 	P.w_s32(blueTeam.score);
 
-	P.w_u8			(u8(Get_FriendlyIndicators()));
-	P.w_u8			(u8(Get_FriendlyNames()));
-	P.w_u8			(u8(Get_BearerCanSprint()));
 	P.w_u8			(u8(Get_ActivatedArtefactRet() != 0));
 	P.w_float		(g_sv_cta_artefactsBaseRadius);
 
 	P.w_u8			(u8(m_bInWarmUp));
-	P.w_s16			(static_cast<s16>(GetTimeLimit()));
 }
 void game_sv_CaptureTheArtefact::net_Export_Update(NET_Packet& P, ClientID id_to, ClientID id)
 {
@@ -336,7 +272,6 @@ void game_sv_CaptureTheArtefact::net_Export_Update(NET_Packet& P, ClientID id_to
 	{
 		P.w_u32(nextReinforcementTime - currentTime);
 	}
-	P.w_u32(Get_ReinforcementTime_msec());
 	P.w_u32(m_dwWarmUp_CurTime);
 	//P.w_u8(u8(m_bInWarmUp)); in net_Export_State
 }
@@ -495,16 +430,6 @@ void game_sv_CaptureTheArtefact::OnPlayerReady(ClientID id_who)
 			return;
 		}
 		
-		// it's a fake :(
-		if (!ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) ||
-			(Get_ReinforcementTime_msec() == 0) || 
-			ps->IsSkip()
-			)
-		{
-			return;
-		}
-		//------------------------------------------------------------
-		
 		RespawnPlayer(id_who, false);
 		pOwner = xrCData->owner;
 		CSE_ALifeCreatureActor	*pA	=	smart_cast<CSE_ALifeCreatureActor*>(pOwner);
@@ -575,28 +500,12 @@ void game_sv_CaptureTheArtefact::OnRoundStart()
 	//warmap times
 	m_dwWarmUp_CurTime				= 0;
 	m_bInWarmUp						= false;
-	if (!m_bFastRestart)
-	{
-		if (GetWarmUpTime() != 0)
-		{
-			m_dwWarmUp_CurTime = Level().timeServer() + GetWarmUpTime()*1000;
-			m_bInWarmUp = true;
-		}
-	}
 
 	bool m_bFastRestartBefore = m_bFastRestart; //fake, because next inherited::OnRoundStart() sets it to false :(
 	inherited::OnRoundStart	();
 	roundStarted			= TRUE;
 	// Respawn all players and some info
-		
-	if ((round_end_reason != eRoundEnd_Force) && (round_end_reason != eRoundEnd_GameRestartedFast))
-	{
-		if (g_sv_tdm_bAutoTeamSwap)
-			SwapTeams();
 	
-		if (g_sv_tdm_bAutoTeamBalance)
-			BalanceTeams();
-	}
 	if (round_end_reason == eRoundEnd_GameRestarted)
 	{
 		teams_swaped = false;
@@ -638,9 +547,6 @@ void game_sv_CaptureTheArtefact::OnRoundStart()
 	if (m_bFastRestartBefore)
 	{
 		nextReinforcementTime = Level().timeServer();
-	} else
-	{
-		nextReinforcementTime = Level().timeServer() + (Get_ReinforcementTime_msec() / 5);
 	}
 	ReSpawnArtefacts();
 	LoadAnomalySet();
@@ -1081,9 +987,6 @@ void game_sv_CaptureTheArtefact::ReStartRandomAnomaly()
 	VERIFY(m_AnomalySet.size() > to_start);
 
 	StopPreviousAnomalies();
-	if (isAnomaliesEnabled())
-		m_AnomalySet[to_start].second = 1;
-	
 
 	SendAnomalyStates();
 #ifdef DEBUG
@@ -1141,8 +1044,7 @@ void game_sv_CaptureTheArtefact::SendAnomalyStates()
 
 void game_sv_CaptureTheArtefact::CheckAnomalyUpdate(u32 currentTime)
 {
-	if ((m_dwLastAnomalyStartTime + Get_AnomalySetLengthTime_msec()) <= currentTime)
-		ReStartRandomAnomaly();
+
 }
 
 
@@ -1346,39 +1248,6 @@ bool game_sv_CaptureTheArtefact::OnKillResult(KILL_RES KillResult, game_PlayerSt
 			};
 			++pKiller->m_iTeamKills;
 			pKiller->m_iKillsInRowMax = 0;
-			//Check for TeamKill
-			if (Get_TeamKillPunishment())
-			{
-				if (pKiller->m_iTeamKills >= Get_TeamKillLimit())
-				{
-					struct killer_searcher
-					{
-						game_PlayerState* pKiller;
-						IClient* ServerClient;
-						bool operator()(IClient* client)
-						{
-							xrClientData*	pCL = static_cast<xrClientData*>(client);
-							if (!pCL || pCL == ServerClient)
-								return false;
-							
-							if (!pCL->ps || pCL->ps != pKiller)
-								return false;
-							
-							return true;
-						}
-					};
-					killer_searcher tmp_predicate;
-					tmp_predicate.pKiller = pKiller;
-					tmp_predicate.ServerClient = m_server->GetServerClient();
-					IClient* tmp_client = m_server->FindClient(tmp_predicate);
-					if (tmp_client)
-					{
-						LPSTR	reason;
-						STRCONCAT( reason, CStringTable().translate("st_kicked_by_server").c_str() );
-						m_server->DisconnectClient( tmp_client, reason );
-					}
-				}
-			}
 		}
 	default:
 		{
@@ -1499,16 +1368,6 @@ void game_sv_CaptureTheArtefact::OnPlayerHitPlayer_Case(
 		SHit* pHitS
 	)
 {
-	//if (pHitS->hit_type != ALife::eHitTypePhysicStrike)
-	//{
-		if (ps_hitter && ps_hitted)
-		{
-			if (ps_hitter->team == ps_hitted->team && ps_hitter != ps_hitted)
-			{
-				pHitS->power *= GetFriendlyFire();
-				pHitS->impulse *= (GetFriendlyFire()>1.0f) ? GetFriendlyFire() : 1.0f;
-			}
-		}
 		if (ps_hitted->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
 		{
 			pHitS->power = 0;
@@ -1758,10 +1617,6 @@ BOOL game_sv_CaptureTheArtefact::OnTouchItem(CSE_ActorMP *actor, CSE_Abstract *i
 		//-------------------------------
 		//destroy the BAG
 		DestroyGameItem(item);
-		if (isPDAHuntEnabled() && actor->owner && actor->owner->ps)
-		{
-			Player_AddBonusMoney(actor->owner->ps, READ_IF_EXISTS(pSettings, r_s32, "mp_bonus_money", "pda_taken",0), SKT_PDA);
-		};
 				
 		//-------------------------------
 		return FALSE;
@@ -2317,22 +2172,7 @@ BOOL game_sv_CaptureTheArtefact::CheckForRoundEnd()
 {
 	VERIFY(TeamList.size() >= 2);
 	if (m_dwWarmUp_CurTime != 0 || m_bInWarmUp) return FALSE;
-	if ((teams[etGreenTeam].score >= Get_ScoreLimit()) ||
-		(teams[etBlueTeam].score >= Get_ScoreLimit()))
-	{
-		round_end_reason = eRoundEnd_ArtrefactLimit;
-		return TRUE;
-	}
-	if (!GetTimeLimit())
-		return FALSE;
-	if ( (Level().timeServer() - StartTime()) > u32(GetTimeLimit()*60000) )
-	{
-		if (teams[etGreenTeam].score != teams[etBlueTeam].score)
-		{
-			round_end_reason = eRoundEnd_TimeLimit;
-			return TRUE;
-		}
-	}
+	
 	return FALSE;
 }
 
@@ -2452,29 +2292,7 @@ void game_sv_CaptureTheArtefact::ReadOptions(shared_str &options)
 {
 	inherited::ReadOptions(options);
 	
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	g_sv_dm_bAnomaliesEnabled = (get_option_i(*options,"ans", (isAnomaliesEnabled() ? 1 : 0)) != 0);
-	g_sv_dm_dwAnomalySetLengthTime = get_option_i(*options, "anslen", g_sv_dm_dwAnomalySetLengthTime); //in (min)
-	g_sv_dm_bPDAHunt = (get_option_i(*options,"pdahunt", (isPDAHuntEnabled() ? 1 : 0)) != 0);
-	g_sv_dm_bDamageBlockIndicators =	(get_option_i(*options,"dmbi",(g_sv_dm_bDamageBlockIndicators ? 1 : 0)) != 0);
-	g_sv_dm_dwWarmUp_MaxTime = get_option_i(*options,"warmup",g_sv_dm_dwWarmUp_MaxTime);
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	
 	//-------------------------------------------------------------------------
-	g_sv_tdm_bAutoTeamBalance		= get_option_i(*options, "abalance",	(g_sv_tdm_bAutoTeamBalance		 ? 1 : 0)) != 0;
-	g_sv_tdm_bAutoTeamSwap			= get_option_i(*options,"aswap",		(g_sv_tdm_bAutoTeamSwap		 ? 1 : 0)) != 0;
-	g_sv_tdm_bFriendlyIndicators	= get_option_i(*options,"fi",			(g_sv_tdm_bFriendlyIndicators	 ? 1 : 0)) != 0;
-	g_sv_tdm_bFriendlyNames			= get_option_i(*options,"fn",			(g_sv_tdm_bFriendlyNames		 ? 1 : 0)) != 0;
-
-	float fFF = get_option_f		(*options,"ffire",g_sv_tdm_fFriendlyFireModifier);
-	g_sv_tdm_fFriendlyFireModifier	= fFF;
-	//-------------------------------------------------------------------------
-	g_sv_ah_dwArtefactsNum					= get_option_i(*options,"anum",g_sv_ah_dwArtefactsNum);
-	//----------------------------------------------------------------------------
-	g_sv_ah_iReinforcementTime				= get_option_i(*options,"reinf",g_sv_ah_iReinforcementTime);
-	if (g_sv_ah_iReinforcementTime <= 0)
-		g_sv_ah_iReinforcementTime = 1;
-	//----------------------------------------------------------------------------
 	g_sv_cta_dwInvincibleTime	= get_option_i		(*options,"dmgblock",	g_sv_cta_dwInvincibleTime);	// in (sec)
 	g_sv_cta_artefactReturningTime	= get_option_i	(*options,"artrettime",	g_sv_cta_artefactReturningTime);	// in (sec)
 	g_sv_cta_activatedArtefactRet = get_option_i(*options,"actret",	g_sv_cta_activatedArtefactRet);	// in (sec)
@@ -2556,9 +2374,6 @@ void game_sv_CaptureTheArtefact::WriteGameState(CInifile& ini, LPCSTR sect, bool
 	inherited::WriteGameState(ini, sect, bRoundResult);
 	ini.w_u32(sect, "team_0_score", teams[etGreenTeam].score);
 	ini.w_u32(sect, "team_1_score", teams[etBlueTeam].score);
-	ini.w_s32(sect,"timelimit_mins", GetTimeLimit());
-	ini.w_u32(sect,"artefacts_limit", Get_ScoreLimit());
-	ini.w_string(sect,"anomalies", isAnomaliesEnabled()?"true":"false");
 }
 
 bool game_sv_CaptureTheArtefact::Player_Check_Rank(game_PlayerState* ps)

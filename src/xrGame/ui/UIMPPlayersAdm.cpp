@@ -10,7 +10,6 @@
 #include "../Level.h"
 #include "../xrServer.h"
 #include "../game_cl_base.h"
-#include "../game_cl_mp.h"
 #include "../../xrEngine/xr_ioconsole.h"
 #include "../string_table.h"
 
@@ -137,11 +136,6 @@ void CUIMpPlayersAdm::FillPlayersList(u32 const)
 
 void CUIMpPlayersAdm::RefreshPlayersList()
 {
-	game_cl_mp* tmp_game = smart_cast<game_cl_mp*>(&Game());
-	if (!tmp_game)
-		return;
-
-	tmp_game->RequestPlayersInfo(fastdelegate::FastDelegate<void (u32 const)>(this,&CUIMpPlayersAdm::FillPlayersList));
 }
 
 void CUIMpPlayersAdm::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)

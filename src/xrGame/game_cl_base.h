@@ -87,22 +87,6 @@ public:
 	void							u_EventGen				(NET_Packet& P, u16 type, u16 dest);
 	void							u_EventSend				(NET_Packet& P);
 
-	virtual		void				ChatSay					(LPCSTR phrase, bool bAll)	{};
-	virtual		void				OnChatMessage			(NET_Packet* P)	{};
-	virtual		void				OnWarnMessage			(NET_Packet* P)	{};
-	virtual		void				OnRadminMessage			(u16 type, NET_Packet* P)	{};
-	
-
-	virtual		bool				IsVotingEnabled			()	{return m_u16VotingEnabled != 0;};
-	virtual		bool				IsVotingEnabled			(u16 flag) {return (m_u16VotingEnabled & flag) != 0;};
-	virtual		bool				IsVotingActive			()	{ return false; };
-	virtual		void				SetVotingActive			( bool Active )	{ };
-	virtual		void				SendStartVoteMessage	(LPCSTR args)	{};
-	virtual		void				SendVoteYesMessage		()	{};
-	virtual		void				SendVoteNoMessage		()	{};
-	virtual		void				OnVoteStart				(NET_Packet& P)	{};
-	virtual		void				OnVoteStop				(NET_Packet& P)	{};
-
 	virtual		void				OnRender				()	{};
 	virtual		bool				IsServerControlHits		()	{return m_bServerControlHits;};
 	virtual		bool				IsEnemy					(game_PlayerState* ps)	{return false;};
@@ -114,9 +98,7 @@ public:
 
 	virtual		void				OnPlayerFlagsChanged	(game_PlayerState* ps)	{};
 	virtual		void				OnNewPlayerConnected	(ClientID const & newClient) {};
-	virtual		void				OnPlayerVoted			(game_PlayerState* ps)	{};
 	virtual		void				SendPickUpEvent			(u16 ID_who, u16 ID_what);
 
-	virtual		bool				IsPlayerInTeam			(game_PlayerState* ps, ETeam team) {return ps->team == team;};
 	virtual		void				OnConnected				();
 };

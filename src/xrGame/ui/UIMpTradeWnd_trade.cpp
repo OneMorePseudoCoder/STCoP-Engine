@@ -6,8 +6,6 @@
 #include "UIDragDropListEx.h"
 #include "UICellCustomItems.h"
 #include <dinput.h>
-#include "game_cl_deathmatch.h"
-#include "game_cl_capture_the_artefact.h"
 
 bool CUIMpTradeWnd::TryToSellItem(SBuyItemInfo* sell_itm, bool do_destroy, SBuyItemInfo*& itm_res)
 {
@@ -121,21 +119,6 @@ bool CUIMpTradeWnd::TryToBuyItem(SBuyItemInfo* buy_itm, u32 buy_flags, SBuyItemI
 	bool	b_can_buy		= is_helper || CheckBuyPossibility(buy_item_name, buy_flags, false);
 	if(!b_can_buy)
 		return				false;
-	
-	if(0==(bf_ignore_team&buy_flags))
-	{
-	if (GameID() == eGameIDCaptureTheArtefact)
-	{
-		game_cl_CaptureTheArtefact* cta_game = smart_cast<game_cl_CaptureTheArtefact*>(&Game());
-		if (cta_game && !cta_game->LocalPlayerCanBuyItem(buy_item_name))
-			return			false;
-	} else
-	{
-		game_cl_Deathmatch* dm_game = smart_cast<game_cl_Deathmatch*>(&Game());
-		if (dm_game && !dm_game->LocalPlayerCanBuyItem(buy_item_name))
-			return			false;
-	}
-	}
 
 	u32 _item_cost			= m_item_mngr->GetItemCost(buy_item_name, GetRank() );
 	if ( is_helper )

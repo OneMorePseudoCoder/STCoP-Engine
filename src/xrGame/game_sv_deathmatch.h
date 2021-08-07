@@ -86,7 +86,6 @@ protected:
 	virtual		void				OnPlayerBuyFinished		(ClientID id_who, NET_Packet& P);
 
 	virtual		void				CheckItem				(game_PlayerState*	ps, PIItem pItem, xr_vector<s16> *pItemsDesired, xr_vector<u16> *pItemsToDelete, bool ExactMatch);
-	virtual		bool				HasChampion				();
 
 	virtual		void				check_Player_for_Invincibility	(game_PlayerState* ps);
 
@@ -191,15 +190,6 @@ public:
 	virtual		void				check_ForceRespawn		();
 	virtual		void				on_death				(CSE_Abstract *e_dest, CSE_Abstract *e_src);
 	//---------------------------------------------------------------------------------------------------
-	virtual		BOOL				IsDamageBlockIndEnabled	();
-	virtual		s32					GetTimeLimit			();
-	virtual		s32					GetFragLimit			();
-	virtual		u32					GetDMBLimit				();
-	virtual		u32					GetForceRespawn			();
-	virtual		u32					GetWarmUpTime			();
-	virtual		BOOL				IsAnomaliesEnabled		();
-	virtual		u32					GetAnomaliesTime		();
-
 	virtual		u32					GetNumTeams				() {return teams.size();};
 
 	// adtitional methods for predicates

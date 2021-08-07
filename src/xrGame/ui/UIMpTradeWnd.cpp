@@ -8,8 +8,6 @@
 #include "UICellItem.h"
 
 #include "../UIDialogHolder.h"
-#include "../game_cl_deathmatch.h"
-
 
 void CUIMpTradeWnd::OnBtnOkClicked(CUIWindow* w, void* d)
 {
@@ -17,19 +15,12 @@ void CUIMpTradeWnd::OnBtnOkClicked(CUIWindow* w, void* d)
 	CheckDragItemToDestroy				();
 	StorePreset							(_preset_idx_last, true, false, false);
 	HideDialog							();
-	game_cl_mp* clgame					= smart_cast<game_cl_mp*>(&(Game()));
-	VERIFY(clgame);
-	clgame->OnBuyMenu_Ok					();
-//.	StorePreset							(_preset_idx_last, true, true);
 }
 
 void CUIMpTradeWnd::OnBtnCancelClicked(CUIWindow* w, void* d)
 {
 	CheckDragItemToDestroy				();
 	HideDialog							();
-	game_cl_mp* clgame					= smart_cast<game_cl_mp*>(&(Game()));
-	VERIFY(clgame);
-	clgame->OnBuyMenu_Cancel			();
 }
 
 void CUIMpTradeWnd::OnBtnShopBackClicked(CUIWindow* w, void* d)

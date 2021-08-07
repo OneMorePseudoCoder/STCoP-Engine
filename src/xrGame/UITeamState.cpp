@@ -10,8 +10,6 @@
 #include "ui/UIScrollView.h"
 #include "ui/UIStatic.h"
 
-#include "game_cl_mp.h"
-
 UITeamState::UITeamState()
 {
 	m_artefact_count = 0;
@@ -169,15 +167,6 @@ void UITeamState::AddPlayer(ClientID const & clientId)
 	}*/
 	game_PlayerState *ps = pi->second;
 	VERIFY(ps);
-	/*if (!ps)
-	{
-		return;
-	}*/
-	// if player not in my team...
-	if (Game().IsPlayerInTeam(ps, myTeam) == false)
-	{
-		return;
-	}
 
 #ifdef DEBUG
 	Msg("--- UITeamState: adding player (ClientID = 0x%08x) to %d team (0x%08x)", clientId.value(), myTeam, this);
@@ -236,16 +225,7 @@ bool UITeamState::UpdatePlayer(ClientID const & clientId)
 		game_PlayerState *ps = pi->second;
 		// it can be NULL... and player will be removed by player item window
 		VERIFY(ps);
-		/*if (!ps)
-		{
-			Msg("--- Player state of ClientID = 0x%08x is NULL", clientId.value());
-			return true;
-		}*/
-		if (Game().IsPlayerInTeam(ps, myTeam) == false)
-		{
-			RemovePlayer(clientId);
-			retVal = false;	//tricky step :) player will be added by UITeamPanels::UpdatePlayer method :)
-		}
+
 		// warning ! after this Update tempIter will be not valid !!!
 		Update();
 		// --^
@@ -282,10 +262,6 @@ s32 UITeamState::GetSummaryFrags() const
 		game_PlayerState*	ps = i->second;
 		if (!ps)
 			continue;
-		game_cl_mp* tempGame = smart_cast<game_cl_mp*>(&Game());
-		R_ASSERT(tempGame);
-		if (static_cast<ETeam>(tempGame->ModifyTeam(ps->team)) == myTeam)
-			sum = sum + ps->m_iRivalKills;
 	}
 	return sum;
 }

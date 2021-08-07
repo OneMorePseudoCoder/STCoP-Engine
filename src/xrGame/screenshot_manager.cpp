@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "screenshot_manager.h"
 #include "level.h"
-#include "game_cl_mp.h"
 #include "xrCore/ppmd_compressor.h"
 #include "screenshots_writer.h"
 
@@ -151,7 +150,6 @@ void screenshot_manager::make_jpeg_file()
 void screenshot_manager::sign_jpeg_file()
 {
 	screenshots::writer	tmp_writer		(m_jpeg_buffer, m_jpeg_buffer_size, m_jpeg_buffer_capacity);
-	game_cl_mp*	tmp_cl_game				= smart_cast<game_cl_mp*>(&Game());
 	shared_str tmp_cdkey_digest			= Level().get_cdkey_digest();
 	if (tmp_cdkey_digest.size() == 0)
 		tmp_cdkey_digest = "null";
@@ -215,10 +213,6 @@ void screenshot_manager::shedule_Update(u32 dt)
 			btwCount1(static_cast<u32>(process_affinity_mask)) == 1
 		);
 	}
-	if (is_drawing_downloads())
-	{
-		static_cast<game_cl_mp*>(Level().game)->draw_all_active_binder_states();
-	}
 }
 
 void screenshot_manager::make_screenshot(complete_callback_t cb)
@@ -242,25 +236,6 @@ void screenshot_manager::make_screenshot(complete_callback_t cb)
 	m_defered_ssframe_counter = defer_framescount;
 
 	Render->ScreenshotAsyncBegin();
-}
-
-void screenshot_manager::set_draw_downloads(bool draw)
-{
-	if (draw)
-	{
-		if (!is_active())
-		{
-			Engine.Sheduler.Register(this, TRUE);
-		}
-		m_state |= drawing_download_states;
-	} else
-	{
-		if (!is_making_screenshot() && is_drawing_downloads())
-		{
-			Engine.Sheduler.Unregister(this);
-		}
-		m_state &= ~drawing_download_states;
-	}
 }
 
 void screenshot_manager::process_screenshot(bool singlecore)

@@ -6,10 +6,6 @@
 #include "ui/UIStatic.h"
 #include "ui/UIStatsIcon.h"
 
-#include "game_cl_capture_the_artefact.h"
-#include "game_cl_artefacthunt.h"
-
-
 UIPlayerItem::UIPlayerItem()
 {
 }
@@ -156,41 +152,12 @@ void UIPlayerItem::GetIconParamValue(game_PlayerState const * ps,
 									 buffer_vector<char> & dest)
 {
 	VERIFY(ps);
-	game_cl_mp* cl_game = static_cast<game_cl_mp*>(&Game());
-	VERIFY(cl_game);
-	if (param_name.equal("rank"))
-	{
-		if (ETeam(cl_game->ModifyTeam(ps->team)) == etGreenTeam)
-		{
-			xr_sprintf(dest.begin(), dest.size(), "ui_hud_status_green_0%d", ps->rank + 1);
-		} else if (ETeam(cl_game->ModifyTeam(ps->team)) == etBlueTeam)
-		{
-			xr_sprintf(dest.begin(), dest.size(), "ui_hud_status_blue_0%d", ps->rank + 1);
-		}
-	} else if (param_name.equal("death_atf"))
+	if (param_name.equal("death_atf"))
 	{
 		if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 		{
 			xr_strcpy(dest.begin(), dest.size(), "death");
 			return;
-		}
-		if (cl_game->Type() == eGameIDCaptureTheArtefact)
-		{
-			game_cl_CaptureTheArtefact* cta_cl_game = static_cast<game_cl_CaptureTheArtefact*>(cl_game);
-			R_ASSERT(cta_cl_game);
-			if (ps->GameID == cta_cl_game->GetGreenArtefactOwnerID() ||
-				ps->GameID == cta_cl_game->GetBlueArtefactOwnerID())
-			{
-				xr_strcpy(dest.begin(), dest.size(), "artefact");
-			}
-		} else if (cl_game->Type() == eGameIDArtefactHunt)
-		{
-			game_cl_ArtefactHunt* ahunt_cl_game = static_cast<game_cl_ArtefactHunt*>(cl_game);
-			R_ASSERT(ahunt_cl_game);
-			if (ps->GameID == ahunt_cl_game->artefactBearerID)
-			{
-				xr_strcpy(dest.begin(), dest.size(), "artefact");
-			}
 		}
 	} else
 	{

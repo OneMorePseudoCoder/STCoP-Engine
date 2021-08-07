@@ -24,16 +24,7 @@
 
 u32		g_dwMaxCorpses = 10;
 //-----------------------------------------------------------------
-BOOL		g_sv_mp_bSpectator_FreeFly		= FALSE;
-BOOL		g_sv_mp_bSpectator_FirstEye		= TRUE;
-BOOL		g_sv_mp_bSpectator_LookAt		= TRUE;
-BOOL		g_sv_mp_bSpectator_FreeLook		= TRUE;
-BOOL		g_sv_mp_bSpectator_TeamCamera	= TRUE;
-int			g_sv_mp_iDumpStatsPeriod		= 0;
 int			g_sv_mp_iDumpStats_last			= 0;
-BOOL		g_sv_mp_bCountParticipants		= FALSE;
-float		g_sv_mp_fVoteQuota				= VOTE_QUOTA;
-float		g_sv_mp_fVoteTime				= VOTE_LENGTH_TIME;
 BOOL		g_sv_mp_save_proxy_screenshots	= FALSE;
 BOOL		g_sv_mp_save_proxy_configs		= FALSE;
 //-----------------------------------------------------------------
@@ -97,23 +88,8 @@ void	game_sv_mp::Update	()
 		Msg("corpse [%d] send destroy [%d]",CorpseID, Device.dwFrame);
 	}
 
-	if (IsVotingEnabled() && IsVotingActive()) UpdateVote();
 	//-------------------------------------------------------
 	UpdatePlayersMoney();
-
-	if(g_sv_mp_iDumpStatsPeriod)
-	{
-		int curr_minutes = iFloor(Device.fTimeGlobal/60.0f);
-		if(g_sv_mp_iDumpStats_last+g_sv_mp_iDumpStatsPeriod <= curr_minutes )
-		{
-			if(Phase()==GAME_PHASE_INPROGRESS)
-			{
-				DumpOnlineStatistic();
-				DumpRoundStatistics();
-				g_sv_mp_iDumpStats_last	= curr_minutes;
-			}
-		}
-	}
 }
 
 void game_sv_mp::OnRoundStart()
@@ -321,7 +297,6 @@ void	game_sv_mp::OnEvent (NET_Packet &P, u16 type, u32 time, ClientID sender )
 		}break;
 	case GAME_EVENT_VOTE_START:
 		{
-			if (!IsVotingEnabled()) break;
 			string1024 VoteCommand;
 			if (P.r_elapsed() > (sizeof(VoteCommand) - 1))
 				break;
@@ -330,12 +305,10 @@ void	game_sv_mp::OnEvent (NET_Packet &P, u16 type, u32 time, ClientID sender )
 		}break;
 	case GAME_EVENT_VOTE_YES:
 		{
-			if (!IsVotingEnabled()) break;
 			OnVoteYes(sender);
 		}break;
 	case GAME_EVENT_VOTE_NO:
 		{
-			if (!IsVotingEnabled()) break;
 			OnVoteNo(sender);
 		}break;
 	case GAME_EVENT_GET_ACTIVE_VOTE:
@@ -451,7 +424,6 @@ void game_sv_mp::Create (shared_str &options)
 	LoadRanks();
 	//------------------------------------------------------------------
 	Set_RankUp_Allowed(false);
-	m_cdkey_ban_list.load();
 	if (strstr(Core.Params, SAVE_SCREENSHOTS_KEY))
 	{
 		g_sv_mp_save_proxy_screenshots = TRUE;
@@ -462,21 +434,11 @@ u8	game_sv_mp::SpectatorModes_Pack		()
 {
 	u8 res = 0;
 	
-	res |= g_sv_mp_bSpectator_FreeFly	  ? (1<<CSpectator::eacFreeFly	) : 0;
-	res |= g_sv_mp_bSpectator_FirstEye	  ? (1<<CSpectator::eacFirstEye	) : 0;
-	res |= g_sv_mp_bSpectator_LookAt	  ? (1<<CSpectator::eacLookAt	) : 0;
-	res |= g_sv_mp_bSpectator_FreeLook	  ? (1<<CSpectator::eacFreeLook	) : 0;
-	res |= g_sv_mp_bSpectator_TeamCamera	? (1<<CSpectator::eacMaxCam	) : 0;	
 	return res;
 }
 
 void game_sv_mp::SpectatorModes_UnPack		(u8 SpectrModesPacked)
 {
-	g_sv_mp_bSpectator_FreeFly	= (SpectrModesPacked & (1<<CSpectator::eacFreeFly	)) != 0;
-	g_sv_mp_bSpectator_FirstEye	= (SpectrModesPacked & (1<<CSpectator::eacFirstEye	)) != 0;
-	g_sv_mp_bSpectator_LookAt		= (SpectrModesPacked & (1<<CSpectator::eacLookAt	)) != 0;
-	g_sv_mp_bSpectator_FreeLook	= (SpectrModesPacked & (1<<CSpectator::eacFreeLook	)) != 0;
-	g_sv_mp_bSpectator_TeamCamera = (SpectrModesPacked & (1<<CSpectator::eacMaxCam	)) != 0;	
 };
 
 void game_sv_mp::net_Export_State		(NET_Packet& P, ClientID id_to)
@@ -997,7 +959,6 @@ struct SearcherClientByName
 
 void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 {
-	if (!IsVotingEnabled()) return;
 	char	CommandName[256];	CommandName[0]=0;
 	char	CommandParams[256];	CommandParams[0]=0;
 	string1024 resVoteCommand = "";
@@ -1017,9 +978,6 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 	{
 		if (!stricmp(votecommands[i].name, CommandName))
 		{
-			m_bVotingReal = true;
-			if (!IsVotingEnabled(votecommands[i].flag))
-				return;
 			break;
 		};
 		i++;
@@ -1147,7 +1105,6 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 	P.w_stringZ(m_voting_string);
 	m_started_player = "";
 	P.w_stringZ(m_started_player);
-	P.w_u32(u32(g_sv_mp_fVoteTime*60000));
 	u_EventSend(P);
 	//-----------------------------------------------------------------------------	
 };
@@ -1160,17 +1117,11 @@ void game_sv_mp::SendActiveVotingTo(ClientID const & receiver)
 	P.w_stringZ(m_voting_string);
 	P.w_stringZ(m_started_player);
 	u32 CurTime = Level().timeServer();
-	u32 EndVoteTime = m_uVoteStartTime + u32(g_sv_mp_fVoteTime * 60000);
-	if (EndVoteTime <= CurTime)
-		return;
-	P.w_u32(EndVoteTime - CurTime);
 	m_server->SendTo(receiver, P, net_flags(TRUE, TRUE));
 }
 
 void		game_sv_mp::UpdateVote				()
 {
-	if (!IsVotingEnabled() || !IsVotingActive()) return;
-
 	struct vote_updator
 	{
 		u32 NumAgreed;
@@ -1198,23 +1149,6 @@ void		game_sv_mp::UpdateVote				()
 
 	bool VoteSucceed = false;
 	u32 CurTime = Level().timeServer();
-	
-	if (m_uVoteStartTime + u32(g_sv_mp_fVoteTime*60000) > CurTime)
-	{
-		if (vote_stats.NumAgreed > (NumAgainst + vote_stats.NumParticipated))
-		{
-			VoteSucceed = true;
-		} else {
-			return;
-		}
-	}
-	else
-	{
-		if (g_sv_mp_bCountParticipants) 
-			VoteSucceed = (float(vote_stats.NumAgreed)/float(vote_stats.NumParticipated + NumAgainst)) >= g_sv_mp_fVoteQuota;
-		else
-			VoteSucceed = (float(vote_stats.NumAgreed)/float(vote_stats.NumToCount)) >= g_sv_mp_fVoteQuota;
-	};
 
 	SetVotingActive(false);
 
@@ -1718,7 +1652,6 @@ void	game_sv_mp::Player_AddMoney			(game_PlayerState* ps, s32 MoneyAmount)
 	//---------------------------------------	
 };
 //---------------------------------------------------------------------
-extern u32 g_sv_dwMaxClientPing;
 void game_sv_mp::ReadOptions(shared_str &options)
 {
 	inherited::ReadOptions(options);
@@ -1726,8 +1659,6 @@ void game_sv_mp::ReadOptions(shared_str &options)
 	u8 SpectatorModes						= SpectatorModes_Pack();
 	SpectatorModes							= u8(get_option_i(*options,"spectrmds",s32(SpectatorModes)) & 0x00ff);
 	SpectatorModes_UnPack					(SpectatorModes);
-
-	g_sv_dwMaxClientPing					= get_option_i(*options,"maxping",g_sv_dwMaxClientPing);
 
 	string64	StartTime, TimeFactor;
 	xr_strcpy(StartTime,get_option_s			(*options,"estime","9:00"));
@@ -1979,9 +1910,6 @@ void game_sv_mp::AskAllToUpdateStatistics()
 
 void game_sv_mp::DumpRoundStatisticsAsync()
 {
-	if ( !g_sv_mp_iDumpStatsPeriod )
-		return;
-
 	m_async_stats.async_responses.clear();
 	m_server->ForEachClientDo(m_async_stats);
 	m_async_stats_request_time = Device.dwTimeGlobal;
@@ -1990,27 +1918,14 @@ void game_sv_mp::DumpRoundStatisticsAsync()
 
 bool game_sv_mp::CheckStatisticsReady()
 {
-	if ( !g_sv_mp_iDumpStatsPeriod )
-		return true;
-	
 	if (!m_async_stats_request_time)
 		return true;
 
-	if (m_async_stats.all_ready() || 
-		(m_async_stats_request_time + g_sv_dwMaxClientPing) < Device.dwTimeGlobal)
-	{
-		DumpRoundStatistics();
-		FinishToDumpStatistics();
-		m_async_stats_request_time = 0;
-		return true;
-	}
 	return false;
 }
 
 void game_sv_mp::StartToDumpStatistics	()
 {
-	if ( !g_sv_mp_iDumpStatsPeriod ) return;
-
 	if (xr_strlen(round_statistics_dump_fn))
 	{
 		StopToDumpStatistics();
@@ -2042,7 +1957,6 @@ void game_sv_mp::FinishToDumpStatistics	()
 
 void game_sv_mp::DumpRoundStatistics()
 {
-	if ( !g_sv_mp_iDumpStatsPeriod ) return;
 	if ( !xr_strlen(round_statistics_dump_fn) ) return;
 
 	CInifile					ini(round_statistics_dump_fn, FALSE, FALSE, TRUE);
@@ -2154,51 +2068,6 @@ void game_sv_mp::SvSendChatMessage(LPCSTR str)
 	P.w_stringZ			(str);
 	P.w_s16				(0);
 	u_EventSend			(P);
-}
-
-bool game_sv_mp::IsPlayerBanned(char const * hexstr_digest, shared_str & by_who)
-{
-	if (!hexstr_digest || !xr_strlen(hexstr_digest))
-		return false;
-	return m_cdkey_ban_list.is_player_banned(hexstr_digest, by_who);
-}
-
-IClient* game_sv_mp::BanPlayer(ClientID const & client_id, s32 ban_time_sec, xrClientData* initiator)
-{
-	if (client_id == m_server->GetServerClient()->ID)
-	{
-		Msg("! ERROR: can't ban server client.");
-		return NULL;
-	}
-	xrClientData* client_to_ban = static_cast<xrClientData*>(
-		m_server->ID_to_client(client_id)
-	);
-	
-	if (!client_to_ban)
-		return NULL;
-	
-	if (client_to_ban->m_admin_rights.m_has_admin_rights)
-	{
-		Msg("! ERROR: Can't ban player with admin rights");
-		return NULL;
-	}
-	m_cdkey_ban_list.ban_player(client_to_ban, ban_time_sec, initiator);
-	return client_to_ban;
-}
-
-void game_sv_mp::BanPlayerDirectly(char const * client_hex_digest, s32 ban_time_sec, xrClientData* initiator)
-{
-	m_cdkey_ban_list.ban_player_ll(client_hex_digest, ban_time_sec, initiator);
-}
-
-void game_sv_mp::UnBanPlayer(size_t banned_player_index)
-{
-	m_cdkey_ban_list.unban_player_by_index(banned_player_index);
-}
-
-void game_sv_mp::PrintBanList(char const * filter = NULL)
-{
-	m_cdkey_ban_list.print_ban_list(filter);
 }
 
 void game_sv_mp::SetCanOpenBuyMenu(ClientID id)

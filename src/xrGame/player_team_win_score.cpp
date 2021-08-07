@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "player_team_win_score.h"
-#include "game_cl_capture_the_artefact.h"
-#include "game_cl_artefacthunt.h"
 #include "game_state_accumulator.h"
 
 namespace award_system
@@ -32,44 +30,10 @@ void player_team_win_score::save_round_scores()
 {
 	m_green_team_score	= 0;
 	m_blue_team_score	= 0;
-	m_player_team		= etSpectatorsTeam;
 
 	game_PlayerState* tmp_local_player = m_owner->get_local_player();
 	if (!tmp_local_player)
 		return;
-
-	switch (Game().Type())
-	{
-	case eGameIDCaptureTheArtefact:
-		{
-			game_cl_CaptureTheArtefact*	tmp_game	= smart_cast<game_cl_CaptureTheArtefact*>(Level().game);
-			m_green_team_score						= tmp_game->GetGreenTeamScore();
-			m_blue_team_score						= tmp_game->GetBlueTeamScore();
-			m_player_team							= tmp_local_player->team;
-		}break;
-	case eGameIDArtefactHunt:
-	case eGameIDTeamDeathmatch:
-		{
-			game_cl_TeamDeathmatch* tmp_game	= smart_cast<game_cl_TeamDeathmatch*>(Level().game);
-			m_green_team_score					= tmp_game->GetGreenTeamScore();
-			m_blue_team_score					= tmp_game->GetBlueTeamScore();
-			if (tmp_local_player->team > 0)
-			{
-				m_player_team = static_cast<u8>(tmp_game->ModifyTeam(tmp_local_player->team));
-			}
-		}break;
-	case eGameIDDeathmatch:
-		{
-
-		}break;
-	};//switch (Game().Type())
-	if (static_cast<ETeam>(m_player_team) == etGreenTeam)
-	{
-		m_win_score = (m_green_team_score > m_blue_team_score) ? m_green_team_score : 0;
-	} else if (static_cast<ETeam>(m_player_team) == etBlueTeam)
-	{
-		m_win_score = (m_blue_team_score > m_green_team_score) ? m_blue_team_score : 0;
-	}
 }
 
 player_enemy_team_score::player_enemy_team_score(game_state_accumulator* owner) :
@@ -92,13 +56,6 @@ void player_enemy_team_score::OnRoundEnd()
 void player_enemy_team_score::save_round_scores()
 {
 	inherited::save_round_scores();
-	if (static_cast<ETeam>(m_player_team) == etGreenTeam)
-	{
-		m_enemy_team_score = m_blue_team_score;
-	} else if (static_cast<ETeam>(m_player_team) == etBlueTeam)
-	{
-		m_enemy_team_score = m_green_team_score;
-	}
 }
 
 player_runtime_win_score::player_runtime_win_score(game_state_accumulator* owner) :
@@ -109,13 +66,7 @@ player_runtime_win_score::player_runtime_win_score(game_state_accumulator* owner
 u32 const player_runtime_win_score::get_u32_param()
 {
 	u32 ret_score = 0;
-	if (static_cast<ETeam>(m_player_team) == etGreenTeam)
-	{
-		ret_score = m_green_team_score;
-	} else if (static_cast<ETeam>(m_player_team) == etBlueTeam)
-	{
-		ret_score = m_blue_team_score;
-	}
+
 	return ret_score;
 }
 

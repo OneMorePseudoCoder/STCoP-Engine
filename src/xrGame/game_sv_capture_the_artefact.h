@@ -192,25 +192,10 @@ private:
 	void ResetTimeoutInvincibility(u32 currentTime);
 	bool ResetInvincibility(ClientID const clientId);
 
-	BOOL	isFriendlyFireEnabled	();
-	float	GetFriendlyFire			();
-	int		Get_TeamKillLimit		();
-	BOOL	Get_TeamKillPunishment	();
-	BOOL	Get_FriendlyIndicators	();
-	BOOL	Get_FriendlyNames		();
-	int		Get_ReinforcementTime_msec	();
-	u32		GetWarmUpTime			();
-	s32		GetTimeLimit			();
-
-	BOOL	isAnomaliesEnabled				();
-	BOOL	isPDAHuntEnabled				();
 	u32		Get_InvincibilityTime_msec		();
-	u32		Get_AnomalySetLengthTime_msec	();
 	u32		Get_ArtefactReturningTime_msec	();
 	u32		Get_ActivatedArtefactRet		();
 	u32		Get_PlayerScoresDelayTime_msec	();
-	s32		Get_ScoreLimit();
-	BOOL	Get_BearerCanSprint				();
 protected:
 	virtual	void ReadOptions(shared_str &options);
 	virtual void FillDeathActorRejectItems(CSE_ActorMP *actor, xr_vector<CSE_Abstract*> & to_reject);

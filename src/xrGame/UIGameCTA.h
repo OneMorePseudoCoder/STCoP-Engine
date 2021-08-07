@@ -19,7 +19,6 @@ class CUISkinSelectorWnd;
 class CUIProgressShape;
 class CUIMessageBoxEx;
 class UIVoteStatusWnd;
-class game_cl_CaptureTheArtefact;
 class CUITextWnd;
 
 /// This class used to control UI part of client for Capture the Artefact mp game mode.
@@ -32,7 +31,6 @@ private:
 	CUITextWnd*			m_team1_score;
 	CUITextWnd*			m_team2_score;
 	CUITextWnd*			m_pFragLimitIndicator;
-	game_cl_CaptureTheArtefact*			m_game;
 
 	CUIMoneyIndicator*				m_pMoneyIndicator;
 	CUIRankIndicator*				m_pRankIndicator;
@@ -120,8 +118,6 @@ public:
 			void		UpdateBuyMenu			(shared_str const & teamSection, shared_str const & costSection);
 			bool		CanBuyItem				(shared_str const & sect_name);
 			
-			void		ShowBuyMenu				();
-			void		HideBuyMenu				();
 			BuyMenuItemPair	GetBuyMenuItem		(shared_str const & itemSectionName);
 			void		GetPurchaseItems		(BuyMenuItemsCollection & dest, s32 & moneyDif);
 			IBuyWnd*	GetBuyWnd				() const { return m_pCurBuyMenu; };

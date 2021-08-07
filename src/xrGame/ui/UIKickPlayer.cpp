@@ -10,7 +10,6 @@
 #include "UIGameCustom.h"
 #include "../level.h"
 #include "../game_cl_base.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "../../xrEngine/xr_ioconsole.h"
 
 CUIKickPlayer::CUIKickPlayer()

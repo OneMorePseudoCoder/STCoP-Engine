@@ -4,7 +4,6 @@
 #include "Level.h"
 #include "xrServer.h"
 #include "game_sv_base.h"
-#include "game_cl_mp.h"
 #include "../xrCore/fastdelegate.h"
 
 extern BOOL	g_sv_mp_save_proxy_screenshots;
@@ -133,51 +132,22 @@ void clientdata_proxy::notify_admin(clientdata_event_t event_for_admin, char con
 
 void clientdata_proxy::save_proxy_screenshot()
 {
-	game_cl_mp* clgame = smart_cast<game_cl_mp*>(Level().game);
-	if (!clgame)
-		return;
-
 	string_path	screenshot_fn;
 	string_path str_digest;
 
 	LPCSTR dest_file_name = NULL;
-	STRCONCAT(dest_file_name,
-		clgame->make_file_name(m_cheater_name.c_str(), screenshot_fn),
-		"_",
-		(m_cheater_digest.size() ? 
-			clgame->make_file_name(m_cheater_digest.c_str(), str_digest) :
-			"nulldigest"
-		)
-	);
 	SYSTEMTIME					date_time;
 	GetLocalTime				(&date_time);
-	clgame->generate_file_name	(screenshot_fn, dest_file_name, date_time);
-
-	clgame->decompress_and_save_screenshot(
-		screenshot_fn,
-		my_proxy_mem_file.pointer(),
-		my_proxy_mem_file.size(),
-		m_receiver->get_user_param()
-	);
 }
 
 void clientdata_proxy::save_proxy_config()
 {
-	game_cl_mp* clgame = smart_cast<game_cl_mp*>(Level().game);
-	if (!clgame)
-		return;
-
 	string_path	config_fn;
 	LPCSTR		fn_suffix = NULL;
 	string_path dest_file_name;
-
-	STRCONCAT(fn_suffix,
-		clgame->make_file_name(m_cheater_name.c_str(), config_fn),
-		".cltx");
 		
 	SYSTEMTIME					date_time;
 	GetLocalTime				(&date_time);
-	clgame->generate_file_name	(dest_file_name, fn_suffix, date_time);
 	IWriter*	tmp_writer		= FS.w_open("$screenshots$", dest_file_name);
 	if (!tmp_writer)
 		return;

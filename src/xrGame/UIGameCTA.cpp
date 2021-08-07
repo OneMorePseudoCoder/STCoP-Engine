@@ -6,8 +6,6 @@
 #include "UITeamPanels.h"
 
 #include "game_cl_base.h"
-#include "game_cl_capture_the_artefact.h"
-#include "game_cl_mp.h"
 
 #include "level.h"
 #include "actor.h"
@@ -52,7 +50,6 @@ m_team2_score(NULL),
 m_pCurBuyMenu(NULL),
 m_pCurSkinMenu(NULL),
 m_pBuySpawnMsgBox(NULL),
-m_game(NULL),
 m_voteStatusWnd(NULL),
 m_team_panels_shown(false)
 {
@@ -163,18 +160,6 @@ void CUIGameCTA::UpdateTeamPanels()
 void CUIGameCTA::SetClGame(game_cl_GameState* g)
 {
 	inherited::SetClGame(g);
-	m_game = smart_cast<game_cl_CaptureTheArtefact*>(g);
-	VERIFY(m_game);
-	
-	/*if (m_pMapDesc)
-	{
-		if (m_pMapDesc->IsShown())
-		{
-			m_pMapDesc->HideDialog();
-		}
-		delete_data(m_pMapDesc);
-	}
-	m_pMapDesc = xr_new<CUIMapDesc>();*/
 	
 	if (m_pBuySpawnMsgBox)
 	{
@@ -188,9 +173,6 @@ void CUIGameCTA::SetClGame(game_cl_GameState* g)
 	m_pBuySpawnMsgBox					= xr_new<CUIMessageBoxEx>();	
 	m_pBuySpawnMsgBox->InitMessageBox	("message_box_buy_spawn");
 	m_pBuySpawnMsgBox->SetText			("");
-	
-	m_game->SetGameUI(this);
-	m_pBuySpawnMsgBox->func_on_ok = CUIWndCallback::void_function(m_game, &game_cl_CaptureTheArtefact::OnBuySpawn);
 }
 
 void CUIGameCTA::AddPlayer(ClientID const & clientId)
@@ -229,10 +211,7 @@ void CUIGameCTA::UpdateBuyMenu(shared_str const & teamSection, shared_str const 
 	{
 		if (m_teamSectionForBuyMenu == teamSection)
 		{
-			if (m_pCurBuyMenu->IsShown())
-				HideBuyMenu();
 			m_pCurBuyMenu->IgnoreMoneyAndRank(false);
-			m_pCurBuyMenu->SetRank(m_game->local_player->rank);
 			m_pCurBuyMenu->ClearPreset(_preset_idx_last);
 			return;
 		}
@@ -270,47 +249,6 @@ void CUIGameCTA::UpdateSkinMenu(shared_str const & teamSection)
 	m_pCurSkinMenu = xr_new<CUISkinSelectorWnd>(m_teamSectionForSkinMenu.c_str(), static_cast<s16>(tempPlayerState->team));
 }
 
-
-void CUIGameCTA::HideBuyMenu()
-{
-	R_ASSERT2(m_pCurBuyMenu, "buy menu not initialized");
-	if (m_pCurBuyMenu->IsShown())
-	{
-		m_pCurBuyMenu->HideDialog();
-	}
-}
-
-void CUIGameCTA::ShowBuyMenu()
-{
-	if (Level().IsDemoPlay())
-		return;
-	R_ASSERT2(m_pCurBuyMenu, "buy menu not initialized");
-	if (!m_pCurBuyMenu->IsShown())
-	{
-		m_pCurBuyMenu->IgnoreMoneyAndRank(m_game->InWarmUp());
-	
-		m_pCurBuyMenu->ResetItems();
-		m_pCurBuyMenu->SetupPlayerItemsBegin();
-
-		SetPlayerItemsToBuyMenu();
-		SetPlayerParamsToBuyMenu();
-
-		m_pCurBuyMenu->SetupPlayerItemsEnd();
-
-		m_pCurBuyMenu->ShowDialog(true);
-		m_game->OnBuyMenuOpen();
-	}
-}
-/*
-void CUIGameCTA::BuyMenuItemIDInserter(u16 const & itemID)
-{
-	
-}*/
-
-void TryToDefuseWeapon(CWeapon const * weapon,
-					   TIItemContainer const & all_items,
-					   buffer_vector<shared_str> & dest_ammo);
-
 void CUIGameCTA::TryToDefuseAllWeapons	(aditional_ammo_t & dest_ammo)
 {
 	game_PlayerState* ps = Game().local_player;
@@ -318,48 +256,7 @@ void CUIGameCTA::TryToDefuseAllWeapons	(aditional_ammo_t & dest_ammo)
 	CActor* actor = smart_cast<CActor*> (Level().Objects.net_Find(ps->GameID));
 	R_ASSERT2(actor || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD),
 		make_string("bad actor: not found in game (GameID = %d)", ps->GameID).c_str());
-
-	TIItemContainer const & all_items = actor->inventory().m_all;  
-
-	for (TIItemContainer::const_iterator i = all_items.begin(),
-		ie = all_items.end(); i != ie; ++i)
-	{
-		CWeapon* tmp_weapon = smart_cast<CWeapon*>(*i);
-		if (tmp_weapon)
-			TryToDefuseWeapon(tmp_weapon, all_items, dest_ammo);
-	}
 }
-
-struct AmmoSearcherPredicate
-{
-	u16			additional_ammo_count;
-	shared_str	ammo_section;
-
-	AmmoSearcherPredicate(u16 ammo_elapsed, shared_str const & ammo_sect) :
-		additional_ammo_count(ammo_elapsed),
-		ammo_section(ammo_sect)
-	{
-	}
-
-	bool operator()(PIItem const & item)
-	{
-		CWeaponAmmo* temp_ammo = smart_cast<CWeaponAmmo*>(item);
-		if (!temp_ammo)
-			return false;
-		
-		if (temp_ammo->m_boxCurr >= temp_ammo->m_boxSize)
-			return false;
-		
-		if (temp_ammo->cNameSect() != ammo_section)
-			return false;
-
-		if ((temp_ammo->m_boxCurr + additional_ammo_count) < temp_ammo->m_boxSize)
-			return false;
-		
-		return true;
-	}
-
-};
 
 void TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * weapon,
 								TIItemContainer const & all_items,
@@ -410,80 +307,6 @@ void TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * weapon,
 	}
 	if (!ammo_elapsed)
 		return;
-
-	AmmoSearcherPredicate ammo_completitor(ammo_elapsed, ammo_section);
-
-	TIItemContainer::const_iterator temp_iter = std::find_if(
-		all_items.begin(), all_items.end(), ammo_completitor);
-
-	if (temp_iter == all_items.end())
-		return;
-
-	CWeaponAmmo* temp_ammo = smart_cast<CWeaponAmmo*>(*temp_iter);
-	R_ASSERT2(temp_ammo, "failed to create ammo after defusing weapon");
-	temp_ammo->m_boxCurr = temp_ammo->m_boxSize;
-}
-
-
-void TryToDefuseWeapon(CWeapon const * weapon,
-					   TIItemContainer const & all_items,
-					   buffer_vector<shared_str> & dest_ammo)
-{
-	if (!weapon)
-		return;
-
-	CWeaponMagazinedWGrenade const * tmp_gl_weapon = smart_cast<CWeaponMagazinedWGrenade const *>(weapon);
-	if (weapon->IsGrenadeLauncherAttached())
-		TryToDefuseGrenadeLauncher(tmp_gl_weapon, all_items, dest_ammo);
-
-	xr_vector<shared_str> const *	tmp_ammo_types = NULL;
-	u8 const *						tmp_ammo_type = NULL;
-	u16								ammo_elapsed = 0;
-	if (tmp_gl_weapon && tmp_gl_weapon->m_bGrenadeMode)
-	{
-		tmp_ammo_types	= &tmp_gl_weapon->m_ammoTypes2;
-		tmp_ammo_type	= &tmp_gl_weapon->m_ammoType2;
-		ammo_elapsed	= (u16)tmp_gl_weapon->m_magazine2.size();
-	} else
-	{
-		tmp_ammo_types	= &weapon->m_ammoTypes;
-		tmp_ammo_type	= &weapon->m_ammoType;
-		ammo_elapsed	= (u16)weapon->GetAmmoElapsed();
-	}
-	
-	if (tmp_ammo_types->size() <= u32(*tmp_ammo_type))
-		return;
-
-	shared_str ammo_section = (*tmp_ammo_types)[*tmp_ammo_type];
-
-	VERIFY2(ammo_section.size(), make_string(
-		"ammo type of [%s] hasn't section name", weapon->cName().c_str()).c_str());
-	if (!ammo_section.size())
-		return;
-
-	VERIFY(pSettings->line_exist(ammo_section.c_str(), "box_size"));
-
-	u16 ammo_box_size	= pSettings->r_u16(ammo_section.c_str(), "box_size");
-	
-	while (ammo_elapsed >= ammo_box_size)
-	{
-		dest_ammo.push_back(ammo_section);
-		ammo_elapsed = ammo_elapsed - ammo_box_size;
-	}
-	if (!ammo_elapsed)
-		return;
-
-	AmmoSearcherPredicate ammo_completitor(ammo_elapsed, ammo_section);
-
-	TIItemContainer::const_iterator temp_iter = std::find_if(
-		all_items.begin(), all_items.end(), ammo_completitor);
-
-	if (temp_iter == all_items.end())
-		return;
-
-	CWeaponAmmo* temp_ammo = smart_cast<CWeaponAmmo*>(*temp_iter);
-	R_ASSERT2(temp_ammo, "failed to create ammo after defusing weapon");
-	temp_ammo->m_boxCurr = temp_ammo->m_boxSize;
 }
 
 void CUIGameCTA::AdditionalAmmoInserter	(aditional_ammo_t::value_type const & sect_name)
@@ -613,7 +436,6 @@ void CUIGameCTA::SetPlayerParamsToBuyMenu()
 
 void CUIGameCTA::GetPurchaseItems(BuyMenuItemsCollection & dest, s32 & moneyDif)
 {
-	R_ASSERT	(m_game);
 	R_ASSERT	(m_pCurBuyMenu);
 	preset_items const * tmpPresItems = &(m_pCurBuyMenu->GetPreset(_preset_idx_last));
 	if (tmpPresItems->size() == 0)
@@ -633,13 +455,6 @@ void CUIGameCTA::GetPurchaseItems(BuyMenuItemsCollection & dest, s32 & moneyDif)
 
 		for (u32 ic = 0; ic < pi->count; ++ic)
 			dest.push_back(std::make_pair(addon, itemId));
-	}
-
-	if (m_game->local_player && m_game->local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
-	{
-		u8 KnifeSlot, KnifeIndex;
-		m_pCurBuyMenu->GetWeaponIndexByName("mp_wpn_knife", KnifeSlot, KnifeIndex);
-		dest.push_back(std::make_pair(KnifeSlot, KnifeIndex));
 	}
 
 	moneyDif = m_pCurBuyMenu->GetPresetCost(_preset_idx_origin) - m_pCurBuyMenu->GetPresetCost(_preset_idx_last);
@@ -864,20 +679,6 @@ bool CUIGameCTA::IR_UIOnKeyboardPress(int dik)
 {
 	if (inherited::IR_UIOnKeyboardPress(dik))
 		return true;
-
-	switch (dik) {
-		case DIK_CAPSLOCK :
-		{
-			if (m_game)
-			{
-				if (m_game->Get_ShowPlayerNamesEnabled())
-					m_game->Set_ShowPlayerNames( !m_game->Get_ShowPlayerNames() );
-				else
-					m_game->Set_ShowPlayerNames(true);
-				return true;
-			};
-		}break;
-	}
 	
 	EGameActions cmd  = get_binded_action(dik);
 	switch ( cmd )
@@ -902,18 +703,6 @@ bool CUIGameCTA::IR_UIOnKeyboardRelease(int dik)
 	if(inherited::IR_UIOnKeyboardRelease(dik))
 		return true;
 
-	switch (dik) 
-	{
-		case DIK_CAPSLOCK :
-			{
-				if (m_game)
-				{
-					if (!m_game->Get_ShowPlayerNamesEnabled())						
-						m_game->Set_ShowPlayerNames(false);
-					return true;
-				};
-			}break;
-	}
 	return false;
 }
 
@@ -952,48 +741,14 @@ void CUIGameCTA::LoadTeamDefaultPresetItems	(const shared_str& caSection)
 void CUIGameCTA::LoadDefItemsForRank()
 {
 	R_ASSERT(m_pCurBuyMenu);
-	R_ASSERT(m_game);
-	R_ASSERT(m_game->local_player);
-	//---------------------------------------------------
-	game_PlayerState* local_player = m_game->local_player;
-	LoadTeamDefaultPresetItems(m_game->getTeamSection(local_player->team));
 	//---------------------------------------------------
 	string16 RankStr;
 	string256 ItemStr;
 	string256 NewItemStr;
 	char tmp[5];
-	for (int i=1; i<=local_player->rank; i++)
-	{
-		strconcat(sizeof(RankStr),RankStr,"rank_",itoa(i,tmp,10));
-		if (!pSettings->section_exist(RankStr)) continue;
-		for (u32 it=0; it<PlayerDefItems.size(); it++)
-		{
-//			s16* pItemID = &(PlayerDefItems[it]);
-//			char* ItemName = pBuyMenu->GetWeaponNameByIndex(u8(((*pItemID)&0xff00)>>0x08), u8((*pItemID)&0x00ff));
-			PresetItem *pDefItem = &(PlayerDefItems[it]);
-			const shared_str& ItemName = m_pCurBuyMenu->GetWeaponNameByIndex(pDefItem->SlotID, pDefItem->ItemID);
-			if (!ItemName.size()) continue;
-			strconcat(sizeof(ItemStr),ItemStr, "def_item_repl_", ItemName.c_str() );
-			if (!pSettings->line_exist(RankStr, ItemStr)) continue;
-
-			xr_strcpy(NewItemStr,sizeof(NewItemStr),pSettings->r_string(RankStr, ItemStr));
-
-			u8 SlotID, ItemID;
-			m_pCurBuyMenu->GetWeaponIndexByName(NewItemStr, SlotID, ItemID);
-			if (SlotID == 0xff || ItemID == 0xff) continue;
-
-//			s16 ID = GetBuyMenuItemIndex(SlotID, ItemID);
-			s16 ID = GetBuyMenuItemIndex(0, ItemID);
-
-//			*pItemID = ID;
-			pDefItem->set(ID);			
-		}
-	}
 	//---------------------------------------------------------
 	for (u32 it=0; it<PlayerDefItems.size(); it++)
 	{
-//		s16* pItemID = &(PlayerDefItems[it]);
-//		char* ItemName = pBuyMenu->GetWeaponNameByIndex(u8(((*pItemID)&0xff00)>>0x08), u8((*pItemID)&0x00ff));
 		PresetItem *pDefItem = &(PlayerDefItems[it]);
 		const shared_str& ItemName = m_pCurBuyMenu->GetWeaponNameByIndex(pDefItem->SlotID, pDefItem->ItemID);
 		if ( !ItemName.size() ) continue;

@@ -6,7 +6,6 @@
 class CUIDMPlayerList;
 class CUIDMStatisticWnd;
 class CUISkinSelectorWnd;
-class game_cl_Deathmatch;
 class CUIMoneyIndicator;
 class CUIRankIndicator;
 class UIVoteStatusWnd;
@@ -16,7 +15,6 @@ class CUITextWnd;
 class CUIGameDM: public UIGameMP
 {
 private:
-	game_cl_Deathmatch *	m_game;
 	typedef UIGameMP inherited;
 
 protected:

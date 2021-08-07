@@ -9,14 +9,12 @@
 // refs 
 class CUIAHuntFragList;
 class CUIAHuntPlayerList;
-class game_cl_ArtefactHunt;
 class CUITextWnd;
 class CUIMessageBoxEx;
 
 class CUIGameAHunt: public CUIGameTDM
 {
 private:
-	game_cl_ArtefactHunt * m_game;
 	typedef CUIGameTDM inherited;
 
 public:

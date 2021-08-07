@@ -281,9 +281,6 @@ void CLevel::ClientSave	()
 	}
 }
 
-//extern	XRPHYSICS_API	float		phTimefactor;
-extern					BOOL		g_SV_Disable_Auth_Check;
-
 void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 {
 	if (IsDemoPlayStarted() || IsDemoPlayFinished()) return;
@@ -300,13 +297,7 @@ void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 #endif
 		Server->OnMessageSync	(P,Game().local_svdpnid	);
 	}else											
-		IPureClient::Send	(P,dwFlags,dwTimeout	);
-
-	if (g_pGameLevel && Level().game && GameID() != eGameIDSingle && !g_SV_Disable_Auth_Check)		{
-		// anti-cheat
-		phTimefactor		= 1.f					;
-		psDeviceFlags.set	(rsConstantFPS,FALSE)	;	
-	}
+		IPureClient::Send	(P,dwFlags,dwTimeout);
 }
 
 void CLevel::net_Update	()

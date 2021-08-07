@@ -7,7 +7,6 @@
 #include "UIStatix.h"
 #include "uicursor.h"
 #include "../UIGameCustom.h"
-#include "../game_cl_deathmatch.h"
 #include "../xr_level_controller.h"
 #include "../level.h"
 
@@ -145,18 +144,9 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 
 void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 {
-	game_cl_mp	*game = NULL;
-	//game_cl_Deathmatch * dm = NULL;
 	switch (msg){
 		case BUTTON_CLICKED:
-			game = smart_cast<game_cl_mp*>(&(Game()));
-			//dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
-/*
-			if (pWnd == m_pButtons[0])
-				OnKeyLeft();
-			else if (pWnd == m_pButtons[1])
-				OnKeyRight();
-			else */if (pWnd == m_pBtnAutoSelect)
+			if (pWnd == m_pBtnAutoSelect)
 			{
 				m_iActiveIndex = -1;
 				OnBtnOK();		
@@ -164,12 +154,10 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 			else if (pWnd == m_pBtnSpectator)
 			{
 				HideDialog();
-				game->OnSpectatorSelect();
 			}
 			else if (pWnd == m_pBtnBack)
 			{
 				HideDialog();
-				game->OnSkinMenuBack();				
 			}
 			else
                 for (int i = 0; i<6; i++)
@@ -180,18 +168,6 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 					}
 			break;
 		case WINDOW_FOCUS_RECEIVED:
-/*
-			if (pWnd == m_pButtons[0])
-			{
-				m_pAnims[0]->Rewind(0);
-				m_pAnims[0]->Play();
-			}
-			else if (pWnd == m_pButtons[1])
-			{
-				m_pAnims[1]->Rewind(0);
-				m_pAnims[1]->Play();
-			}
-*/			
 			break;
 	}
 }
@@ -199,23 +175,17 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 void CUISkinSelectorWnd::OnBtnCancel()
 {
     HideDialog();
-	game_cl_mp* mp = smart_cast<game_cl_mp*>(&(Game()));
-	mp->OnSkinMenu_Cancel();
 }
 
 void CUISkinSelectorWnd::OnBtnOK()
 {
 	HideDialog();
-	game_cl_mp *game = smart_cast<game_cl_mp*>(&(Game()));
-	VERIFY(game);
-	//game_cl_Deathmatch * dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
 	
 	if (m_iActiveIndex == -1)
 	{
 		m_iActiveIndex	= m_skinsEnabled[::Random.randI(m_skinsEnabled.size())];
 
 	}
-	game->OnSkinMenu_Ok();
 }
 
 bool CUISkinSelectorWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
@@ -230,8 +200,6 @@ bool CUISkinSelectorWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 		if (dik == DIK_TAB)
 		{
 			ShowChildren(true);
-			game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-			game->OnKeyboardRelease(kSCORES);
 			UI().GetUICursor().Show();
 		}
 		
@@ -241,8 +209,6 @@ bool CUISkinSelectorWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 	if (dik == DIK_TAB)
 	{
         ShowChildren(false);
-		game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-		game->OnKeyboardPress(kSCORES);
 		UI().GetUICursor().Hide();
 		return false;
 	}

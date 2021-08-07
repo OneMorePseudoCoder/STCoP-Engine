@@ -14,7 +14,6 @@ protected:
 
 
 	virtual		bool				checkForFragLimit		();
-	virtual		bool				HasChampion				();
 		
 	virtual		void				ReadOptions				(shared_str &options);
 	virtual		void				ConsoleCommands_Create	();
@@ -61,17 +60,6 @@ public:
 	virtual		BOOL				CanHaveFriendlyFire		()	{return TRUE;}
 	virtual		void				OnFraglimitExceed		();
 	virtual		void				OnTimelimitExceed		();
-
-	virtual		BOOL				isFriendlyFireEnabled	();
-	virtual		float				GetFriendlyFire			();
-
-	virtual		BOOL				Get_AutoTeamBalance		();
-	virtual		BOOL				Get_AutoTeamSwap		();
-	virtual		BOOL				Get_FriendlyIndicators	();
-	virtual		BOOL				Get_FriendlyNames		();
-
-	virtual		int					Get_TeamKillLimit		();
-	virtual		BOOL				Get_TeamKillPunishment	();
 
 				BOOL				OnTouchItem(CSE_ActorMP *actor, CSE_Abstract *item);
 				void				OnDetachItem(CSE_ActorMP *actor, CSE_Abstract *item);

@@ -35,26 +35,6 @@ LPSTR remove_version_option(LPCSTR opt_str, LPSTR new_opt_str, u32 new_opt_str_s
 	return new_opt_str;
 }
 
-#ifdef DEBUG
-s32 lag_simmulator_min_ping	= 0;
-s32 lag_simmulator_max_ping	= 0;
-static bool SimmulateNetworkLag()
-{
-	static u32 max_lag_time	= 0;
-
-	if (!lag_simmulator_max_ping && !lag_simmulator_min_ping)
-		return false;
-	
-	if (!max_lag_time || (max_lag_time <= Device.dwTimeGlobal))
-	{
-		CRandom				tmp_random(Device.dwTimeGlobal);
-		max_lag_time		= Device.dwTimeGlobal + tmp_random.randI(lag_simmulator_min_ping, lag_simmulator_max_ping);
-		return false;
-	}
-	return true;
-}
-#endif
-
 void CLevel::ClientReceive()
 {
 	m_dwRPC = 0;
@@ -64,10 +44,6 @@ void CLevel::ClientReceive()
 	{
 		SimulateServerUpdate();
 	}
-#ifdef DEBUG
-	if (SimmulateNetworkLag())
-		return;
-#endif
 	StartProcessQueue();
 	for (NET_Packet* P = net_msg_Retreive(); P; P=net_msg_Retreive())
 	{
@@ -341,17 +317,14 @@ void CLevel::ClientReceive()
 					break;
 				}*/
 				if (!game) break;
-				Game().OnChatMessage(P);
 			}break;
 		case M_CLIENT_WARN:
 			{
 				if (!game) break;
-				Game().OnWarnMessage(P);
 			}break;
 		case M_REMOTE_CONTROL_AUTH:
 		case M_REMOTE_CONTROL_CMD:
 			{
-				Game().OnRadminMessage(m_type, P);
 			}break;
 		case M_SV_MAP_NAME:
 			{

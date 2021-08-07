@@ -487,15 +487,6 @@ void	game_sv_GameState::ReadOptions				(shared_str &options)
 	FS.update_path(MAPROT_LIST, "$app_data_root$", MAPROT_LIST_NAME);
 	if (FS.exist(MAPROT_LIST))
 		Console->ExecuteScript(MAPROT_LIST);
-	
-	g_sv_base_iVotingEnabled = get_option_i(*options,"vote",(g_sv_base_iVotingEnabled));
-	//---------------------------
-	//Convert old vote param
-	if (g_sv_base_iVotingEnabled != 0)
-	{
-		if (g_sv_base_iVotingEnabled == 1)
-			g_sv_base_iVotingEnabled = 0x00ff;
-	}
 };
 //-----------------------------------------------------------
 static bool g_bConsoleCommandsCreated_SV_Base = false;
@@ -1215,9 +1206,6 @@ void		game_sv_GameState::OnRender				()
 };
 #endif
 //  [7/5/2005]
-
-BOOL	game_sv_GameState::IsVotingEnabled			()	{return g_sv_base_iVotingEnabled != 0;};
-BOOL	game_sv_GameState::IsVotingEnabled			(u16 flag) {return (g_sv_base_iVotingEnabled&flag) != 0;};
 
 class NameSearcherPredicate
 {

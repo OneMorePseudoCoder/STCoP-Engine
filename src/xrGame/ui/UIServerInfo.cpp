@@ -8,7 +8,6 @@
 #include "UI3tButton.h"
 #include "UIGameCustom.h"
 #include "../level.h"
-#include "../game_cl_mp.h"
 #include <dinput.h>
 #include "ximage.h"
 #include "xmemfile.h"
@@ -150,20 +149,12 @@ void CUIServerInfo::SetServerRules(u8 const * data_ptr, u32 const data_size)
 
 void	xr_stdcall	CUIServerInfo::OnSpectatorBtnClick(CUIWindow* w, void* d)
 {
-	game_cl_mp* mp_game = smart_cast<game_cl_mp*>(&Game());
-	VERIFY(mp_game);
-	
 	HideDialog					();
-	mp_game->OnSpectatorSelect	();
 }
 
 void	xr_stdcall	CUIServerInfo::OnNextBtnClick(CUIWindow* w, void* d)
 {
-	game_cl_mp* mp_game = smart_cast<game_cl_mp*>(&Game());
-	VERIFY(mp_game);
-	
 	HideDialog					();
-	mp_game->OnMapInfoAccept	();
 }
 
 bool CUIServerInfo::OnKeyboardAction(int dik, EUIMessages keyboard_action)

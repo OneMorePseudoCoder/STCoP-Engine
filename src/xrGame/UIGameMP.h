@@ -5,7 +5,6 @@
 
 class CUIServerInfo;
 class CUIAchivementIndicator;
-class game_cl_mp;
 
 class UIGameMP : public CUIGameCustom
 {
@@ -30,7 +29,6 @@ public:
 protected:
 	CUIServerInfo*				m_pServerInfo;
 	CUIAchivementIndicator*		m_pAchivementIdicator;
-	game_cl_mp*					m_game;
 }; //class UIGameMP
 
 #endif //#ifndef UIGAMEMP_H

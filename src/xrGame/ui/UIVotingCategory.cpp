@@ -7,7 +7,6 @@
 #include "ChangeWeatherDialog.hpp"
 #include "UIGameCustom.h"
 
-#include "../game_cl_teamdeathmatch.h"
 #include "../game_sv_mp_vote_flags.h"
 
 
@@ -109,60 +108,7 @@ bool CUIVotingCategory::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 
 void CUIVotingCategory::OnBtn(int i)
 {
-//	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 
-	//check buttons state, based on voting mask
-	u16 flag = 1<<(u16(i+1) & 0xff);
-	if (Game().IsVotingEnabled(flag))
-	{
-		switch (i){
-		case 0:
-			Console->Execute("cl_votestart restart");
-			HideDialog();
-			break;
-		case 1:
-			Console->Execute("cl_votestart restart_fast");
-			HideDialog();
-			break;
-		case 2:
-			HideDialog();
-			if (!kick)
-				kick = xr_new<CUIKickPlayer>();
-			kick->InitKick				(*xml_doc);
-			kick->ShowDialog			(true);
-			break;
-		case 3:
-			HideDialog();
-			if (!kick)
-				kick = xr_new<CUIKickPlayer>();
-			kick->InitBan(*xml_doc);
-			kick->ShowDialog			(true);
-			break;
-		case 4:
-			HideDialog();
-			if (!change_map)
-				change_map				= xr_new<CUIChangeMap>();
-			change_map->InitChangeMap	(*xml_doc);
-			change_map->ShowDialog		(true);
-			break;
-		case 5:
-			HideDialog();
-			if (!change_weather)
-				change_weather			= xr_new<ChangeWeatherDialog>();
-			change_weather->InitChangeWeather(*xml_doc);
-			change_weather->ShowDialog	(true);
-			break;
-		case 6:
-			HideDialog();
-			if (!change_gametype)
-				change_gametype			= xr_new<ChangeGameTypeDialog>();
-			change_gametype->InitChangeGameType(*xml_doc);
-			change_gametype->ShowDialog	(true);
-			break;
-		case 7:
-			break;
-		}
-	}
 }
 
 void CUIVotingCategory::OnBtnCancel()
@@ -172,14 +118,5 @@ void CUIVotingCategory::OnBtnCancel()
 
 void CUIVotingCategory::Update				()
 {
-	//check buttons state, based on voting mask
-	for (int i = 0; i<7; i++)
-	{
-		u16 flag = 1<<(u16(i+1) & 0xff);
-		
-		btn[i]->Enable(Game().IsVotingEnabled(flag));
-		txt[i]->Enable(Game().IsVotingEnabled(flag));		
-	}
-
 	inherited::Update();
 }

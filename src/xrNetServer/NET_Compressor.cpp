@@ -328,30 +328,14 @@ u16 NET_Compressor::compressed_size	(const u32 &count)
 }
 
 XRNETSERVER_API BOOL g_net_compressor_enabled		= FALSE;
-XRNETSERVER_API BOOL g_net_compressor_gather_stats	= FALSE;
 
 u16 NET_Compressor::Compress(BYTE* dest, const u32 &dest_size, BYTE* src, const u32 &count)
 {
-	SCompressorStats::SStatPacket* _p = NULL;
 	bool b_compress_packet = (count>36);
-	if(g_net_compressor_gather_stats && b_compress_packet)
-	{
-		_p								= m_stats.get(count);
-		_p->hit_count						+= 1;
-		m_stats.total_uncompressed_bytes	+= count;
-	}
 
 	VERIFY(dest);
 	VERIFY(src);
 	VERIFY(count);
-
-#if 1//def DEBUG
-	if( strstr(Core.Params,"-dump_traffic") ) 
-	{
-//		fwrite( src,count,1,OriginalTrafficDump );
-//		fflush( OriginalTrafficDump );
-	}
-#endif // DEBUG
 
 #if !NET_USE_COMPRESSION
 
@@ -373,9 +357,6 @@ u16 NET_Compressor::Compress(BYTE* dest, const u32 &dest_size, BYTE* src, const 
 	{
 		CS.Enter							();
 		compressed_size = offset + ENCODE( dest+offset, dest_size-offset, src, count );
-
-		if(g_net_compressor_gather_stats)
-			m_stats.total_compressed_bytes		+= compressed_size;
 
 		CS.Leave();
 	}
@@ -413,9 +394,6 @@ u16 NET_Compressor::Compress(BYTE* dest, const u32 &dest_size, BYTE* src, const 
 	}
 	else 
 	{
-		if(g_net_compressor_gather_stats && b_compress_packet)
-			_p->unlucky_attempts	+=1;
-
 		*dest = NET_TAG_NONCOMPRESSED;
 		
 		compressed_size	= count + 1;
@@ -425,30 +403,6 @@ u16 NET_Compressor::Compress(BYTE* dest, const u32 &dest_size, BYTE* src, const 
         Msg( "#compress/as-is %u->%u  %02X", count, compressed_size, *dest );
         #endif
 	}
-	if(g_net_compressor_gather_stats && b_compress_packet)
-		_p->compressed_size		+= compressed_size;
-
-    #if 1//def DEBUG
-//	if( strstr(Core.Params,"-dump_traffic")) 
-//	{
-//		fwrite(dest,compressed_size,1,CompressedTrafficDump);
-//		fflush(CompressedTrafficDump);
-//	}	
-    #endif // DEBUG
-
-    #ifdef DEBUG
-/*
-	BYTE			*src_back = (BYTE*)_alloca(count);
-	Decompress		(src_back,count,dest,compressed_size);
-	BYTE			*I = src_back;
-	BYTE			*E = src_back + count;
-	BYTE			*J = src;
-	for ( ; I != E; ++I, ++J)
-		VERIFY		(*I == *J);
-
-*/
-//	CS.Leave		();
-    #endif // DEBUG
 
 	return (u16(compressed_size));
 	

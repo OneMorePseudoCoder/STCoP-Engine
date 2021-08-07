@@ -2080,15 +2080,6 @@
     <Filter Include="Core\Server\Games\client">
       <UniqueIdentifier>{68f65e04-5fcd-4447-9bb0-9a68244f680c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\artefact_hunt">
-      <UniqueIdentifier>{a70b8b2e-33c2-49fa-876f-3f24b0bb040c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\deathmatch">
-      <UniqueIdentifier>{f82a3e07-7dfb-4327-a993-e439a2618e6e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\team_deathmatch">
-      <UniqueIdentifier>{d726208b-8e6d-4e65-bd66-c0bc9a0965c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\Games\client\single">
       <UniqueIdentifier>{72dcfedd-f536-42be-9da5-14f9632f686b}</UniqueIdentifier>
     </Filter>
@@ -2101,9 +2092,6 @@
     <Filter Include="Core\Server\Games\client\mp\screenshots">
       <UniqueIdentifier>{083893c7-5148-4c4f-8b0d-e28d55dc5ef7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\mp\anticheat">
-      <UniqueIdentifier>{05fd45d5-e228-4cf4-b0ba-95c70c241d32}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\Games\client\mp\award_system">
       <UniqueIdentifier>{a6c8ba3f-676b-481e-9a66-384adbd86cfb}</UniqueIdentifier>
     </Filter>
@@ -2112,9 +2100,6 @@
     </Filter>
     <Filter Include="Core\Server\Games\client\mp\award_system\player_state\state_parameters">
       <UniqueIdentifier>{d311624a-97c9-478e-b79e-c683de716d95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\capture_the_artefact">
-      <UniqueIdentifier>{90021637-62c4-48f9-a213-150237749e59}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Server\Games\server">
       <UniqueIdentifier>{9ef2d02d-fb00-4fda-935d-21c7431515b6}</UniqueIdentifier>
@@ -6210,24 +6195,6 @@
     <ClInclude Include="..\xrServerEntities\game_base_space.h">
       <Filter>Core\Server\Games</Filter>
     </ClInclude>
-    <ClInclude Include="game_cl_artefacthunt.h">
-      <Filter>Core\Server\Games\client\artefact_hunt</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_artefacthunt_snd_msg.h">
-      <Filter>Core\Server\Games\client\artefact_hunt</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_deathmatch.h">
-      <Filter>Core\Server\Games\client\deathmatch</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_deathmatch_snd_messages.h">
-      <Filter>Core\Server\Games\client\deathmatch</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_teamdeathmatch.h">
-      <Filter>Core\Server\Games\client\team_deathmatch</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_teamdeathmatch_snd_messages.h">
-      <Filter>Core\Server\Games\client\team_deathmatch</Filter>
-    </ClInclude>
     <ClInclude Include="game_cl_single.h">
       <Filter>Core\Server\Games\client\single</Filter>
     </ClInclude>
@@ -6237,15 +6204,6 @@
     <ClInclude Include="game_cl_base_weapon_usage_statistic.h">
       <Filter>Core\Server\Games\client\base</Filter>
     </ClInclude>
-    <ClInclude Include="game_cl_mp.h">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_mp_messages_menu.h">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_mp_snd_messages.h">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClInclude>
     <ClInclude Include="screenshot_manager.h">
       <Filter>Core\Server\Games\client\mp\screenshots</Filter>
     </ClInclude>
@@ -6254,18 +6212,6 @@
     </ClInclude>
     <ClInclude Include="screenshots_writer.h">
       <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClInclude>
-    <ClInclude Include="configs_common.h">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClInclude>
-    <ClInclude Include="configs_dump_verifyer.h">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClInclude>
-    <ClInclude Include="configs_dumper.h">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClInclude>
-    <ClInclude Include="mp_config_sections.h">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
     </ClInclude>
     <ClInclude Include="ammunition_groups.h">
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
@@ -6279,16 +6225,7 @@
     <ClInclude Include="game_events_handler.h">
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
     </ClInclude>
-    <ClInclude Include="reward_event_generator.h">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClInclude>
-    <ClInclude Include="reward_manager.h">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClInclude>
     <ClInclude Include="reward_snd_messages.h">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClInclude>
-    <ClInclude Include="rewarding_state_events.h">
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
     </ClInclude>
     <ClInclude Include="state_arguments_functions.h">
@@ -6405,15 +6342,6 @@
     <ClInclude Include="stalker_flair.h">
       <Filter>Core\Server\Games\client\mp\award_system\player_state\state_parameters</Filter>
     </ClInclude>
-    <ClInclude Include="game_cl_capture_the_artefact.h">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_capture_the_artefact_captions_manager.h">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_capturetheartefact_snd_msg.h">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClInclude>
     <ClInclude Include="game_sv_base.h">
       <Filter>Core\Server\Games\server</Filter>
     </ClInclude>
@@ -6440,9 +6368,6 @@
     </ClInclude>
     <ClInclude Include="game_sv_teamdeathmatch.h">
       <Filter>Core\Server\Games\server\team_deathmatch</Filter>
-    </ClInclude>
-    <ClInclude Include="cdkey_ban_list.h">
-      <Filter>Core\Server\Games\server\mp</Filter>
     </ClInclude>
     <ClInclude Include="game_sv_mp.h">
       <Filter>Core\Server\Games\server\mp</Filter>
@@ -9588,18 +9513,6 @@
     <ClCompile Include="game_base.cpp">
       <Filter>Core\Server\Games</Filter>
     </ClCompile>
-    <ClCompile Include="game_cl_artefacthunt.cpp">
-      <Filter>Core\Server\Games\client\artefact_hunt</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_deathmatch.cpp">
-      <Filter>Core\Server\Games\client\deathmatch</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_deathmatch_buywnd.cpp">
-      <Filter>Core\Server\Games\client\deathmatch</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_teamdeathmatch.cpp">
-      <Filter>Core\Server\Games\client\team_deathmatch</Filter>
-    </ClCompile>
     <ClCompile Include="game_cl_single.cpp">
       <Filter>Core\Server\Games\client\single</Filter>
     </ClCompile>
@@ -9612,15 +9525,6 @@
     <ClCompile Include="game_cl_base_weapon_usage_statistic_save.cpp">
       <Filter>Core\Server\Games\client\base</Filter>
     </ClCompile>
-    <ClCompile Include="game_cl_mp.cpp">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_mp_messages_menu.cpp">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_mp_snd_messages.cpp">
-      <Filter>Core\Server\Games\client\mp</Filter>
-    </ClCompile>
     <ClCompile Include="screenshot_manager.cpp">
       <Filter>Core\Server\Games\client\mp\screenshots</Filter>
     </ClCompile>
@@ -9630,18 +9534,6 @@
     <ClCompile Include="screenshots_writer.cpp">
       <Filter>Core\Server\Games\client\mp\screenshots</Filter>
     </ClCompile>
-    <ClCompile Include="configs_common.cpp">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClCompile>
-    <ClCompile Include="configs_dump_verifyer.cpp">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClCompile>
-    <ClCompile Include="configs_dumper.cpp">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClCompile>
-    <ClCompile Include="mp_config_sections.cpp">
-      <Filter>Core\Server\Games\client\mp\anticheat</Filter>
-    </ClCompile>
     <ClCompile Include="ammunition_groups.cpp">
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
     </ClCompile>
@@ -9649,15 +9541,6 @@
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
     </ClCompile>
     <ClCompile Include="event_conditions_collection.cpp">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClCompile>
-    <ClCompile Include="reward_event_generator.cpp">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClCompile>
-    <ClCompile Include="reward_manager.cpp">
-      <Filter>Core\Server\Games\client\mp\award_system</Filter>
-    </ClCompile>
-    <ClCompile Include="rewarding_state_events.cpp">
       <Filter>Core\Server\Games\client\mp\award_system</Filter>
     </ClCompile>
     <ClCompile Include="state_arguments_functions.cpp">
@@ -9753,18 +9636,6 @@
     <ClCompile Include="stalker_flair.cpp">
       <Filter>Core\Server\Games\client\mp\award_system\player_state\state_parameters</Filter>
     </ClCompile>
-    <ClCompile Include="game_cl_capture_the_artefact.cpp">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_capture_the_artefact_captions_manager.cpp">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_capture_the_artefact_messages_menu.cpp">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_capturetheartefact_buywnd.cpp">
-      <Filter>Core\Server\Games\client\capture_the_artefact</Filter>
-    </ClCompile>
     <ClCompile Include="game_sv_base.cpp">
       <Filter>Core\Server\Games\server</Filter>
     </ClCompile>
@@ -9800,9 +9671,6 @@
     </ClCompile>
     <ClCompile Include="game_sv_teamdeathmatch_process_event.cpp">
       <Filter>Core\Server\Games\server\team_deathmatch</Filter>
-    </ClCompile>
-    <ClCompile Include="cdkey_ban_list.cpp">
-      <Filter>Core\Server\Games\server\mp</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_mp.cpp">
       <Filter>Core\Server\Games\server\mp</Filter>

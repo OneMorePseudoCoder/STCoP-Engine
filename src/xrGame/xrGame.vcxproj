@@ -963,7 +963,6 @@
     <ClInclude Include="CarLights.h" />
     <ClInclude Include="CarWeapon.h" />
     <ClInclude Include="car_memory.h" />
-    <ClInclude Include="cdkey_ban_list.h" />
     <ClInclude Include="CharacterPhysicsSupport.h" />
     <ClInclude Include="character_community.h" />
     <ClInclude Include="character_hit_animations.h" />
@@ -977,9 +976,6 @@
     <ClInclude Include="command_switch_counter.h" />
     <ClInclude Include="condition_state.h" />
     <ClInclude Include="condition_state_inline.h" />
-    <ClInclude Include="configs_common.h" />
-    <ClInclude Include="configs_dumper.h" />
-    <ClInclude Include="configs_dump_verifyer.h" />
     <ClInclude Include="console_registrator.h" />
     <ClInclude Include="controller_state_panic_inline.h" />
     <ClInclude Include="control_action.h" />
@@ -1101,21 +1097,9 @@
     <ClInclude Include="game_base.h" />
     <ClInclude Include="game_base_kill_type.h" />
     <ClInclude Include="game_base_menu_events.h" />
-    <ClInclude Include="game_cl_artefacthunt.h" />
-    <ClInclude Include="game_cl_artefacthunt_snd_msg.h" />
     <ClInclude Include="game_cl_base.h" />
     <ClInclude Include="game_cl_base_weapon_usage_statistic.h" />
-    <ClInclude Include="game_cl_capturetheartefact_snd_msg.h" />
-    <ClInclude Include="game_cl_capture_the_artefact.h" />
-    <ClInclude Include="game_cl_capture_the_artefact_captions_manager.h" />
-    <ClInclude Include="game_cl_deathmatch.h" />
-    <ClInclude Include="game_cl_deathmatch_snd_messages.h" />
-    <ClInclude Include="game_cl_mp.h" />
-    <ClInclude Include="game_cl_mp_messages_menu.h" />
-    <ClInclude Include="game_cl_mp_snd_messages.h" />
     <ClInclude Include="game_cl_single.h" />
-    <ClInclude Include="game_cl_teamdeathmatch.h" />
-    <ClInclude Include="game_cl_teamdeathmatch_snd_messages.h" />
     <ClInclude Include="game_events_handler.h" />
     <ClInclude Include="game_graph.h" />
     <ClInclude Include="game_graph_inline.h" />
@@ -1297,7 +1281,6 @@
     <ClInclude Include="moving_objects_inline.h" />
     <ClInclude Include="moving_object_inline.h" />
     <ClInclude Include="MPPlayersBag.h" />
-    <ClInclude Include="mp_config_sections.h" />
     <ClInclude Include="mt_config.h" />
     <ClInclude Include="Needles.h" />
     <ClInclude Include="NET_Queue.h" />
@@ -1451,9 +1434,6 @@
     <ClInclude Include="restricted_object.h" />
     <ClInclude Include="restricted_object_inline.h" />
     <ClInclude Include="restricted_object_obstacle.h" />
-    <ClInclude Include="rewarding_state_events.h" />
-    <ClInclude Include="reward_event_generator.h" />
-    <ClInclude Include="reward_manager.h" />
     <ClInclude Include="reward_snd_messages.h" />
     <ClInclude Include="RGD5.h" />
     <ClInclude Include="RocketLauncher.h" />
@@ -2587,7 +2567,6 @@
     <ClCompile Include="CarWeapon.cpp" />
     <ClCompile Include="CarWheels.cpp" />
     <ClCompile Include="car_memory.cpp" />
-    <ClCompile Include="cdkey_ban_list.cpp" />
     <ClCompile Include="CharacterPhysicsSupport.cpp" />
     <ClCompile Include="character_community.cpp" />
     <ClCompile Include="character_hit_animations.cpp" />
@@ -2603,9 +2582,6 @@
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="ClimableObject.cpp" />
-    <ClCompile Include="configs_common.cpp" />
-    <ClCompile Include="configs_dumper.cpp" />
-    <ClCompile Include="configs_dump_verifyer.cpp" />
     <ClCompile Include="console_commands.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
@@ -2748,27 +2724,16 @@
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="game_cl_artefacthunt.cpp" />
     <ClCompile Include="game_cl_base.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="game_cl_base_weapon_usage_statistic.cpp" />
     <ClCompile Include="game_cl_base_weapon_usage_statistic_save.cpp" />
-    <ClCompile Include="game_cl_capturetheartefact_buywnd.cpp" />
-    <ClCompile Include="game_cl_capture_the_artefact.cpp" />
-    <ClCompile Include="game_cl_capture_the_artefact_captions_manager.cpp" />
-    <ClCompile Include="game_cl_capture_the_artefact_messages_menu.cpp" />
-    <ClCompile Include="game_cl_deathmatch.cpp" />
-    <ClCompile Include="game_cl_deathmatch_buywnd.cpp" />
-    <ClCompile Include="game_cl_mp.cpp" />
-    <ClCompile Include="game_cl_mp_messages_menu.cpp" />
-    <ClCompile Include="game_cl_mp_snd_messages.cpp" />
     <ClCompile Include="game_cl_single.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="game_cl_teamdeathmatch.cpp" />
     <ClCompile Include="game_graph_script.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
@@ -3034,7 +2999,6 @@
     <ClCompile Include="moving_objects_static.cpp" />
     <ClCompile Include="mpactor_dump_impl.cpp" />
     <ClCompile Include="MPPlayersBag.cpp" />
-    <ClCompile Include="mp_config_sections.cpp" />
     <ClCompile Include="Needles.cpp" />
     <ClCompile Include="NoGravityZone.cpp" />
     <ClCompile Include="object_actions.cpp" />
@@ -3190,9 +3154,6 @@
     <ClCompile Include="relation_registry_fights.cpp" />
     <ClCompile Include="restricted_object.cpp" />
     <ClCompile Include="restricted_object_obstacle.cpp" />
-    <ClCompile Include="rewarding_state_events.cpp" />
-    <ClCompile Include="reward_event_generator.cpp" />
-    <ClCompile Include="reward_manager.cpp" />
     <ClCompile Include="RGD5.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>

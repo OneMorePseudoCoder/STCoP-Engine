@@ -125,14 +125,6 @@ public:
 	virtual		BOOL				CanHaveFriendlyFire		()	{return TRUE;}
 
 	//-----------------------------------------------------------------------------
-	virtual		int					Get_ArtefactsCount			();
-	virtual		u32					Get_ArtefactsRespawnDelta	();
-	virtual		u32					Get_ArtefactsStayTime		();
-	virtual		int					Get_ReinforcementTime		();
-	virtual		BOOL				Get_ShieldedBases			();
-	virtual		BOOL				Get_ReturnPlayers			();
-	virtual		BOOL				Get_BearerCantSprint		();
-
 				void				SwapTeams					();
 
 	//  [7/5/2005]

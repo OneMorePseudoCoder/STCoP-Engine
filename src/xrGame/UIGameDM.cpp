@@ -44,7 +44,6 @@
 //--------------------------------------------------------------------
 CUIGameDM::CUIGameDM()
 {
-	m_game								= NULL; 
 	m_voteStatusWnd						= NULL;
 }
 
@@ -52,8 +51,6 @@ CUIGameDM::CUIGameDM()
 void CUIGameDM::SetClGame (game_cl_GameState* g)
 {
 	inherited::SetClGame(g);
-	m_game = smart_cast<game_cl_Deathmatch*>(g);
-	R_ASSERT(m_game);
 
 	UpdateTeamPanels	();
 }
@@ -229,7 +226,6 @@ void CUIGameDM::ChangeTotalMoneyIndicator(LPCSTR newMoneyString)
 
 void	CUIGameDM::SetRank(s16 team, u8 rank)
 {
-	m_pRankIndicator->SetRank(u8(m_game->ModifyTeam(team)), rank);
 };
 
 void CUIGameDM::SetFraglimit(int local_frags, int fraglimit)

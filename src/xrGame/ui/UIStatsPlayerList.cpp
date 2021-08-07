@@ -1,15 +1,12 @@
 #include "StdAfx.h"
 #include "UIStatsPlayerList.h"
 #include "../game_cl_base.h"
-#include "../game_cl_artefacthunt.h"
 #include "UIStatsPlayerInfo.h"
 #include "UIStatsIcon.h"
 #include "../string_table.h"
 #include "../level.h"
 #include "UIStatic.h"
 #include "UIXmlInit.h"
-
-IC bool	DM_Compare_Players		(game_PlayerState* p1, game_PlayerState* p2);
 
 CUIStatsPlayerList::CUIStatsPlayerList()
 {
@@ -244,15 +241,11 @@ void CUIStatsPlayerList::Update()
     CStringTable st;
     if (GameID() == eGameIDArtefactHunt && !m_bSpectator)
 	{
-		game_cl_ArtefactHunt* game = static_cast<game_cl_ArtefactHunt*>(&Game());
-		pl_artefacts = game->teams[m_CurTeam - 1].score;
         xr_sprintf(teaminfo, "%s: %u, %s: %u, %s: %d",*st.translate("mp_artefacts_upcase"),pl_artefacts, *st.translate("mp_players"), pl_count, *st.translate("mp_frags_upcase"),pl_frags );
 		m_header_text->SetText(teaminfo);
 	}
 	else if (GameID() == eGameIDTeamDeathmatch && !m_bSpectator)
 	{
-		game_cl_TeamDeathmatch* game = static_cast<game_cl_TeamDeathmatch*>(&Game());
-		pl_frags = game->teams[m_CurTeam - 1].score;
 		xr_sprintf(teaminfo, "%s: %d, %s: %u", *st.translate("mp_frags_upcase"), pl_frags, *st.translate("mp_players"), pl_count);
 		m_header_text->SetText(teaminfo);
 	}	
@@ -268,8 +261,6 @@ void CUIStatsPlayerList::Update()
 		else
 			ShowHeader(true);
 	}
-
-    std::sort(items.begin(), items.end(), DM_Compare_Players);
 
 	int n = (int)items.size();
 	n -= m_pad->GetChildWndList().size();

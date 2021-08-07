@@ -20,30 +20,6 @@ using namespace std::placeholders;
 #include "ui\UIBuyWndShared.h"
 #include "../xrEngine/xr_ioconsole.h"
 
-#define UNBUYABLESLOT		20
-
-//-----------------------------------------------------------------
-u32		g_sv_dm_dwForceRespawn			= 0;
-s32		g_sv_dm_dwFragLimit				= 10;
-s32		g_sv_dm_dwTimeLimit				= 0;
-BOOL	g_sv_dm_bDamageBlockIndicators	= TRUE;
-u32		g_sv_dm_dwDamageBlockTime		= 0;
-BOOL	g_sv_dm_bAnomaliesEnabled		= TRUE;
-u32		g_sv_dm_dwAnomalySetLengthTime	= 3;
-BOOL	g_sv_dm_bPDAHunt				= TRUE;
-u32		g_sv_dm_dwWarmUp_MaxTime		= 0;
-BOOL	g_sv_dm_bDMIgnore_Money_OnBuy	= FALSE;
-//-----------------------------------------------------------------
-BOOL				game_sv_Deathmatch::IsDamageBlockIndEnabled	() {return g_sv_dm_bDamageBlockIndicators; };
-s32					game_sv_Deathmatch::GetTimeLimit			() {return g_sv_dm_dwTimeLimit; };
-s32					game_sv_Deathmatch::GetFragLimit			() {return g_sv_dm_dwFragLimit; };
-u32					game_sv_Deathmatch::GetDMBLimit				() {return g_sv_dm_dwDamageBlockTime; };
-u32					game_sv_Deathmatch::GetForceRespawn			() {return g_sv_dm_dwForceRespawn; };
-u32					game_sv_Deathmatch::GetWarmUpTime			() {return g_sv_dm_dwWarmUp_MaxTime; };
-BOOL				game_sv_Deathmatch::IsAnomaliesEnabled		() {return g_sv_dm_bAnomaliesEnabled; };
-u32					game_sv_Deathmatch::GetAnomaliesTime		() {return g_sv_dm_dwAnomalySetLengthTime; };
-//-----------------------------------------------------------------
-
 game_sv_Deathmatch::game_sv_Deathmatch()
 :pure_relcase(&game_sv_Deathmatch::net_Relcase)
 {
@@ -147,17 +123,7 @@ void game_sv_Deathmatch::OnRoundStart()
 
 	m_dwWarmUp_CurTime				= 0;
 	m_bInWarmUp						= false;
-	if (!m_bFastRestart)
-	{
-		if (GetWarmUpTime() != 0)
-		{
-			m_dwWarmUp_CurTime = Level().timeServer()+GetWarmUpTime()*1000;
-			m_bInWarmUp = true;
-		}
-	}
 	inherited::OnRoundStart			();
-
-	if (IsAnomaliesEnabled()) StartAnomalies();
 	//-------------------------------------
 
 	for (int i = 0; i < TEAM_COUNT; ++i)
@@ -465,34 +431,11 @@ void	game_sv_Deathmatch::Update()
 }
 
 INT	g_sv_Pending_Wait_Time		= 10000;
-INT g_sv_Wait_For_Players_Ready = 1;
 
 bool game_sv_Deathmatch::checkForRoundStart()
 {
 	if (!Level().m_bGameConfigStarted)	//in case of starting server stage (net_start 1..6) we can't do restart ....
 		return false;
-
-	if (m_bFastRestart ||
-		(AllPlayers_Ready() || (
-#ifdef DEBUG
-		!g_sv_Wait_For_Players_Ready &&
-#endif		
-		(((Level().timeServer()-StartTime()))>u32(g_sv_Pending_Wait_Time)))
-		)
-		)
-	{
-		if (!HasMapRotation() || !SwitchToNextMap())
-		{
-			OnRoundStart();
-		}
-		else
-		{
-			if (!OnNextMap())
-			{
-			};
-		};		
-		return true;
-	};
 
 	return false;
 }
@@ -500,39 +443,11 @@ bool game_sv_Deathmatch::checkForRoundStart()
 bool game_sv_Deathmatch::checkForTimeLimit()
 {
 	if (m_dwWarmUp_CurTime != 0 || m_bInWarmUp) return false;
-	if (GetTimeLimit() && ((Level().timeServer()-StartTime())) > u32(GetTimeLimit()*60000) )
-	{
-		if (!HasChampion()) return false;
-		OnTimelimitExceed();
-		return true;
-	};
 	return false;
 }
 
 bool game_sv_Deathmatch::checkForFragLimit()
 {
-	if( g_sv_dm_dwFragLimit )
-	{
-		struct frag_limit_searcher
-		{
-			bool operator()(IClient* client)
-			{
-				xrClientData* tmp_client = static_cast<xrClientData*>(client);
-				game_PlayerState* ps = tmp_client->ps;
-				if (!ps)
-					return false;
-				if (ps->frags() >= g_sv_dm_dwFragLimit)
-					return true;
-				return false;
-			}
-		};
-		frag_limit_searcher tmp_predicate;
-		if (m_server->FindClient(tmp_predicate) != NULL)
-		{
-			OnFraglimitExceed();
-			return true;
-		}
-	}
 	return false;
 }
 
@@ -1046,10 +961,7 @@ void	game_sv_Deathmatch::SpawnWeaponsForActor(CSE_Abstract* pE, game_PlayerState
 		ps->pItemList.erase(ps->pItemList.begin());
 	}
 
-#ifndef	NDEBUG
-	if (!g_sv_dm_bDMIgnore_Money_OnBuy)
-#endif
-		Player_AddMoney(ps, ps->LastBuyAcount);
+	Player_AddMoney(ps, ps->LastBuyAcount);
 };
 
 void game_sv_Deathmatch::LoadSkinsForTeam(const shared_str& caSection, TEAM_SKINS_NAMES* pTeamSkins)
@@ -1361,12 +1273,7 @@ void game_sv_Deathmatch::net_Export_State		(NET_Packet& P, ClientID id_to)
 {
 	inherited::net_Export_State(P, id_to);
 
-	P.w_s32			(g_sv_dm_dwFragLimit);
-	P.w_s32			(GetTimeLimit());
-//	P.w_u32			(GetDMBLimit());
-	P.w_u32			(GetForceRespawn());
 	P.w_u32			(m_dwWarmUp_CurTime);
-	P.w_u8			(u8(g_sv_dm_bDamageBlockIndicators));
 	// Teams
 	P.w_u16			(u16(teams.size()));
 	for (u32 t_it=0; t_it<teams.size(); ++t_it)
@@ -1550,8 +1457,6 @@ void	game_sv_Deathmatch::StartAnomalies			(int AnomalySet)
 	else
 		m_dwLastAnomalySetID = NewAnomalySetID;
 
-	if (IsAnomaliesEnabled())
-		Send_EventPack_for_AnomalySet(m_dwLastAnomalySetID, CCustomZone::eZoneStateIdle); //Idle
 	m_dwLastAnomalyStartTime = Level().timeServer();
 #ifdef DEBUG
 	Msg("Anomaly Set %d Activated", m_dwLastAnomalySetID);
@@ -1666,17 +1571,7 @@ BOOL	game_sv_Deathmatch::OnTouch			(u16 eid_who, u16 eid_what, BOOL bForced)
 				NET_Packet		P;
 				u_EventGen		(P,GE_DESTROY,e_what->ID);
 				m_server->OnMessageSync(P, m_server->GetServerClient()->ID);//m_server->OnMessage(P, m_server->GetServerClient()->ID);
-				//-------------------------------
 
-				game_PlayerState* pKiller = get_eid(eid_who);
-				if (pKiller)
-				{
-					if (g_sv_dm_bPDAHunt)
-					{
-						Player_AddBonusMoney(pKiller, READ_IF_EXISTS(pSettings, r_s32, "mp_bonus_money", "pda_taken",0), SKT_PDA);
-					};
-				};
-				//-------------------------------
 				return FALSE;
 			}
 		};
@@ -1808,11 +1703,6 @@ void game_sv_Deathmatch::check_Player_for_Invincibility(game_PlayerState* ps)
 {
 	if (!ps)						return;
 	u32 CurTime						= Device.dwTimeGlobal;
-
-	if ((ps->RespawnTime + GetDMBLimit()*1000 < CurTime) && ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
-	{
-		ps->resetFlag				(GAME_PLAYER_FLAG_INVINCIBLE);
-	}
 };
 
 void game_sv_Deathmatch::check_InvinciblePlayers()
@@ -1854,9 +1744,6 @@ void	game_sv_Deathmatch::RespawnPlayer			(ClientID id_who, bool NoSpectator)
 	if (pTeamData)
 		Player_AddMoney(ps, pTeamData->m_iM_OnRespawn);
 
-	if (GetDMBLimit()*1000 > 0)
-		ps->setFlag(GAME_PLAYER_FLAG_INVINCIBLE);
-
 	SpawnWeapon4Actor(pA->ID, "mp_players_rukzak", 0, ps->pItemList);
 }
 
@@ -1878,7 +1765,6 @@ void	game_sv_Deathmatch::OnDelayedTeamEliminated()
 
 void	game_sv_Deathmatch::check_ForceRespawn		()
 {
-	if (!GetForceRespawn()) return;
 	struct respawn_checker
 	{
 		game_sv_Deathmatch* m_owner;
@@ -1890,14 +1776,6 @@ void	game_sv_Deathmatch::check_ForceRespawn		()
 			if (!l_pC->net_Ready || ps->IsSkip()) return;
 			if (!ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 			if (ps->testFlag(GAME_PLAYER_FLAG_SPECTATOR)) return;
-			u32 CurTime = Device.dwTimeGlobal;
-			if (ps->DeathTime + m_owner->GetForceRespawn()*1000 < CurTime)
-			{
-				m_owner->SetPlayersDefItems(ps);
-				m_owner->RespawnPlayer(l_pC->ID, true);
-				m_owner->SpawnWeaponsForActor(l_pC->owner, ps);
-				m_owner->Check_ForClearRun(ps);
-			}
 		};
 	};
 	respawn_checker tmp_functor;
@@ -1905,52 +1783,9 @@ void	game_sv_Deathmatch::check_ForceRespawn		()
 	m_server->ForEachClientDoSender(tmp_functor);
 };
 
-INT	g_sv_Skip_Winner_Waiting = 0;
-bool	game_sv_Deathmatch::HasChampion()
-{
-	struct champion_searcher
-	{
-		s16 MaxFragsMin;
-		s16 MaxFragsCurr;
-		u32 champions_count;
-		champion_searcher()
-		{
-			MaxFragsMin		= -100;
-			MaxFragsCurr	= MaxFragsMin;
-			champions_count = 0;
-		}
-
-		void operator()(IClient* client)
-		{
-			xrClientData *l_pC = static_cast<xrClientData*>(client);
-			game_PlayerState* ps	= l_pC->ps;
-			if(!ps) return;
-			s16 ps_frags = ps->frags();
-			if(ps_frags > MaxFragsCurr)
-			{
-				MaxFragsCurr	= ps_frags;
-				champions_count = 1;
-			} else if (ps_frags == MaxFragsCurr)
-			{
-				++champions_count;
-			}
-		};
-	};
-	champion_searcher tmp_functor;
-	m_server->ForEachClientDo(tmp_functor);
-	return ((tmp_functor.champions_count == 1) || g_sv_Skip_Winner_Waiting);
-};
-
 bool game_sv_Deathmatch::check_for_Anomalies()
 {
-	if (!IsAnomaliesEnabled()) return false;
-
-	if (m_dwLastAnomalySetID < 1000)
-	{
-		if (GetAnomaliesTime() == 0) return false;
-		if (m_dwLastAnomalyStartTime + GetAnomaliesTime()*60000 > Level().timeServer()) return false;
-	};
-	StartAnomalies(); 
+	StartAnomalies();
 	return true;
 }
 
@@ -1958,29 +1793,6 @@ BOOL game_sv_Deathmatch::Is_Anomaly_InLists(CSE_Abstract* E)
 {
 	if (!E) return FALSE;
 	return TRUE;
-	/*CSE_ALifeCustomZone* pCustomZone	=	smart_cast<CSE_ALifeCustomZone*> (E);
-	if (pCustomZone)
-	{
-		if (pCustomZone->m_owner_id != 0xffffffff) return TRUE;
-	}
-	
-	ANOMALIES_it It = std::find(m_AnomaliesPermanent.begin(), m_AnomaliesPermanent.end(),E->name_replace());
-	if (It != m_AnomaliesPermanent.end())
-	{
-		return TRUE;
-	};
-
-	for (u32 j=0; j<m_AnomalySetsList.size(); j++)
-	{
-		ANOMALIES* Anomalies = &(m_AnomalySetsList[j]);
-		ANOMALIES_it It = std::find(Anomalies->begin(), Anomalies->end(),E->name_replace());
-		if (It != Anomalies->end())
-		{
-			return TRUE;
-		};
-	};
-
-	return FALSE;*/
 }
 
 BOOL game_sv_Deathmatch::OnPreCreate(CSE_Abstract* E)
@@ -2086,17 +1898,6 @@ void game_sv_Deathmatch::Check_ForClearRun(game_PlayerState* ps)
 void	game_sv_Deathmatch::ReadOptions				(shared_str &options)
 {
 	inherited::ReadOptions(options);
-	//-------------------------------
-	g_sv_dm_dwForceRespawn		= get_option_i		(*options, "frcrspwn",	g_sv_dm_dwForceRespawn	);
-	g_sv_dm_dwFragLimit			= get_option_i		(*options,"fraglimit",	g_sv_dm_dwFragLimit		);
-	g_sv_dm_dwTimeLimit			= get_option_i		(*options,"timelimit",	g_sv_dm_dwTimeLimit		);	// in (min)
-	g_sv_dm_dwDamageBlockTime	= get_option_i		(*options,"dmgblock",	g_sv_dm_dwDamageBlockTime);	// in (sec)
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	g_sv_dm_bDamageBlockIndicators = (get_option_i(*options,"dmbi",(g_sv_dm_bDamageBlockIndicators ? 1 : 0)) != 0);
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	g_sv_dm_bAnomaliesEnabled = (get_option_i(*options,"ans",(IsAnomaliesEnabled() ? 1 : 0)) != 0);
-	g_sv_dm_dwAnomalySetLengthTime = get_option_i(*options, "anslen", g_sv_dm_dwAnomalySetLengthTime); //in (min)
-	//-----------------------------------------------------------------------
 	m_bSpectatorMode = false;
 	if (!g_dedicated_server && (get_option_i(*options,"spectr",-1) != -1))
 	{
@@ -2104,11 +1905,6 @@ void	game_sv_Deathmatch::ReadOptions				(shared_str &options)
 		m_dwSM_SwitchDelta =  get_option_i(*options,"spectr",0)*1000;
 		if (m_dwSM_SwitchDelta<1000) m_dwSM_SwitchDelta = 1000;
 	};
-	//-------------------------------------------------------------------------
-	g_sv_dm_dwWarmUp_MaxTime	= get_option_i		(*options,"warmup",g_sv_dm_dwWarmUp_MaxTime);
-
-	g_sv_dm_bPDAHunt = (get_option_i(*options,"pdahunt",(g_sv_dm_bPDAHunt ? 1 : 0)) != 0);
-	
 };
 
 static bool g_bConsoleCommandsCreated_DM = false;
@@ -2206,7 +2002,6 @@ void game_sv_Deathmatch::WriteGameState(CInifile& ini, LPCSTR sect, bool bRoundR
 
 	if(!bRoundResult)
 		ini.w_string		(sect,"in_warmup", m_bInWarmUp?"true":"false");
-	ini.w_string		(sect,"anomalies", IsAnomaliesEnabled()?"true":"false");
 
 	if(!bRoundResult)
 	{
@@ -2216,8 +2011,6 @@ void game_sv_Deathmatch::WriteGameState(CInifile& ini, LPCSTR sect, bool bRoundR
 			ini.w_string	(sect,"best_killer", "");
 		}
 	}
-	ini.w_s32			(sect,"timelimit_mins", GetTimeLimit());
-	ini.w_s32			(sect,"fraglimit", GetFragLimit());
 
 	if(!bRoundResult)
 	{

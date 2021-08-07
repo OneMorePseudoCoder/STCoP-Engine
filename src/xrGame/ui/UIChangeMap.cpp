@@ -6,7 +6,6 @@
 #include "UIListBox.h"
 #include "UIListBoxItem.h"
 #include "../level.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "../../xrEngine/xr_ioconsole.h"
 
 #include "object_broker.h"

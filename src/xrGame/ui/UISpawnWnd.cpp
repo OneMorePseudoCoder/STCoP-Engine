@@ -3,7 +3,6 @@
 #include "UISpawnWnd.h"
 #include "UIXmlInit.h"
 #include "../level.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "UIStatix.h"
 #include "UIScrollView.h"
 #include "UI3tButton.h"
@@ -87,19 +86,6 @@ void CUISpawnWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 	if (BUTTON_CLICKED == msg)
 	{
 		HideDialog							();
-		game_cl_mp * game = smart_cast<game_cl_mp*>(&Game());
-		VERIFY(game);
-		//game_cl_TeamDeathmatch * tdm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
-		if (pWnd == m_pImage1)
-			game->OnTeamSelect(0);
-		else if (pWnd == m_pImage2)
-			game->OnTeamSelect(1);
-		else if (pWnd == m_pBtnAutoSelect)
-			game->OnTeamSelect(-1);
-		else if (pWnd == m_pBtnSpectator)
-			game->OnSpectatorSelect();
-		else if (pWnd == m_pBtnBack)
-			game->OnTeamMenuBack();
 	}
 
 	inherited::SendMessage(pWnd, msg, pData);
@@ -114,8 +100,6 @@ bool CUISpawnWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 		if (dik == DIK_TAB)
 		{
 			ShowChildren(true);
-			game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-			game->OnKeyboardRelease(kSCORES);
 			UI().GetUICursor().Show();
 		}		
 		return false;
@@ -124,44 +108,14 @@ bool CUISpawnWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 	if (dik == DIK_TAB)
 	{
         ShowChildren(false);
-		game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-		game->OnKeyboardPress(kSCORES);
 		UI().GetUICursor().Hide();
 		return false;
 	}
 
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-	VERIFY(game);
-	//game_cl_TeamDeathmatch * dm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
-	
-	if (DIK_1 == dik || DIK_2 == dik)
-	{
-		HideDialog							();
-		
-		if (DIK_1 == dik)
-			game->OnTeamSelect(0);
-		else
-			game->OnTeamSelect(1);
-		return true;
-	}
 	switch (dik)
 	{
 	case DIK_ESCAPE:
 		HideDialog							();
-		game->OnTeamMenuBack();
-		return true;
-	case DIK_SPACE:
-		HideDialog							();
-		game->OnTeamSelect(-1);
-		return true;
-	case DIK_RETURN:
-		HideDialog							();
-		if (m_pImage1->GetSelectedState())
-			game->OnTeamSelect(0);
-		else if (m_pImage2->GetSelectedState())
-			game->OnTeamSelect(1);
-		else
-			game->OnTeamSelect(-1);		
 		return true;
 	}
 

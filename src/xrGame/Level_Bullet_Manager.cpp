@@ -10,8 +10,6 @@
 #include "gamepersistent.h"
 #include "mt_config.h"
 #include "game_cl_base_weapon_usage_statistic.h"
-#include "game_cl_mp.h"
-#include "reward_event_generator.h"
 
 #include "../Include/xrRender/UIRender.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -222,9 +220,6 @@ void CBulletManager::AddBullet(const Fvector& position,
 	{
 		if (SendHit)
 			Game().m_WeaponUsageStatistic->OnBullet_Fire(&bullet, cartridge);
-		game_cl_mp*	tmp_cl_game = smart_cast<game_cl_mp*>(&Game());
-		if (tmp_cl_game->get_reward_generator())
-			tmp_cl_game->get_reward_generator()->OnBullet_Fire(sender_id, sendersweapon_id, position, direction); 
 	}
 	
 }

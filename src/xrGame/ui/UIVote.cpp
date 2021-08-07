@@ -7,7 +7,6 @@
 #include "UIXmlInit.h"
 #include "../level.h"
 #include "../game_cl_base.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "../../xrEngine/xr_ioconsole.h"
 
 CUIVote::CUIVote()
@@ -77,8 +76,6 @@ void CUIVote::Update()
 	{
 		items.push_back(I->second);
 	};
-
-    std::sort(items.begin(), items.end(), DM_Compare_Players);
 
 	list[0]->Clear();
 	list[1]->Clear();

@@ -4,7 +4,6 @@
 #include "UIStatic.h"
 #include "../game_cl_base.h"
 #include "UIStatsIcon.h"
-#include "../game_cl_artefacthunt.h"
 #include "../level.h"
 #include "../string_table.h"
 
@@ -127,17 +126,7 @@ const char* CUIStatsPlayerInfo::GetInfoByID(const char* id){
 	{		
 		if (m_pPlayerInfo->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 			xr_strcpy(ans,"death");
-		else if (GameID() == eGameIDArtefactHunt)
-		{
-			game_cl_ArtefactHunt* pGameAHunt = smart_cast<game_cl_ArtefactHunt*>(&(Game()));
-			R_ASSERT(pGameAHunt);
-			if (m_pPlayerInfo->GameID == pGameAHunt->artefactBearerID)
-				xr_strcpy(ans,"artefact");
-			else
-				xr_strcpy(ans,"");
-		}
-		else
-			xr_strcpy(ans,"");
+		xr_strcpy(ans,"");
 		
 	}
 	else if (0 == xr_strcmp(id, "status"))

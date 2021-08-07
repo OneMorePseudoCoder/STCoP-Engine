@@ -11,7 +11,6 @@
 #include "UI/UIDialogWnd.h"
 #include "string_table.h"
 #include "game_cl_base_weapon_usage_statistic.h"
-#include "game_sv_mp_vote_flags.h"
 
 EGameIDs ParseStringToGameType	(LPCSTR str);
 LPCSTR GameTypeToString			(EGameIDs gt, bool bShort);
@@ -146,8 +145,6 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 			//-----------------------------------------------
 			if (OldFlags != IP->flags__)
 				if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
-			if (OldVote != IP->m_bCurrentVoteAgreed)
-				OnPlayerVoted(IP);
 			//***********************************************
 			valid_players.push_back(ID);
 		}else{
@@ -202,8 +199,6 @@ void	game_cl_GameState::net_import_update(NET_Packet& P)
 		//-----------------------------------------------
 		if (OldFlags != IP->flags__)
 			if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
-		if (OldVote != IP->m_bCurrentVoteAgreed)
-			OnPlayerVoted(IP);
 		//***********************************************
 	}
 	else

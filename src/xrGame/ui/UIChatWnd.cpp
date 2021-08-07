@@ -93,7 +93,6 @@ void CUIChatWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 void CUIChatWnd::OnChatCommit(CUIWindow* w, void* d)
 {
-	Game().ChatSay				(UIEditBox->GetText(), sendNextMessageToAll);
 	HideDialog					();
 }
 

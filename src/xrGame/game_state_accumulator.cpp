@@ -4,7 +4,6 @@
 #include "actor_mp_client.h"
 #include "CustomOutfit.h"
 #include "weapon.h"
-#include "game_cl_deathmatch.h"
 #include "UIGameCTA.h"
 #include "ui/UIMpTradeWnd.h"
 #include "ui/UIBuyWndShared.h"
@@ -46,22 +45,9 @@ void game_state_accumulator::init_player(game_PlayerState* local_player)
 	m_local_player					= local_player;
 	init_player_accum_values		(local_player);
 
-	CUIMpTradeWnd* tmp_trade_wnd	= NULL;
-	game_cl_Deathmatch* tmp_dm_game = smart_cast<game_cl_Deathmatch*>(&Game());
-	if (tmp_dm_game)
-	{
-		tmp_trade_wnd = smart_cast<CUIMpTradeWnd*>(tmp_dm_game->GetBuyWnd());
-	} else
-	{
-		R_ASSERT(Game().Type() == eGameIDCaptureTheArtefact);
-		CUIGameCTA* tmp_cta_ui	= smart_cast<CUIGameCTA*>(CurrentGameUI());
-		VERIFY(tmp_cta_ui);
-		tmp_trade_wnd			= smart_cast<CUIMpTradeWnd*>(tmp_cta_ui->GetBuyWnd());
-	}
-	R_ASSERT(tmp_trade_wnd);
-	m_item_mngr					= tmp_trade_wnd->GetItemMngr();
-	R_ASSERT(m_item_mngr);
-	m_amm_groups.init			(m_item_mngr);
+	R_ASSERT(Game().Type() == eGameIDCaptureTheArtefact);
+	CUIGameCTA* tmp_cta_ui	= smart_cast<CUIGameCTA*>(CurrentGameUI());
+	VERIFY(tmp_cta_ui);
 }
 
 void game_state_accumulator::OnWeapon_Fire(u16 sender,

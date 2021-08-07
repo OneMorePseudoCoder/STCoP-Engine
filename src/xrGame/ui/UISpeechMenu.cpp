@@ -4,7 +4,6 @@
 #include "UIStatic.h"
 #include "UIGameCustom.h"
 #include "UIXmlInit.h"
-#include "../game_cl_mp.h"
 #include <dinput.h>
 #include "../level.h"
 #include "../string_table.h"
@@ -61,10 +60,7 @@ bool CUISpeechMenu::OnKeyboardAction(int dik, EUIMessages keyboard_action)
     if (dik < DIK_1 || dik > DIK_0)
 		return CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
 
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-
 	HideDialog();
-	game->OnMessageSelected(this, static_cast<u8>(dik - DIK_1));
 
 	return true;
 }

@@ -4,7 +4,6 @@
 #include "game_base_kill_type.h"
 #include "game_base_menu_events.h"
 #include "actor_mp_server.h"
-#include "cdkey_ban_list.h"
 
 class		CItemMgr;
 class		xrClientData;
@@ -64,8 +63,6 @@ protected:
 	virtual		void				DestroyAllPlayerItems(ClientID id_who);	//except rukzak and artefact :)
 
 	u8			m_u8SpectatorModes		;
-
-	cdkey_ban_list	m_cdkey_ban_list;
 	
 protected:
 
@@ -189,11 +186,6 @@ public:
 				u32									m_async_stats_request_time;
 
 				void				SvSendChatMessage		(LPCSTR str);
-				bool				IsPlayerBanned			(char const * hexstr_digest, shared_str & by_who);
-				IClient*			BanPlayer				(ClientID const & client_id, s32 ban_time_sec, xrClientData* initiator);
-				void				BanPlayerDirectly		(char const * client_hex_digest, s32 ban_time_sec, xrClientData* initiator);
-				void				UnBanPlayer				(size_t banned_player_index);
-				void				PrintBanList			(char const * filter);
 protected:
 	virtual		void				WriteGameState			(CInifile& ini, LPCSTR sect, bool bRoundResult);
 				bool				CheckPlayerMapName		(ClientID const & clientID, NET_Packet & P);

@@ -11,7 +11,6 @@
 class CUITDMFragList;
 class CUITDMPlayerList;
 class CUISkinSelectorWnd;
-class game_cl_TeamDeathmatch;
 class CUIStatic;
 class CUITextWnd;
 class CUISpawnWnd;
@@ -19,7 +18,6 @@ class CUISpawnWnd;
 class CUIGameTDM: public CUIGameDM
 {
 private:
-	game_cl_TeamDeathmatch * m_game;
 	typedef CUIGameDM inherited;
 
 public:

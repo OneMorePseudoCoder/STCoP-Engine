@@ -2,7 +2,6 @@
 #include "ChangeWeatherDialog.hpp"
 #include "UIXmlInit.h"
 #include "UI3tButton.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "UIKickPlayer.h"
 #include "UIChangeMap.h"
 #include <dinput.h>

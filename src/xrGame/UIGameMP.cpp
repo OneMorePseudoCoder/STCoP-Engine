@@ -4,12 +4,10 @@
 #include "ui/UIServerInfo.h"
 #include "UICursor.h"
 #include "Level.h"
-#include "game_cl_mp.h"
 
 UIGameMP::UIGameMP() :
 	m_pServerInfo(NULL),
-	m_pAchivementIdicator(NULL),
-	m_game(NULL)
+	m_pAchivementIdicator(NULL)
 {
 }
 
@@ -25,12 +23,6 @@ bool UIGameMP::IR_UIOnKeyboardPress(int dik)
 	{
 		return true;
 	}
-#ifdef DEBUG
-	if (dik == DIK_T)
-	{
-		m_game->AddRewardTask(0); //mp_award_massacre
-	}
-#endif
 	return inherited::IR_UIOnKeyboardPress(dik);
 }
 
@@ -73,16 +65,9 @@ bool UIGameMP::ShowServerInfo()
 	{
 		return false;
 	}
-
-	/*if (m_pServerInfo->InfoAboted())
-	{
-		m_game->OnMapInfoAccept();
-		return true;
-	}*/
 	
 	if (!m_pServerInfo->HasInfo())
 	{
-		m_game->OnMapInfoAccept();
 		return true;
 	}
 
@@ -96,8 +81,6 @@ bool UIGameMP::ShowServerInfo()
 void UIGameMP::SetClGame(game_cl_GameState* g)
 {
 	inherited::SetClGame(g);
-	m_game = smart_cast<game_cl_mp*>(g);
-	VERIFY(m_game);
 
 	if (m_pServerInfo)
 	{
