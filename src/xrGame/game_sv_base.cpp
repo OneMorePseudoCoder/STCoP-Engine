@@ -26,25 +26,7 @@ u32		g_sv_base_dwRPointFreezeTime	= 0;
 int		g_sv_base_iVotingEnabled		= 0x00ff;
 //-----------------------------------------------------------------
 
-xr_token	round_end_result_str[]=
-{
-	{ "Finish",					eRoundEnd_Finish			},
-	{ "Game restarted",			eRoundEnd_GameRestarted		},
-	{ "Game restarted fast",	eRoundEnd_GameRestartedFast	},
-	{ "Time limit",				eRoundEnd_TimeLimit			},
-	{ "Frag limit",				eRoundEnd_FragLimit			},
-	{ "Artefact limit",			eRoundEnd_ArtrefactLimit	},
-	{ "Unknown",				eRoundEnd_Force				},
-	{ 0,						0							}
-};
-
 // Main
-/*game_PlayerState*	game_sv_GameState::get_it					(u32 it)
-{
-	xrClientData*	C	= (xrClientData*)m_server->client_Get			(it);
-	if (0==C)			return 0;
-	else				return C->ps;
-}*/
 
 game_PlayerState*	game_sv_GameState::get_id					(ClientID id)							
 {
@@ -52,23 +34,6 @@ game_PlayerState*	game_sv_GameState::get_id					(ClientID id)
 	if (0==C)			return NULL;
 	else				return C->ps;
 }
-
-/*ClientID				game_sv_GameState::get_it_2_id				(u32 it)
-{
-	xrClientData*	C	= (xrClientData*)m_server->client_Get		(it);
-	if (0==C){
-		ClientID clientID;clientID.set(0);
-		return clientID;
-	}
-	else				return C->ID;
-}
-
-LPCSTR				game_sv_GameState::get_name_it				(u32 it)
-{
-	xrClientData*	C	= (xrClientData*)m_server->client_Get		(it);
-	if (0==C)			return 0;
-	else				return *C->name;
-}*/
 
 LPCSTR				game_sv_GameState::get_name_id				(ClientID id)							
 {
@@ -392,24 +357,6 @@ void game_sv_GameState::Create					(shared_str &options)
 				if(type==rptItemSpawn)
 					O->r_stringZ		(rp_profile);
 
-				if (GameType != EGameIDs(u16(-1)))
-				{
-					if ((Type() == eGameIDCaptureTheArtefact) && (GameType & eGameIDCaptureTheArtefact))
-					{
-						team = team - 1;
-						R_ASSERT2( ((team >= 0) && (team < 4)) || 
-							(type != rptActorSpawn), 
-							"Problem with CTA Team indexes. Propably you have added rpoint of team 0 for cta game type.");
-					}
-					if ((!(GameType & eGameIDDeathmatch) && (Type() == eGameIDDeathmatch)) ||
-						(!(GameType & eGameIDTeamDeathmatch) && (Type() == eGameIDTeamDeathmatch))	||
-						(!(GameType & eGameIDArtefactHunt) && (Type() == eGameIDArtefactHunt)) ||
-						(!(GameType & eGameIDCaptureTheArtefact) && (Type() == eGameIDCaptureTheArtefact))
-						)
-					{
-						continue;
-					};
-				};
 				switch (type)
 				{
 				case rptActorSpawn:
@@ -459,10 +406,6 @@ void game_sv_GameState::Create					(shared_str &options)
 	//---------------------------------------------------------------------
 	ConsoleCommands_Create();
 	//---------------------------------------------------------------------
-//	CCC_LoadCFG_custom*	pTmp = xr_new<CCC_LoadCFG_custom>("sv_");
-//	pTmp->Execute				(Console->ConfigFile);
-//	xr_delete					(pTmp);
-	//---------------------------------------------------------------------
 	LPCSTR		svcfg_ltx_name = "-svcfg ";
 	if (strstr(Core.Params, svcfg_ltx_name))
 	{
@@ -482,8 +425,6 @@ void	game_sv_GameState::ReadOptions				(shared_str &options)
 {
 	g_sv_base_dwRPointFreezeTime = get_option_i(*options, "rpfrz", g_sv_base_dwRPointFreezeTime/1000) * 1000;
 
-//.	xr_strcpy(MAPROT_LIST, MAPROT_LIST_NAME);
-//.	if (!FS.exist(MAPROT_LIST))
 	FS.update_path(MAPROT_LIST, "$app_data_root$", MAPROT_LIST_NAME);
 	if (FS.exist(MAPROT_LIST))
 		Console->ExecuteScript(MAPROT_LIST);
@@ -1128,81 +1069,6 @@ extern	Flags32	dbg_net_Draw_Flags;
 
 void		game_sv_GameState::OnRender				()
 {
-	/*Fmatrix T; T.identity();
-	Fvector V0, V1;
-	u32 TeamColors[TEAM_COUNT] = {D3DCOLOR_XRGB(255, 0, 0), D3DCOLOR_XRGB(0, 255, 0), D3DCOLOR_XRGB(0, 0, 255), D3DCOLOR_XRGB(255, 255, 0)};
-//	u32 TeamColorsDist[TEAM_COUNT] = {color_argb(128, 255, 0, 0), color_argb(128, 0, 255, 0), color_argb(128, 0, 0, 255), color_argb(128, 255, 255, 0)};
-
-	if (dbg_net_Draw_Flags.test(dbg_draw_rp))
-	{
-		for (int t=0; t<TEAM_COUNT; t++)
-		{
-			for (u32 i=0; i<rpoints[t].size(); i++)
-			{
-				RPoint rp = rpoints[t][i];
-				V1 = V0 = rp.P;
-				V1.y +=1.0f;
-
-				T.identity();
-				Level().debug_renderer().draw_line(Fidentity, V0, V1, TeamColors[t]);
-
-				bool Blocked = false;
-				for (u32 p_it=0; p_it<get_players_count(); ++p_it)
-				{
-					game_PlayerState* PS		=	get_it			(p_it);
-					if (!PS) continue;
-					if (PS->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-					CObject* pPlayer = Level().Objects.net_Find(PS->GameID);
-					if (!pPlayer) continue;
-
-					if (rp.P.distance_to(pPlayer->Position())<=0.4f)
-					{
-						Blocked = true;
-						break;
-					}
-				};
-				if (rp.bBlocked) continue;
-
-				float r = .3f;
-				T.identity();
-				T.scale(r, r, r);
-				T.translate_add(rp.P);
-				Level().debug_renderer().draw_ellipse(T, TeamColors[t]);
-/*
-				r = rpoints_MinDist[t];
-				T.identity();
-				T.scale(r, r, r);
-				T.translate_add(rp.P);
-				Level().debug_renderer().draw_ellipse(T, TeamColorsDist[t]);
-
-				r = rpoints_Dist[t];
-				T.identity();
-				T.scale(r, r, r);
-				T.translate_add(rp.P);
-				Level().debug_renderer().draw_ellipse(T, TeamColorsDist[t]);
-/*-/
-			}
-		}
-	};
-
-	if (dbg_net_Draw_Flags.test(dbg_draw_actor_alive))
-	{
-		for (u32 p_it=0; p_it<get_players_count(); ++p_it)
-		{
-			game_PlayerState* PS		=	get_it			(p_it);
-			if (!PS) continue;
-			if (PS->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-			CObject* pPlayer = Level().Objects.net_Find(PS->GameID);
-			if (!pPlayer) continue;
-
-			float r = .4f;
-			T.identity();
-			T.scale(r, r, r);
-			T.translate_add(pPlayer->Position());
-			Level().debug_renderer().draw_ellipse(T, TeamColors[PS->team]);
-		};
-
-	}*/
 };
 #endif
 //  [7/5/2005]

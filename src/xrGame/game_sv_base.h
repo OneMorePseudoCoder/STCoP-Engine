@@ -94,25 +94,17 @@ public:
 	virtual		void				OnPrevMap				()									{}
 	virtual		bool				SwitchToNextMap			()	{ return m_bMapNeedRotation; };
 	
-	virtual		bool				IsVotingActive			()	{ return false; };
-	virtual		void				SetVotingActive			( bool Active )	{ };
-	virtual		void				OnVoteStart				(LPCSTR VoteCommand, ClientID sender)			{};
-	virtual		void				OnVoteStop				()				{};
-
 public:
 									game_sv_GameState		();
 	virtual							~game_sv_GameState		();
 	// Main accessors
 	virtual		game_PlayerState*	get_eid					(u16 id);
 	virtual		void*				get_client				(u16 id); //if exist
-	//virtual		game_PlayerState*	get_it					(u32 it);
 	virtual		game_PlayerState*	get_id					(ClientID id);
 	
-	//virtual		LPCSTR				get_name_it				(u32 it);
 	virtual		LPCSTR				get_name_id				(ClientID id);								
 				LPCSTR				get_player_name_id		(ClientID id);								
 	virtual		u16					get_id_2_eid			(ClientID id);
-	//virtual		ClientID			get_it_2_id				(u32 it);*/
 	virtual		u32					get_players_count		();
 				CSE_Abstract*		get_entity_from_eid		(u16 id);
 				RPoint				getRP					(u16 team_idx, u32 rp_idx);

@@ -2,7 +2,6 @@
 #include "Level.h"
 #include "UIGameDM.h"
 #include "xrServer.h"
-#include "game_sv_mp.h"
 #include "spectator.h"
 #include "actor.h"
 #include "game_cl_base.h"
@@ -217,17 +216,6 @@ void CLevel::SpawnDemoSpectator()
 {
 	R_ASSERT(Server && Server->game);
 	m_current_spectator = NULL;
-	game_sv_mp*	tmp_sv_game		= smart_cast<game_sv_mp*>(Server->game);
-
-	CSE_Spectator* specentity = smart_cast<CSE_Spectator*>(
-		tmp_sv_game->spawn_begin("spectator"));
-	R_ASSERT						(specentity);
-	specentity->s_flags.assign		(M_SPAWN_OBJECT_LOCAL | M_SPAWN_OBJECT_ASPLAYER | M_SPAWN_OBJECT_PHANTOM); //M_SPAWN_OBJECT_PHANTOM is ONLY to indicate thath this is a fake spectator
-	tmp_sv_game->assign_RP			(specentity, Level().game->local_player);
-	
-	g_sv_Spawn						(specentity);
-	
-	F_entity_Destroy				(specentity);
 }
 
 void CLevel::SetDemoSpectator(CObject* spectator)

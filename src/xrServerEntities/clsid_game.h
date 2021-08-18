@@ -206,11 +206,6 @@
 
 // Game types
 #define CLSID_SV_GAME_SINGLE			MK_CLSID('S','V','_','S','I','N','G','L')
-#define CLSID_SV_GAME_DEATHMATCH		MK_CLSID('S','V','_','D','M',' ',' ',' ')
-#define CLSID_SV_GAME_TEAMDEATHMATCH	MK_CLSID('S','V','_','T','D','M',' ',' ')
-#define CLSID_SV_GAME_ARTEFACTHUNT		MK_CLSID('S','V','_','A','H','U','N','T')
-#define CLSID_SV_GAME_CAPTURETHEARTEFACT	MK_CLSID('S','V','_','C','T','A',' ',' ')
-
 #define CLSID_CL_GAME_SINGLE			MK_CLSID('C','L','_','S','I','N','G','L')
 
 // Game UI types

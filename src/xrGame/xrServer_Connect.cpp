@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "xrserver.h"
 #include "game_sv_single.h"
-#include "game_sv_deathmatch.h"
-#include "game_sv_teamdeathmatch.h"
-#include "game_sv_artefacthunt.h"
 #include "xrMessages.h"
 #include "game_cl_single.h"
 #include "MainMenu.h"
@@ -155,7 +152,6 @@ void xrServer::ProcessClientDigest(xrClientData* xrCL, NET_Packet* P)
 {
 	R_ASSERT(xrCL);
 	IClient* tmp_client = static_cast<IClient*>(xrCL);
-	game_sv_mp* server_game = smart_cast<game_sv_mp*>(game);
 	P->r_stringZ(xrCL->m_cdkey_digest);
 
 	GetPooledState				(xrCL);

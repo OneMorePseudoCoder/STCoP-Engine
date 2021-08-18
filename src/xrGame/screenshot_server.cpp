@@ -6,9 +6,6 @@
 #include "game_sv_base.h"
 #include "../xrCore/fastdelegate.h"
 
-extern BOOL	g_sv_mp_save_proxy_screenshots;
-extern BOOL g_sv_mp_save_proxy_configs;
-
 clientdata_proxy::clientdata_proxy(file_transfer::server_site * ft_server) :
 	m_ft_server(ft_server)
 {
@@ -221,10 +218,6 @@ void clientdata_proxy::download_screenshot_callback(file_transfer::receiving_sta
 				);
 				m_first_receive = false;
 			}
-			if (g_sv_mp_save_proxy_screenshots)
-			{
-				save_proxy_screenshot();
-			}
 		}break;
 	};
 }
@@ -291,10 +284,6 @@ void clientdata_proxy::download_config_callback(file_transfer::receiving_status_
 					m_receiver->get_user_param()
 				);
 				m_first_receive = false;
-			}
-			if (g_sv_mp_save_proxy_configs)
-			{
-				save_proxy_config();
 			}
 		}break;
 	};

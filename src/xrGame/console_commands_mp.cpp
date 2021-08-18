@@ -9,9 +9,6 @@
 #include "gamepersistent.h"
 #include "MainMenu.h"
 #include "UIGameCustom.h"
-#include "game_sv_deathmatch.h"
-#include "game_sv_artefacthunt.h"
-#include "game_sv_capture_the_artefact.h"
 #include "date_time.h"
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "string_table.h"
@@ -25,37 +22,18 @@ extern	float	g_cl_lvInterp;
 extern	int		g_cl_InterpolationType; //0 - Linear, 1 - BSpline, 2 - HSpline
 extern	u32		g_cl_InterpolationMaxPoints;
 extern	int		g_cl_save_demo;
-extern	u32		g_dwMaxCorpses;
 extern	float	g_fTimeFactor;
 extern	BOOL	g_b_COD_PickUpMode		;
 extern	int		g_iWeaponRemove			;
 extern	int		g_iCorpseRemove			;
 extern	BOOL	g_bCollectStatisticData ;
 
-extern	BOOL	g_SV_Force_Artefact_Spawn;
 extern	int		g_Dump_Update_Write;
 extern	int		g_Dump_Update_Read;
 extern	int		g_be_message_out;
 
-extern	int 	G_DELAYED_ROUND_TIME;	
-extern	int		g_sv_Pending_Wait_Time;
 extern	u32		g_sv_Client_Reconnect_Time;
 		int		g_dwEventDelay			= 0	;
-
-extern	u32		g_sv_adm_menu_ban_time;
-extern	xr_token g_ban_times[];
-
-extern	int		g_sv_adm_menu_ping_limit;
-extern	u32		g_sv_cta_dwInvincibleTime;
-//extern	u32		g_sv_cta_dwAnomalySetLengthTime;
-extern	u32		g_sv_cta_artefactReturningTime;
-extern	u32		g_sv_cta_activatedArtefactRet;
-//extern	s32		g_sv_cta_ScoreLimit;
-extern	u32		g_sv_cta_PlayerScoresDelayTime;
-extern	u32		g_sv_cta_rankUpToArtsCountDiv;
-
-extern	BOOL	g_sv_mp_save_proxy_screenshots;
-extern	BOOL	g_sv_mp_save_proxy_configs;
 
 void XRNETSERVER_API DumpNetCompressorStats	(bool brief);
 
@@ -862,11 +840,6 @@ public:
 	virtual void Execute(LPCSTR args) 
 	{
 		if (!OnServer())		return;
-
-		game_sv_Deathmatch* gameDM = smart_cast<game_sv_Deathmatch *>(Level().Server->game);
-		if (!gameDM) return;
-
-		gameDM->StartAnomalies( atol(args) );
 	};
 
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Activating pointed Anomaly set"); }
@@ -961,14 +934,6 @@ public:
 	virtual void	Execute				(LPCSTR args) {
 		if (!Level().Server)
 			return;
-		game_sv_mp* sv_game = smart_cast<game_sv_mp*>(Level().Server->game);
-		if (!sv_game)
-		{
-			Msg("! Server multiplayer game instance not present");
-			return;
-		}
-		sv_game->DumpRoundStatistics();
-		//Game().m_WeaponUsageStatistic->SaveData();
 	}
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"saving statistic data"); }
 };
@@ -980,9 +945,6 @@ public:
 	{
 		if (!OnServer())						return;
 		if (GameID() != eGameIDArtefactHunt)		return;
-
-		game_sv_ArtefactHunt* g = smart_cast<game_sv_ArtefactHunt*>(Level().Server->game);
-		g->MoveAllAlivePlayers();
 	}
 };
 
@@ -993,9 +955,6 @@ public:
 	{
 		if (!OnServer())	return;
 
-		game_sv_mp* pGameMP		= smart_cast<game_sv_Deathmatch *>(Level().Server->game);
-		if (!pGameMP)		return;
-
 		string512			Team = "";
 		s32 TeamMoney		= 0;
 		sscanf				(args,"%s %i", Team, &TeamMoney);
@@ -1004,13 +963,6 @@ public:
 		{
 			Msg("- --------------------");
 			Msg("Teams start money:");
-			u32 TeamCount = pGameMP->GetTeamCount();
-			for (u32 i=0; i<TeamCount; i++)
-			{
-				TeamStruct* pTS = pGameMP->GetTeamData(i);
-				if (!pTS) continue;
-				Msg ("Team %d: %d", i, pTS->m_iM_Start);
-			}
 			Msg("- --------------------");
 			return;
 		}else
@@ -1018,9 +970,6 @@ public:
 			u32 TeamID			= 0;
 			s32 TeamStartMoney	= 0;
 			sscanf				(args,"%i %i", &TeamID, &TeamStartMoney);
-			TeamStruct* pTS		= pGameMP->GetTeamData(TeamID);
-			if (pTS) 
-				pTS->m_iM_Start = TeamStartMoney;
 		}
 	};
 
@@ -1081,15 +1030,6 @@ public:
 		if (!OnServer()) return;
 		if(Level().Server && Level().Server->game) 
 		{
-			game_sv_CaptureTheArtefact* ctaGame = smart_cast<game_sv_CaptureTheArtefact*>(Level().Server->game);
-			if (ctaGame)
-			{
-				ctaGame->SwapTeams();
-			} else
-			{
-				Msg("! Current game type not support team swapping");
-				return;
-			}
 			Level().Server->game->round_end_reason = eRoundEnd_GameRestartedFast;
 			Level().Server->game->OnRoundEnd();
 		}
@@ -1102,20 +1042,6 @@ public:
 					CCC_SvChat(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
 	virtual void	Execute(LPCSTR args) {
 		if (!OnServer())	return;
-		if(Level().Server && Level().Server->game) 
-		{
-			game_sv_mp* game = smart_cast<game_sv_mp*>(Level().Server->game);
-			if ( game )
-			{
-				LPSTR msg;
-				STRCONCAT(msg,args);
-				if ( xr_strlen(msg) > 256 )
-				{
-					msg[256] = 0;
-				}
-				game->SvSendChatMessage(msg);
-			}
-		}
 	}
 };
 
@@ -1149,7 +1075,6 @@ void register_mp_console_commands()
 	CMD1(CCC_Dbg_NumObjects,"net_dbg_objects"				);
 #endif // DEBUG
 	CMD4(CCC_Integer,	"g_eventdelay",			&g_dwEventDelay,	0,	1000);
-	CMD4(CCC_Integer,	"g_corpsenum",			(int*)&g_dwMaxCorpses,		0,	100);
 
 	CMD1(CCC_MakeScreenshot,			"make_screenshot"			);
 	CMD1(CCC_MakeConfigDump,			"make_config_dump"			);
@@ -1169,9 +1094,6 @@ void register_mp_console_commands()
 #ifdef DEBUG
 	CMD1(CCC_DbgMakeScreenshot,			"dbg_make_screenshot"		);
 #endif
-	CMD4(CCC_Integer,					"sv_savescreenshots",	&g_sv_mp_save_proxy_screenshots, 0, 1);
-	CMD4(CCC_Integer,					"sv_saveconfigs",		&g_sv_mp_save_proxy_configs, 0, 1);
-
 	CMD1(CCC_ChangeGameType,		"sv_changegametype"			);
 	CMD1(CCC_ChangeLevel,			"sv_changelevel"			);
 	CMD1(CCC_ChangeLevelGameType,	"sv_changelevelgametype"	);	
@@ -1197,16 +1119,12 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer,		"sv_statistic_collect", &g_bCollectStatisticData, 0, 1);
 	CMD1(CCC_SaveStatistic,	"sv_statistic_save");
 
-	CMD4(CCC_Integer,		"sv_artefact_spawn_force",		&g_SV_Force_Artefact_Spawn, 0, 1);
-
 	CMD4(CCC_Integer,		"net_dbg_dump_update_write",	&g_Dump_Update_Write, 0, 1);
 	CMD4(CCC_Integer,		"net_dbg_dump_update_read",	&g_Dump_Update_Read, 0, 1);
 
 	CMD1(CCC_ReturnToBase,	"sv_return_to_base");
 
 	CMD1(CCC_StartTeamMoney,"sv_startteammoney"		);		
-
-	CMD4(CCC_Integer,		"sv_hail_to_winner_time",		&G_DELAYED_ROUND_TIME, 0, 60);
 
 	CMD4(CCC_Integer,		"sv_client_reconnect_time",		(int*)&g_sv_Client_Reconnect_Time, 0, 60);
 
@@ -1218,13 +1136,4 @@ void register_mp_console_commands()
 	CMD1(CCC_Name,			"name");
 	CMD1(CCC_SvChat,		"chat");
 
-//-----------------
-	CMD3(CCC_Token,			"sv_adm_menu_ban_time",			&g_sv_adm_menu_ban_time, g_ban_times); //min
-	CMD4(CCC_Integer,		"sv_adm_menu_ping_limit",		(int*)&g_sv_adm_menu_ping_limit, 1, 200); //min
-
-	CMD4(CCC_Integer,		"sv_invincible_time",			(int*)&g_sv_cta_dwInvincibleTime, 0, 60); //sec
-	CMD4(CCC_Integer,		"sv_artefact_returning_time",	(int*)&g_sv_cta_artefactReturningTime, 0, 5 * 60); //sec
-	CMD4(CCC_Integer,		"sv_activated_return",		(int*)&g_sv_cta_activatedArtefactRet, 0, 1)
-	CMD4(CCC_Integer,		"sv_show_player_scores_time",	(int*)&g_sv_cta_PlayerScoresDelayTime, 1, 20); //sec
-	CMD4(CCC_Integer,		"sv_cta_runkup_to_arts_div",	(int*)&g_sv_cta_rankUpToArtsCountDiv, 0, 10);
 }
