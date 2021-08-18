@@ -92,7 +92,6 @@ public:
     // Network
     u32 GetInterpolationSteps();
     void SetInterpolationSteps(u32 InterpSteps);
-    bool InterpolationDisabled();
     void ReculcInterpolationSteps();
     u32 GetNumCrSteps() const { return m_dwNumSteps; }
     void SetNumCrSteps(u32 NumSteps);

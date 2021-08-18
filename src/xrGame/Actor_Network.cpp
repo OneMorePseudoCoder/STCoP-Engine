@@ -51,8 +51,6 @@
 #	include "../xrPhysics/phvalide.h"
 #endif
 
-int			g_cl_InterpolationType		= 0;
-u32			g_cl_InterpolationMaxPoints = 0;
 int			g_dwInputUpdateDelta		= 20;
 BOOL		net_cl_inputguaranteed		= FALSE;
 CActor*		g_actor						= NULL;
@@ -1032,7 +1030,6 @@ void CActor::PH_A_CrPr		()
 	mstate_wishful = mstate_real = NET_Last.mstate;
 	CalculateInterpolationParams();
 };
-extern	float		g_cl_lvInterp;
 
 void	CActor::CalculateInterpolationParams()
 {	
@@ -1248,33 +1245,6 @@ void CActor::make_Interpolation	()
 			};
 			
 			Fvector SpeedVector, ResPosition;
-			switch (g_cl_InterpolationType)
-			{
-			case 0:	
-				{
-					ResPosition.set(IPosL);
-					SpeedVector.sub(IEnd.Pos, IStart.Pos);
-					SpeedVector.div(float(m_dwIEndTime - m_dwIStartTime)/1000.0f);
-				}break;
-			case 1: 
-				{
-					for (int k=0; k<3; k++)
-						SpeedVector[k] = (factor*factor*SCoeff[k][0]*3+factor*SCoeff[k][1]*2+SCoeff[k][2])/3; //     3       !!!!
-					
-					ResPosition.set(IPosS); 
-				}break;
-			case 2: 
-				{
-					for (int k=0; k<3; k++)
-						SpeedVector[k] = (factor*factor*HCoeff[k][0]*3+factor*HCoeff[k][1]*2+HCoeff[k][2]); 
-
-					ResPosition.set(IPosH); 
-				}break;
-			default:
-				{
-					R_ASSERT2(0, "Unknown interpolation curve type!");
-				}
-			}
 			character_physics_support()->movement()->SetPosition	(ResPosition);
 			character_physics_support()->movement()->SetVelocity	(SpeedVector);
 			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);
@@ -1284,60 +1254,7 @@ void CActor::make_Interpolation	()
 	{
 		m_bInInterpolation = false;
 	};
-
-#ifdef DEBUG
-	if (getVisible() && g_Alive() && mstate_real) 
-	{
-		LastPosS.push_back(IPosS);	while (LastPosS.size()>g_cl_InterpolationMaxPoints) LastPosS.pop_front();
-		LastPosH.push_back(IPosH);	while (LastPosH.size()>g_cl_InterpolationMaxPoints) LastPosH.pop_front();
-		LastPosL.push_back(IPosL);	while (LastPosL.size()>g_cl_InterpolationMaxPoints) LastPosL.pop_front();
-	};
-#endif
 };
-/*
-void		CActor::UpdatePosStack	( u32 Time0, u32 Time1 )
-{
-		//******** Storing Last Position in stack ********
-	CPHSynchronize* pSyncObj = NULL;
-	pSyncObj = PHGetSyncItem(0);
-	if (!pSyncObj) return;
-
-	SPHNetState		State;
-	pSyncObj->get_State(State);
-
-	if (!SMemoryPosStack.empty() && SMemoryPosStack.back().u64WorldStep >= ph_world->m_steps_num)
-	{
-		xr_deque<SMemoryPos>::iterator B = SMemoryPosStack.begin();
-		xr_deque<SMemoryPos>::iterator E = SMemoryPosStack.end();
-		xr_deque<SMemoryPos>::iterator I = std::lower_bound(B,E,u64(ph_world->m_steps_num-1));
-		if (I != E) 
-		{
-			I->SState = State;
-			I->u64WorldStep = ph_world->m_steps_num;
-		};
-	}
-	else		
-	{
-		SMemoryPosStack.push_back(SMemoryPos(Time0, Time1, ph_world->m_steps_num, State));
-		if (SMemoryPosStack.front().dwTime0 < (Level().timeServer() - 2000)) SMemoryPosStack.pop_front();
-	};
-};
-
-ACTOR_DEFS::SMemoryPos*				CActor::FindMemoryPos (u32 Time)
-{
-	if (SMemoryPosStack.empty()) return NULL;
-
-	if (Time > SMemoryPosStack.back().dwTime1) return NULL;
-	
-	xr_deque<SMemoryPos>::iterator B = SMemoryPosStack.begin();
-	xr_deque<SMemoryPos>::iterator E = SMemoryPosStack.end();
-	xr_deque<SMemoryPos>::iterator I = std::lower_bound(B,E,Time);
-
-	if (I==E) return NULL;
-
-	return &(*I);
-};
-*/
 
 void CActor::save(NET_Packet &output_packet)
 {
@@ -1534,13 +1451,6 @@ void	CActor::OnRender_Network()
 		u32	cColor = 0, sColor = 0;
 		VIS_POSITION*	pLastPos = NULL;
 
-		switch (g_cl_InterpolationType)
-		{
-		case 0: ppoint0 = &point0L; ppoint1 = &point1L; cColor = color_rgba(0, 255, 0, 255); sColor = color_rgba(128, 255, 128, 255); pM = &ML; pLastPos = &LastPosL; break;
-		case 1: ppoint0 = &point0S; ppoint1 = &point1S; cColor = color_rgba(0, 0, 255, 255); sColor = color_rgba(128, 128, 255, 255); pM = &MS; pLastPos = &LastPosS; break;
-		case 2: ppoint0 = &point0H; ppoint1 = &point1H; cColor = color_rgba(255, 0, 0, 255); sColor = color_rgba(255, 128, 128, 255); pM = &MH; pLastPos = &LastPosH; break;
-		}
-
 		//drawing path trajectory
 		float c = 0;
 		for (int i=0; i<11; i++)
@@ -1576,11 +1486,6 @@ void	CActor::OnRender_Network()
 
 			point0S.add(tS, point1S);
 			point0H.add(tH, point1H);
-
-			if (g_cl_InterpolationType > 0)
-			{
-				Level().debug_renderer().draw_line(*pM, *ppoint0, *ppoint1, sColor);
-			}
 		}
 
 		//draw interpolation history curve

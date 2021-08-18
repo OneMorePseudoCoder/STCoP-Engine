@@ -254,8 +254,6 @@ public:
 
 //-------
 XRNETSERVER_API Flags32	psNET_Flags			= {0};
-XRNETSERVER_API int		psNET_ClientUpdate	= 30;		// FPS
-XRNETSERVER_API int		psNET_ClientPending	= 2;
 XRNETSERVER_API char	psNET_Name[32]		= "Player";
 XRNETSERVER_API BOOL	psNET_direct_connect = FALSE;
 
@@ -322,16 +320,6 @@ IPureClient::_Recieve( const void* data, u32 data_size, u32 /*param*/ )
 	else if( net_Connected == EnmConnectionCompleted )
 	{
 		// one of the messages - decompress it
-
-		if( psNET_Flags.test( NETFLAG_LOG_CL_PACKETS ) ) 
-		{
-			if( !pClNetLog ) 
-				pClNetLog = xr_new<INetLog>("logs\\net_cl_log.log", timeServer());
-			    
-			if( pClNetLog ) 
-				pClNetLog->LogData( timeServer(), const_cast<void*>(data), data_size, TRUE );
-		}
-
 		OnMessage( const_cast<void*>(data), data_size );
 	}
 }
@@ -943,13 +931,6 @@ void	IPureClient::SendTo_LL(void* data, u32 size, u32 dwFlags, u32 dwTimeout)
 	if( net_Disconnected )	
 	    return;
 
-	if( psNET_Flags.test(NETFLAG_LOG_CL_PACKETS) ) 
-	{
-		if( !pClNetLog) 
-		    pClNetLog = xr_new<INetLog>( "logs\\net_cl_log.log", timeServer() );
-		if( pClNetLog ) 
-		    pClNetLog->LogData( timeServer(), data, size );
-	}
 	DPN_BUFFER_DESC				desc;
 
 	desc.dwBufferSize   = size;
@@ -990,43 +971,11 @@ void	IPureClient::Flush_Send_Buffer		()
 
 BOOL	IPureClient::net_HasBandwidth	()
 {
-	u32		dwTime				= TimeGlobal(device_timer);
-	u32		dwInterval			= 0;
 	if		(net_Disconnected) return FALSE;
-	
-	if (psNET_ClientUpdate != 0) dwInterval = 1000/psNET_ClientUpdate;
-	if		(psNET_Flags.test(NETFLAG_MINIMIZEUPDATES))	dwInterval	= 1000;	// approx 3 times per second
 
 	if(psNET_direct_connect)
 	{
-		if( 0 != psNET_ClientUpdate && (dwTime-net_Time_LastUpdate)>dwInterval)
-		{
-			net_Time_LastUpdate		= dwTime;
-			return					TRUE;
-		}else
-			return					FALSE;
-
-	}else
-	if (0 != psNET_ClientUpdate && (dwTime-net_Time_LastUpdate)>dwInterval)	
-	{
-		HRESULT hr;
-		R_ASSERT			(NET);
-		// check queue for "empty" state
-		DWORD				dwPending=0;
-		hr					= NET->GetSendQueueInfo(&dwPending,0,0);
-		if (FAILED(hr)) return FALSE;
-
-		if (dwPending > u32(psNET_ClientPending))	
-		{
-			net_Statistic.dwTimesBlocked++;
-			return FALSE;
-		};
-
-		UpdateStatistic();
-
-		// ok
-		net_Time_LastUpdate	= dwTime;
-		return TRUE;
+		return					FALSE;
 	}
 	return FALSE;
 }

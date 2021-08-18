@@ -147,6 +147,5 @@
 #	include "smart_cover_object.h"
 #	include "ui/FactionState.h"
 #	include "actor.h"
-#	include "mixed_delegate.h"
 
 #endif

@@ -201,7 +201,6 @@ void xrServer::GetPooledState(xrClientData* xrCL)
 }
 
 //--------------------------------------------------------------------
-int	g_Dump_Update_Write = 0;
 
 #ifdef DEBUG
 INT g_sv_SendUpdate = 0;
@@ -311,9 +310,7 @@ void xrServer::MakeUpdatePackets()
 			tmpPacket.w_chunk_close8		(position);
 
 			if (ObjectSize == 0)			continue;					
-#ifdef DEBUG
-			if (g_Dump_Update_Write) Msg("* %s : %d", Test.name(), ObjectSize);
-#endif
+
 			m_updator.write_update_for		(Test.ID, tmpPacket);
 		}
 	}//all entities

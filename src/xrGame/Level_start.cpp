@@ -13,7 +13,6 @@
 #include "string_table.h"
 #include "UIGameCustom.h"
 
-int		g_cl_save_demo = 0;
 extern XRCORE_API bool g_allow_heap_min;
 
 shared_str CLevel::OpenDemoFile(const char* demo_file_name)
@@ -74,15 +73,6 @@ bool CLevel::net_Start(const char* op_server, const char* op_client)
 		bool is_single = m_caServerOptions.size() != 0 ? 
 			(strstr(m_caServerOptions.c_str(), "single") != NULL) :
 			false;
-		int save_demo = g_cl_save_demo;
-		if (pdemosave != NULL)
-		{
-			sscanf(pdemosave, "/mpdemosave=%d", &save_demo);
-		}
-		if (!is_single && save_demo)
-		{
-			PrepareToSaveDemo();
-		}
 	}
 	//---------------------------------------------------------------------------
 	g_loading_events.push_back	(LOADING_EVENT(this,&CLevel::net_start1));

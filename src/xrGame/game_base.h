@@ -3,7 +3,8 @@
 #include "game_base_space.h"
 #include "alife_space.h"
 #include "gametype_chooser.h"
-#include "mixed_delegate.h"
+#include "script_export_space.h"
+#include "script_callback_ex.h"
 
 #pragma pack(push,1)
 

@@ -59,7 +59,6 @@ ENGINE_API bool g_dedicated_server;
 extern CUISequencer* g_tutorial;
 extern CUISequencer* g_tutorial2;
 
-float g_cl_lvInterp = 0.1;
 u32 lvInterpSteps = 0;
 
 CLevel::CLevel() :
@@ -486,7 +485,6 @@ void CLevel::OnFrame()
                     100.f*float(S->bytes_out_real) / float(S->bytes_out));
                 F->OutNext("client_2_sever ping: %d", net_Statistic.getPing());
                 F->OutNext("SPS/Sended : %4d/%4d", S->dwBytesPerSec, S->dwBytesSended);
-                F->OutNext("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
                 F->SetColor(D3DCOLOR_XRGB(255, 255, 255));
                 struct net_stats_functor
                 {
@@ -518,7 +516,6 @@ void CLevel::OnFrame()
                 F->OutSetI(0.0f, 0.5f);
                 F->SetColor(D3DCOLOR_XRGB(0, 255, 0));
                 F->OutNext("client_2_sever ping: %d", net_Statistic.getPing());
-                F->OutNext("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
                 F->SetColor(D3DCOLOR_XRGB(255, 255, 255));
                 F->OutNext("BReceivedPs(%2d), BSendedPs(%2d), Retried(%2d), Blocked(%2d)",
                     net_Statistic.getReceivedPerSec(),
@@ -843,19 +840,7 @@ void CLevel::make_NetCorrectionPrediction()
             continue;
         obj->PH_I_CrPr();
     }
-    if (!InterpolationDisabled())
-    {
-        for (u32 i = 0; i < lvInterpSteps; i++)	//second prediction "real current" to "future" position
-        {
-            physics_world()->Step();
-        }
-        for (CGameObject* obj : pObjects4CrPr)
-        {
-            if (!obj)
-                continue;
-            obj->PH_A_CrPr();
-        }
-    }
+
     physics_world()->UnFreeze();
     physics_world()->StepsNum() = NumPhSteps;
     m_dwNumSteps = 0;
@@ -876,13 +861,6 @@ void CLevel::UpdateDeltaUpd(u32 LastTime)
         CurrentDelta = iFloor(float(m_dwDeltaUpdate * 10 + CurrentDelta) / 11);
     m_dwLastNetUpdateTime = LastTime;
     m_dwDeltaUpdate = CurrentDelta;
-    if (0 == g_cl_lvInterp)
-        ReculcInterpolationSteps();
-    else
-    if (g_cl_lvInterp > 0)
-    {
-        lvInterpSteps = iCeil(g_cl_lvInterp / fixed_step);
-    }
 }
 
 void CLevel::ReculcInterpolationSteps()
@@ -892,11 +870,6 @@ void CLevel::ReculcInterpolationSteps()
         lvInterpSteps = 60;
     if (lvInterpSteps < 3)
         lvInterpSteps = 3;
-}
-
-bool CLevel::InterpolationDisabled()
-{
-    return g_cl_lvInterp < 0;
 }
 
 void CLevel::PhisStepsCallback(u32 Time0, u32 Time1)

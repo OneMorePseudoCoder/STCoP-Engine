@@ -679,8 +679,5 @@ public:
 	virtual void			SetActivationSpeedOverride(Fvector const& speed);
 	bool			GetRememberActorNVisnStatus() { return m_bRememberActorNVisnStatus; };
 	virtual void			EnableActorNVisnAfterZoom();
-
-	virtual void				DumpActiveParams(shared_str const& section_name, CInifile& dst_ini) const;
-	virtual shared_str const	GetAnticheatSectionName() const { return cNameSect(); };
 };
 

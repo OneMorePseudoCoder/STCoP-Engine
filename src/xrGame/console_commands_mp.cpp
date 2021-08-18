@@ -18,18 +18,10 @@ LPCSTR		GameTypeToString		(EGameIDs gt, bool bShort);
 LPCSTR		AddHyphens				(LPCSTR c);
 LPCSTR		DelHyphens				(LPCSTR c);
 
-extern	float	g_cl_lvInterp;
-extern	int		g_cl_InterpolationType; //0 - Linear, 1 - BSpline, 2 - HSpline
-extern	u32		g_cl_InterpolationMaxPoints;
-extern	int		g_cl_save_demo;
 extern	float	g_fTimeFactor;
-extern	BOOL	g_b_COD_PickUpMode		;
-extern	int		g_iWeaponRemove			;
 extern	int		g_iCorpseRemove			;
 extern	BOOL	g_bCollectStatisticData ;
 
-extern	int		g_Dump_Update_Write;
-extern	int		g_Dump_Update_Read;
 extern	int		g_be_message_out;
 
 extern	u32		g_sv_Client_Reconnect_Time;
@@ -94,26 +86,6 @@ public:
 	virtual void	Info	(TInfo& I)	{ xr_strcpy(I,"player kill"); }
 };
 
-class CCC_Net_CL_Resync : public IConsole_Command {
-public:
-						CCC_Net_CL_Resync	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void		Execute				(LPCSTR args) 
-	{
-		Level().net_Syncronize();
-	}
-	virtual void	Info	(TInfo& I)		{xr_strcpy(I,"resyncronize client");}
-};
-
-class CCC_Net_CL_ClearStats : public IConsole_Command {
-public:
-						CCC_Net_CL_ClearStats	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void		Execute					(LPCSTR args)
-	{
-		Level().ClearStatistic();
-	}
-	virtual void		Info	(TInfo& I){xr_strcpy(I,"clear client net statistic");}
-};
-
 class CCC_Net_SV_ClearStats : public IConsole_Command {
 public:
 						CCC_Net_SV_ClearStats	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -123,69 +95,6 @@ public:
 	}
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"clear server net statistic"); }
 };
-
-#ifdef DEBUG
-class CCC_Dbg_NumObjects : public IConsole_Command {
-public:
-						CCC_Dbg_NumObjects	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void		Execute				(LPCSTR args) 
-	{
-		
-		u32 SVObjNum	= (OnServer()) ? Level().Server->GetEntitiesNum() : 0;
-		xr_vector<u16>	SObjID;
-		for (u32 i=0; i<SVObjNum; i++)
-		{
-			CSE_Abstract* pEntity = Level().Server->GetEntity(i);
-			SObjID.push_back(pEntity->ID);
-		};
-		std::sort(SObjID.begin(), SObjID.end());
-
-		u32 CLObjNum	= Level().Objects.o_count();
-		xr_vector<u16>	CObjID;
-		for (i=0; i<CLObjNum; i++)
-		{
-			CObjID.push_back(Level().Objects.o_get_by_iterator(i)->ID());
-		};
-		std::sort(CObjID.begin(), CObjID.end());
-
-		Msg("Client Objects : %d", CLObjNum);
-		Msg("Server Objects : %d", SVObjNum);
-
-		for (u32 CO= 0; CO<_max(CLObjNum, SVObjNum); CO++)
-		{
-			if (CO < CLObjNum && CO < SVObjNum)
-			{
-				CSE_Abstract* pEntity = Level().Server->ID_to_entity(SObjID[CO]);
-				CObject* pObj = Level().Objects.net_Find(CObjID[CO]);
-				char color = (pObj->ID() == pEntity->ID) ? '-' : '!';
-
-				Msg("%c%4d: Client - %20s[%5d] <===> Server - %s [%d]", color, CO+1, 
-					*(pObj->cNameSect()), pObj->ID(),
-					pEntity->s_name.c_str(), pEntity->ID);
-			}
-			else
-			{
-				if (CO<CLObjNum)
-				{
-					CObject* pObj = Level().Objects.net_Find(CObjID[CO]);
-					Msg("! %2d: Client - %s [%d] <===> Server - -----------------", CO+1, 
-						*(pObj->cNameSect()), pObj->ID());
-				}
-				else
-				{
-					CSE_Abstract* pEntity = Level().Server->ID_to_entity(SObjID[CO]);
-					Msg("! %2d: Client - ----- <===> Server - %s [%d]", CO+1, 
-						pEntity->s_name.c_str(), pEntity->ID);
-				}
-			}
-		};
-
-		Msg("Client Objects : %d", CLObjNum);
-		Msg("Server Objects : %d", SVObjNum);
-	}
-	virtual void	Info	(TInfo& I){xr_strcpy(I,"dbg Num Objects"); }
-};
-#endif // DEBUG
 
 //most useful predicates 
 struct SearcherClientByName
@@ -577,66 +486,6 @@ public:
 	}
 }; //class CCC_ConfigsDumpAll
 
-
-#ifdef DEBUG
-
-class CCC_DbgMakeScreenshot : public IConsole_Command
-{
-public:
-	CCC_DbgMakeScreenshot(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void Execute(LPCSTR args) {
-		if (!g_pGameLevel || !Level().Server)
-			return;
-		ClientID server_id(Level().Server->GetServerClient()->ID);
-		Level().Server->MakeScreenshot(server_id, server_id);
-	}
-}; //CCC_DbgMakeScreenshot
-
-#endif //#ifdef DEBUG
-
-class CCC_Name : public IConsole_Command
-{
-public:
-	CCC_Name(LPCSTR N) : IConsole_Command(N)  { bLowerCaseArgs = false;	bEmptyArgsHandled = false; };
-	virtual void	Status	(TStatus& S)
-	{ 
-		S[0]=0;
-		if( IsGameTypeSingle() )									return;
-		if (!(&Level()))											return;
-		if (!(&Game()))												return;
-		game_PlayerState* tmp_player = Game().local_player;
-		if (!tmp_player)											return;
-	}
-
-	virtual void	Save	(IWriter *F)	{}
-
-	virtual void Execute(LPCSTR args) 
-	{
-		if (IsGameTypeSingle())		return;
-		if (!(&Level()))			return;
-		if (!(&Game()))				return;
-
-		game_PlayerState* tmp_player = Game().local_player;
-		if (!tmp_player)			return;
-
-		if (!xr_strlen(args)) return;
-		if (strchr(args, '/'))
-		{
-			Msg("!  '/' is not allowed in names!");
-			return;
-		}
-		string4096 NewName = "";
-	
-		NET_Packet				P;
-		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);
-		P.w_u16					(GAME_EVENT_PLAYER_NAME);
-		P.w_stringZ				(NewName);
-		Game().u_EventSend		(P);
-	}
-
-	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"player name"); }
-};
-
 class CCC_ChangeLevelGameType : public IConsole_Command {
 public:
 					CCC_ChangeLevelGameType	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -845,48 +694,6 @@ public:
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Activating pointed Anomaly set"); }
 };
 
-class CCC_Vote_Yes : public IConsole_Command {
-public:
-					CCC_Vote_Yes(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void	Execute(LPCSTR args) 
-	{
-		if (IsGameTypeSingle())
-		{
-			Msg("! Only for multiplayer games!");
-			return;
-		}
-
-		if (Game().Phase() != GAME_PHASE_INPROGRESS)
-		{
-			Msg("! Voting is allowed only when game is in progress!");
-			return;
-		};
-	};
-
-	virtual void	Info	(TInfo& I){xr_strcpy(I,"Vote Yes"); };
-};
-
-class CCC_Vote_No : public IConsole_Command {
-public:
-					CCC_Vote_No	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void	Execute		(LPCSTR args) 
-	{
-		if (IsGameTypeSingle())
-		{
-			Msg("! Only for multiplayer games!");
-			return;
-		}
-
-		if (Game().Phase() != GAME_PHASE_INPROGRESS)
-		{
-			Msg("! Voting is allowed only when game is in progress!");
-			return;
-		};
-	};
-
-	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Vote No"); };
-};
-
 class CCC_StartTimeEnvironment: public IConsole_Command {
 public:
 					CCC_StartTimeEnvironment	(LPCSTR N) : IConsole_Command(N) {};
@@ -1052,28 +859,13 @@ void register_mp_console_commands()
 	CMD1(CCC_Kill,					"g_kill"				);
 
 	// Net Interpolation
-	CMD4(CCC_Float,					"net_cl_interpolation",		&g_cl_lvInterp,				-1,1);
-	CMD4(CCC_Integer,				"net_cl_icurvetype",		&g_cl_InterpolationType,	0, 2)	;
-	CMD4(CCC_Integer,				"net_cl_icurvesize",		(int*)&g_cl_InterpolationMaxPoints,	0, 2000)	;
-	
-	CMD1(CCC_Net_CL_Resync,			"net_cl_resync" );
-	CMD1(CCC_Net_CL_ClearStats,		"net_cl_clearstats" );
 	CMD1(CCC_Net_SV_ClearStats,		"net_sv_clearstats" );
 
 	// Network
-#ifdef DEBUG
-	CMD4(CCC_Integer,	"net_cl_update_rate",	&psNET_ClientUpdate,20,		100				);
-	CMD4(CCC_Integer,	"net_cl_pending_lim",	&psNET_ClientPending,0,		10				);
-#endif
 	CMD4(CCC_Integer,	"net_sv_update_rate",	&psNET_ServerUpdate,1,		100				);
 	CMD4(CCC_Integer,	"net_sv_pending_lim",	&psNET_ServerPending,0,		10				);
 	CMD4(CCC_Integer,	"net_sv_gpmode",	    &psNET_GuaranteedPacketMode,0, 2)	;
 	CMD3(CCC_Mask,		"net_sv_log_data",		&psNET_Flags,		NETFLAG_LOG_SV_PACKETS	);
-	CMD3(CCC_Mask,		"net_cl_log_data",		&psNET_Flags,		NETFLAG_LOG_CL_PACKETS	);
-#ifdef DEBUG
-	CMD3(CCC_Mask,		"net_dump_size",		&psNET_Flags,		NETFLAG_DBG_DUMPSIZE	);
-	CMD1(CCC_Dbg_NumObjects,"net_dbg_objects"				);
-#endif // DEBUG
 	CMD4(CCC_Integer,	"g_eventdelay",			&g_dwEventDelay,	0,	1000);
 
 	CMD1(CCC_MakeScreenshot,			"make_screenshot"			);
@@ -1091,9 +883,6 @@ void register_mp_console_commands()
 	CMD1(CCC_MulDemoPlaySpeed,			"mpdemoplay_mulspeed"		);
 	CMD1(CCC_DivDemoPlaySpeed,			"mpdemoplay_divspeed"		);
 	
-#ifdef DEBUG
-	CMD1(CCC_DbgMakeScreenshot,			"dbg_make_screenshot"		);
-#endif
 	CMD1(CCC_ChangeGameType,		"sv_changegametype"			);
 	CMD1(CCC_ChangeLevel,			"sv_changelevel"			);
 	CMD1(CCC_ChangeLevelGameType,	"sv_changelevelgametype"	);	
@@ -1104,23 +893,14 @@ void register_mp_console_commands()
 	CMD1(CCC_PrevMap,		"sv_prevmap"				);
 	CMD1(CCC_AnomalySet,	"sv_nextanomalyset"			);
 
-	CMD1(CCC_Vote_Yes,		"cl_voteyes"				);
-	CMD1(CCC_Vote_No,		"cl_voteno"				);
-
 	CMD1(CCC_StartTimeEnvironment,	"sv_setenvtime");
 
 	CMD1(CCC_SetWeather,	"sv_setweather"			);
 
-	CMD4(CCC_Integer,		"cl_cod_pickup_mode",	&g_b_COD_PickUpMode,	0, 1)	;
-
-	CMD4(CCC_Integer,		"sv_remove_weapon",		&g_iWeaponRemove, -1, 1);
 	CMD4(CCC_Integer,		"sv_remove_corpse",		&g_iCorpseRemove, -1, 1);
 
 	CMD4(CCC_Integer,		"sv_statistic_collect", &g_bCollectStatisticData, 0, 1);
 	CMD1(CCC_SaveStatistic,	"sv_statistic_save");
-
-	CMD4(CCC_Integer,		"net_dbg_dump_update_write",	&g_Dump_Update_Write, 0, 1);
-	CMD4(CCC_Integer,		"net_dbg_dump_update_read",	&g_Dump_Update_Read, 0, 1);
 
 	CMD1(CCC_ReturnToBase,	"sv_return_to_base");
 
@@ -1128,12 +908,9 @@ void register_mp_console_commands()
 
 	CMD4(CCC_Integer,		"sv_client_reconnect_time",		(int*)&g_sv_Client_Reconnect_Time, 0, 60);
 
-	CMD4(CCC_Integer,		"cl_mpdemosave"				,	(int*)&g_cl_save_demo, 0, 1);
-
 	CMD1(CCC_SwapTeams,		"g_swapteams"				);
 
 	CMD1(CCC_RadminCmd,		"ra");
-	CMD1(CCC_Name,			"name");
 	CMD1(CCC_SvChat,		"chat");
 
 }

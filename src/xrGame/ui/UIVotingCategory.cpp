@@ -7,8 +7,6 @@
 #include "ChangeWeatherDialog.hpp"
 #include "UIGameCustom.h"
 
-#include "../game_sv_mp_vote_flags.h"
-
 
 CUIVotingCategory::CUIVotingCategory()
 {
