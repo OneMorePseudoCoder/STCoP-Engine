@@ -33,17 +33,10 @@ public:
     void SaveDemoInfo();
     bool PrepareToPlayDemo(shared_str const & file_name);
     void StartPlayDemo();
-    void RestartPlayDemo();
     void StopPlayDemo();
     float GetDemoPlayPos() const;
-    //void SetDemoPlayPos(float const pos);
-    float GetDemoPlaySpeed() const; //Device.time_factor()
-    void SetDemoPlaySpeed(float const time_factor); //Device.time_factor(
     message_filter* GetMessageFilter();
-    BOOL IsDemoPlay() { return (!m_DemoSave && m_DemoPlay); }
     BOOL IsDemoSave() { return (m_DemoSave && !m_DemoPlay); }
-    inline BOOL IsDemoPlayStarted() { return (IsDemoPlay() && m_DemoPlayStarted); }
-    inline BOOL IsDemoPlayFinished() { return m_DemoPlayStoped; }
     inline BOOL IsDemoSaveStarted() { return (IsDemoSave() && m_DemoSaveStarted); }
     void SavePacket(NET_Packet& packet);
 

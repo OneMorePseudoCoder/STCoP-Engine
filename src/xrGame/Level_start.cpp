@@ -67,13 +67,8 @@ bool CLevel::net_Start(const char* op_server, const char* op_client)
 	};
 	m_caServerOptions			    = op_server;
 	//---------------------------------------------------------------------
-	if (!IsDemoPlay())
-	{
-		LPCSTR pdemosave = strstr(op_client, "/mpdemosave=");
-		bool is_single = m_caServerOptions.size() != 0 ? 
-			(strstr(m_caServerOptions.c_str(), "single") != NULL) :
-			false;
-	}
+	LPCSTR pdemosave = strstr(op_client, "/mpdemosave=");
+	bool is_single = m_caServerOptions.size() != 0 ? (strstr(m_caServerOptions.c_str(), "single") != NULL) : false;
 	//---------------------------------------------------------------------------
 	g_loading_events.push_back	(LOADING_EVENT(this,&CLevel::net_start1));
 	g_loading_events.push_back	(LOADING_EVENT(this,&CLevel::net_start2));
@@ -97,13 +92,14 @@ bool CLevel::net_start1				()
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect  - ???
-		if (!xr_strcmp(p.m_game_type,"single"))
+		if (!xr_strcmp(p.m_game_type, "single"))
 		{
-			Server					= xr_new<xrServer>();
-		} else
+			Server = xr_new<xrServer>();
+		}
+		else
 		{
-			g_allow_heap_min		= false;
-			Server					= xr_new<xrGameSpyServer>();
+			g_allow_heap_min = false;
+			Server = xr_new<xrGameSpyServer>();
 		}
 
 		if (xr_strcmp(p.m_alife,"alife"))

@@ -2,8 +2,6 @@
 #include "xrClientsPool.h"
 #include "xrServer.h"
 
-extern u32 g_sv_Client_Reconnect_Time;
-
 xrClientsPool::xrClientsPool()
 {
 	m_dclients.reserve	(MAX_PLAYERS_COUNT);
@@ -38,7 +36,6 @@ void xrClientsPool::ClearExpiredClients()
 {
 	expired_client_deleter tmp_deleter;
 	tmp_deleter.m_current_time	= Device.dwTimeGlobal;
-	tmp_deleter.m_expire_time	= g_sv_Client_Reconnect_Time * 60*1000; //in minutes
 	m_dclients.erase(
 		std::remove_if(
 			m_dclients.begin(),
@@ -51,12 +48,6 @@ void xrClientsPool::Add(xrClientData* new_dclient)
 {
 	if (!new_dclient->ps)
 		return;
-
-	if (g_sv_Client_Reconnect_Time == 0)
-	{
-		xr_delete(new_dclient);
-		return;
-	}
 
 	dclient					tmp_dclient;
 	tmp_dclient.m_client	= new_dclient;

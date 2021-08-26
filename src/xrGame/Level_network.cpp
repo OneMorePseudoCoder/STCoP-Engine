@@ -142,14 +142,6 @@ void CLevel::net_Stop		()
 	if (m_file_transfer)
 		xr_delete(m_file_transfer);
 
-	if (IsDemoPlay() && m_current_spectator)	//destroying demo spectator ...
-	{
-		m_current_spectator->setDestroy	(TRUE);
-		SetControlEntity(NULL); //m_current_spectator == CurrentControlEntity()
-		m_current_spectator = NULL;
-		
-	}
-
 	remove_objects				();
 	
 	//WARNING ! remove_objects() uses this flag, so position of this line must e here ..
@@ -283,7 +275,6 @@ void CLevel::ClientSave	()
 
 void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 {
-	if (IsDemoPlayStarted() || IsDemoPlayFinished()) return;
 	// optimize the case when server located in our memory
 	if(psNET_direct_connect){
 		ClientID	_clid;

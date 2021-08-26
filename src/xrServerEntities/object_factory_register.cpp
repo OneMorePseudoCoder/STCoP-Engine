@@ -165,7 +165,6 @@
 #	include "smart_zone.h"
 #	include "InventoryBox.h"
 
-#	include "actor_mp_server.h"
 #	include "smart_cover_object.h"
 #endif // NO_XR_GAME
 

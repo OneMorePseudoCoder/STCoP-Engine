@@ -480,7 +480,6 @@
     <ClInclude Include="Actor_Flags.h" />
     <ClInclude Include="actor_input_handler.h" />
     <ClInclude Include="actor_memory.h" />
-    <ClInclude Include="actor_mp_server.h" />
     <ClInclude Include="actor_statistic_defs.h" />
     <ClInclude Include="actor_statistic_mgr.h" />
     <ClInclude Include="AdvancedDetector.h" />
@@ -2071,9 +2070,6 @@
     <ClCompile Include="actor_input_handler.cpp" />
     <ClCompile Include="actor_memory.cpp" />
     <ClCompile Include="Actor_Movement.cpp" />
-    <ClCompile Include="actor_mp_server.cpp" />
-    <ClCompile Include="actor_mp_server_export.cpp" />
-    <ClCompile Include="actor_mp_server_import.cpp" />
     <ClCompile Include="Actor_Network.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
@@ -2520,7 +2516,6 @@
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="console_commands_mp.cpp" />
     <ClCompile Include="console_registrator_script.cpp">
       <PrecompiledHeaderFile>pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>

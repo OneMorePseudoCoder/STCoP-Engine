@@ -72,7 +72,7 @@ void CLevel::IR_OnMouseMove( int dx, int dy )
 {
 	if(g_bDisableAllInput)							return;
 	if (CurrentGameUI()->IR_UIOnMouseMove(dx,dy))		return;
-	if (Device.Paused() && !IsDemoPlay() 
+	if (Device.Paused()
 #ifdef DEBUG
 		&& !psActorFlags.test(AF_NO_CLIP) 
 #endif //DEBUG
@@ -115,7 +115,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 			if (Device.editor())	return;
 		#endif // INGAME_EDITOR
 
-		if (!g_block_pause && (IsGameTypeSingle() || IsDemoPlay()))
+		if (!g_block_pause && IsGameTypeSingle())
 		{
 #ifdef DEBUG
 			if(psActorFlags.test(AF_NO_CLIP))
@@ -158,7 +158,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 
 	if ( b_ui_exist && CurrentGameUI()->IR_UIOnKeyboardPress(key)) return;
 
-	if ( Device.Paused() && !IsDemoPlay() 
+	if ( Device.Paused() 
 #ifdef DEBUG
 		&& !psActorFlags.test(AF_NO_CLIP) 
 #endif //DEBUG
@@ -500,7 +500,7 @@ void CLevel::IR_OnKeyboardHold(int key)
 #endif // DEBUG
 
 	if (CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardHold(key)) return;
-	if (Device.Paused() && !Level().IsDemoPlay() 
+	if (Device.Paused()
 #ifdef DEBUG
 		&& !psActorFlags.test(AF_NO_CLIP)
 #endif //DEBUG

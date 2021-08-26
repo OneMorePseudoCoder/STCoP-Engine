@@ -40,10 +40,6 @@ void CLevel::ClientReceive()
 	m_dwRPC = 0;
 	m_dwRPS = 0;
 	
-	if (IsDemoPlayStarted())
-	{
-		SimulateServerUpdate();
-	}
 	StartProcessQueue();
 	for (NET_Packet* P = net_msg_Retreive(); P; P=net_msg_Retreive())
 	{
@@ -227,13 +223,6 @@ void CLevel::ClientReceive()
 		case M_SV_CONFIG_FINISHED:
 			{
 				game_configured			= TRUE;
-	#ifdef DEBUG
-				Msg("- Game configuring : Finished ");
-	#endif // #ifdef DEBUG
-				if (IsDemoPlayStarted() && !m_current_spectator)
-				{
-					SpawnDemoSpectator();
-				}
 			}break;
 		case M_MIGRATE_DEACTIVATE:	// TO:   Changing server, just deactivate
 			{

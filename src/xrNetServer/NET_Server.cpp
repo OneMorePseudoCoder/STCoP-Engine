@@ -22,8 +22,6 @@ void	dump_URL	(LPCSTR p, IDirectPlay8Address* A);
 LPCSTR nameTraffic	= "traffic.net";
 
 XRNETSERVER_API int		psNET_ServerUpdate	= 30;		// FPS
-XRNETSERVER_API int		psNET_ServerPending	= 3;
-
 XRNETSERVER_API ClientID BroadcastCID(0xffffffff);
 
 void ip_address::set(LPCSTR src_string)
@@ -181,23 +179,10 @@ IPureServer::_Recieve( const void* data, u32 data_size, u32 param )
 
     id.set( param );
     packet.construct( data, data_size );
-	//DWORD currentThreadId = GetCurrentThreadId();
-	//Msg("-S- Entering to csMessages from _Receive [%d]", currentThreadId);
 	csMessage.Enter();
-	//LogStackTrace(
-	//		make_string("-S- Entered to csMessages [%d]", currentThreadId).c_str());
-	//---------------------------------------
-	if( psNET_Flags.test(NETFLAG_LOG_SV_PACKETS) ) 
-	{
-		if( !pSvNetLog) 
-			pSvNetLog = xr_new<INetLog>("logs\\net_sv_log.log", TimeGlobal(device_timer));
-		    
-		if( pSvNetLog ) 
-		    pSvNetLog->LogPacket( TimeGlobal(device_timer), &packet, TRUE );
-	}
+
 	//---------------------------------------
 	u32	result = OnMessage( packet, id );
-	//Msg("-S- Leaving from csMessages [%d]", currentThreadId);
 	csMessage.Leave();
 	
 	if( result )		
@@ -601,13 +586,6 @@ void	IPureServer::SendTo_Buf(ClientID id, void* data, u32 size, u32 dwFlags, u32
 
 void	IPureServer::SendTo_LL(ClientID ID/*DPNID ID*/, void* data, u32 size, u32 dwFlags, u32 dwTimeout)
 {
-	//	if (psNET_Flags.test(NETFLAG_LOG_SV_PACKETS)) pSvNetLog->LogData(TimeGlobal(device_timer), data, size);
-	if (psNET_Flags.test(NETFLAG_LOG_SV_PACKETS)) 
-	{
-		if (!pSvNetLog) pSvNetLog = xr_new<INetLog>("logs\\net_sv_log.log", TimeGlobal(device_timer));
-		if (pSvNetLog) pSvNetLog->LogData(TimeGlobal(device_timer), data, size);
-	}
-
 	// send it
 	DPN_BUFFER_DESC		desc;
 	desc.dwBufferSize	= size;
@@ -745,12 +723,6 @@ BOOL IPureServer::HasBandwidth			(IClient* C)
 		DWORD				dwPending;
 		hr					= NET->GetSendQueueInfo(C->ID.value(),&dwPending,0,0);
 		if (FAILED(hr))		return FALSE;
-
-		if (dwPending > u32(psNET_ServerPending))	
-		{
-			C->stats.dwTimesBlocked++;
-			return FALSE;
-		};
 
 		UpdateClientStatistic(C);
 		// ok

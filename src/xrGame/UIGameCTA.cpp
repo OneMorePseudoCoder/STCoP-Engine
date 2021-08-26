@@ -196,8 +196,6 @@ bool CUIGameCTA::IsTeamSelectShown()
 }
 void CUIGameCTA::ShowTeamSelectMenu()
 {
-	if (Level().IsDemoPlay())
-		return;
 	VERIFY(m_pUITeamSelectWnd);
 	if (!m_pUITeamSelectWnd->IsShown())
 	{
@@ -472,9 +470,6 @@ CUIGameCTA::BuyMenuItemPair	CUIGameCTA::GetBuyMenuItem(shared_str const & itemSe
 
 void CUIGameCTA::ShowSkinMenu(s8 currentSkin)
 {
-	if (Level().IsDemoPlay())
-		return;
-	//VERIFY2(m_pCurSkinMenu, "skin menu not initialized");
 	if (!m_pCurSkinMenu)
 	{
 #ifdef CLIENT_CTA_LOG

@@ -59,12 +59,9 @@ void CLevel::StopSaveDemo()
 
 void CLevel::StartPlayDemo()
 {
-	R_ASSERT(IsDemoPlay() && !m_DemoPlayStarted);
-
 	m_current_spectator	= NULL;
 	m_DemoPlayStarted	= TRUE;
 	m_StartGlobalTime	= Device.dwTimeGlobal;
-	SetDemoPlaySpeed	(1.0f);
 	m_starting_spawns_pos	= 0;
 	m_starting_spawns_dtime	= 0;
 	Msg("! ------------- Demo Started ------------");
@@ -82,40 +79,8 @@ void CLevel::StartPlayDemo()
 #endif //#ifdef MP_LOGGING
 }
 
-void CLevel::RestartPlayDemo()
-{
-	if (!IsDemoPlay() || (m_starting_spawns_pos == 0))
-	{
-		Msg("! ERROR: no demo play started");
-		return;
-	}
-	if (IsDemoPlayStarted())
-	{
-		remove_objects	();	//WARNING ! need to be in DemoPlayStarted mode .
-		//After remove_objects() invokation there where left a serveral (20) UpdateCLs so:
-#ifdef DEBUG
-		VERIFY(g_pGameLevel);
-		VERIFY(m_current_spectator);
-		g_pGameLevel->Cameras().dbg_upd_frame	= 0;
-		m_current_spectator->dbg_update_cl		= 0;
-#endif
-		StopPlayDemo	();
-	}
-	R_ASSERT(m_reader);
-	
-	m_DemoPlayStarted	= TRUE;
-	m_DemoPlayStoped	= FALSE;
-
-	m_StartGlobalTime	= Device.dwTimeGlobal - m_starting_spawns_dtime;
-	m_reader->seek		(m_starting_spawns_pos);
-
-	SetDemoPlaySpeed	(1.0f);
-	Msg("! ------------- Demo ReStarted ------------");
-}
-
 void CLevel::StopPlayDemo()
 {
-	SetDemoPlaySpeed		(1.0f);
 	if (m_reader)
 	{
 		//FS.r_close			(m_reader);
@@ -241,69 +206,6 @@ message_filter*	 CLevel::GetMessageFilter()
 		return m_msg_filter;
 	m_msg_filter = xr_new<message_filter>();
 	return m_msg_filter;
-}
-
-/*
-void CLevel::SetDemoPlayPos(float const pos)
-{
-	if (!IsDemoPlayStarted())
-	{
-		Msg("! ERROR: demo play not started");
-		return;
-	}
-	if (pos > 1.f)
-	{
-		Msg("! ERROR: incorect demo play position");
-		return;
-	}
-	float cur_pos = GetDemoPlayPos();
-	if (cur_pos >= pos)
-	{
-		Msg("! demo play position must be greater than current position");
-		return;
-	}
-	
-	u32 old_file_pos = m_reader->tell();
-
-	u32				file_pos = u32(float(m_reader->length()) * pos);
-	if (file_pos <= old_file_pos)
-	{
-		Msg("! demo play position already at the current point");
-		return;
-	}
-
-	DemoPacket		tmp_hdr;
-	u32				time_shift = 0;
-	
-	while (m_reader->tell() < file_pos)
-	{
-		m_reader->r		(&tmp_hdr, sizeof(DemoPacket));
-		m_reader->seek	(m_reader->tell() + tmp_hdr.m_packet_size);
-		time_shift		+= tmp_hdr.m_time_global_delta;
-	}
-	m_StartGlobalTime	-= time_shift;
-	m_rewind			= TRUE;
-	m_reader->seek		(old_file_pos);
-}*/
-
-float CLevel::GetDemoPlaySpeed() const
-{
-	return Device.time_factor();
-}
-#define MAX_PLAY_SPEED 8.f
-void CLevel::SetDemoPlaySpeed(float const time_factor)
-{
-	if (!IsDemoPlayStarted())
-	{
-		Msg("! ERROR: demo play not started");
-		return;
-	}
-	if (time_factor > MAX_PLAY_SPEED)
-	{
-		Msg("! Sorry, maximum play speed is: %1.1f", MAX_PLAY_SPEED);
-		return;
-	}
-	Device.time_factor(time_factor);
 }
 
 void CLevel::CatchStartingSpawns()

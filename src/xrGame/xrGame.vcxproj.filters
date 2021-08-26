@@ -1534,12 +1534,6 @@
     <Filter Include="Core\Client\Objects\actor">
       <UniqueIdentifier>{d6d7054c-3df6-4b91-9402-243a507583b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Client\Objects\actor\mp">
-      <UniqueIdentifier>{808bb23a-aafc-400a-873d-9985e971e970}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\actor\mp\server">
-      <UniqueIdentifier>{dc4e94a9-0d60-45bc-adf3-4ba9505d2018}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Client\Objects\actor\base">
       <UniqueIdentifier>{1bac2bd2-55b0-4f90-825a-e0d5035a5c6e}</UniqueIdentifier>
     </Filter>
@@ -5292,9 +5286,6 @@
     <ClInclude Include="level_debug.h">
       <Filter>Core\Client\Level Debug</Filter>
     </ClInclude>
-    <ClInclude Include="actor_mp_server.h">
-      <Filter>Core\Client\Objects\actor\mp\server</Filter>
-    </ClInclude>
     <ClInclude Include="Actor.h">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClInclude>
@@ -8484,15 +8475,6 @@
     <ClCompile Include="level_debug.cpp">
       <Filter>Core\Client\Level Debug</Filter>
     </ClCompile>
-    <ClCompile Include="actor_mp_server.cpp">
-      <Filter>Core\Client\Objects\actor\mp\server</Filter>
-    </ClCompile>
-    <ClCompile Include="actor_mp_server_export.cpp">
-      <Filter>Core\Client\Objects\actor\mp\server</Filter>
-    </ClCompile>
-    <ClCompile Include="actor_mp_server_import.cpp">
-      <Filter>Core\Client\Objects\actor\mp\server</Filter>
-    </ClCompile>
     <ClCompile Include="Actor.cpp">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClCompile>
@@ -9181,9 +9163,6 @@
       <Filter>Core\Client\Spectator\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="console_commands.cpp">
-      <Filter>Core\Common\Console Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="console_commands_mp.cpp">
       <Filter>Core\Common\Console Commands</Filter>
     </ClCompile>
     <ClCompile Include="date_time.cpp">

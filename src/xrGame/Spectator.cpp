@@ -101,11 +101,7 @@ void CSpectator::UpdateCL()
 
 	if (GameID() != eGameIDSingle)
 	{
-		if (Game().local_player && (
-					(Game().local_player->GameID == ID()) ||
-					Level().IsDemoPlay()
-				)
-			)
+		if (Game().local_player && Game().local_player->GameID == ID())
 		{
 			if (cam_active != eacFreeFly)
 			{
@@ -200,7 +196,7 @@ void CSpectator::IR_OnKeyboardPress(int cmd)
 	case kWPN_ZOOM:
 		{
 			game_PlayerState* PS = Game().local_player;
-			if (!Level().IsDemoPlay() && (!PS || PS->GameID != ID())) break;
+			if (!PS || PS->GameID != ID()) break;
 			
 
 			EActorCameras new_camera = EActorCameras((cam_active+1)%eacMaxCam);

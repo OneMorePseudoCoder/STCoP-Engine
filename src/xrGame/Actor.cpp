@@ -1194,9 +1194,7 @@ void CActor::shedule_Update	(u32 DT)
 
 	// Check controls, create accel, prelimitary setup "mstate_real"
 	
-	//----------- for E3 -----------------------------
-//	if (Local() && (OnClient() || Level().CurrentEntity()==this))
-	if (Level().CurrentControlEntity() == this && !Level().IsDemoPlay())
+	if (Level().CurrentControlEntity() == this)
 	//------------------------------------------------
 	{
 		g_cl_CheckControls		(mstate_wishful,NET_SavedAccel,NET_Jump,dt);
@@ -1236,8 +1234,7 @@ void CActor::shedule_Update	(u32 DT)
 		} else {
 			f_DropPower			= 0.f;
 		}
-		if (!Level().IsDemoPlay())
-		{		
+	
 		mstate_wishful &=~mcAccel;
 		mstate_wishful &=~mcLStrafe;
 		mstate_wishful &=~mcRStrafe;
@@ -1247,7 +1244,6 @@ void CActor::shedule_Update	(u32 DT)
 		mstate_wishful &=~mcBack;
 		if( !psActorFlags.test(AF_CROUCH_TOGGLE) )
 			mstate_wishful &=~mcCrouch;
-		}
 	}
 	else 
 	{
@@ -1670,8 +1666,6 @@ bool		CActor::use_bolts				() const
 	return CInventoryOwner::use_bolts();
 };
 
-int		g_iCorpseRemove = 1;
-
 bool  CActor::NeedToDestroyObject() const
 {
 	if(IsGameTypeSingle())
@@ -1681,8 +1675,6 @@ bool  CActor::NeedToDestroyObject() const
 	else 
 	{
 		if (g_Alive()) return false;
-		if (g_iCorpseRemove == -1) return false;
-		if (g_iCorpseRemove == 0 && m_bAllowDeathRemove) return true;
 		if(TimePassedAfterDeath()>m_dwBodyRemoveTime && m_bAllowDeathRemove)
 			return true;
 		else

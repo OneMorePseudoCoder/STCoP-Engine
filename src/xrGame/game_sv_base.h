@@ -10,17 +10,6 @@
 
 #define MAX_PLAYERS_COUNT 32
 
-enum ERoundEnd_Result
-{
-	eRoundEnd_Finish		= u32(0),
-	eRoundEnd_GameRestarted,
-	eRoundEnd_GameRestartedFast,
-	eRoundEnd_TimeLimit,
-	eRoundEnd_FragLimit,
-	eRoundEnd_ArtrefactLimit,
-	eRoundEnd_Force			= u32(-1)
-};
-
 class CSE_Abstract;
 class xrServer;
 // [OLES] Policy:
@@ -65,8 +54,6 @@ public:
 	DEF_VECTOR(RPRef, RPoint*);
 	RPRef							rpointsBlocked;
 	
-	ERoundEnd_Result				round_end_reason;
-	
 	virtual		void				SaveMapList				();
 	virtual		bool				HasMapRotation			() {return m_bMapRotation; };
 
@@ -83,10 +70,6 @@ public:
 	virtual		void				OnPlayer_Sell_Item		(ClientID id_who, NET_Packet &P) {};
 				void				GenerateGameMessage		(NET_Packet &P);
 	
-
-	virtual		void				OnRoundStart			();									// старт раунда
-	virtual		void				OnRoundEnd				();	//	round_end_reason			// конец раунда
-
 				void				MapRotation_AddMap		(LPCSTR MapName, LPCSTR MapVer);
 				void				MapRotation_ListMaps	();
 	virtual		bool				OnNextMap				()									{return false;}

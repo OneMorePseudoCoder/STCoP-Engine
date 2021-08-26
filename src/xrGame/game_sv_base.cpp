@@ -266,9 +266,6 @@ void game_sv_GameState::net_Export_State						(NET_Packet& P, ClientID to)
 	P.w_u8			(u8(net_sv_control_hit));
 	P.w_u8			(u8(g_bCollectStatisticData));
 
-	// Players
-//	u32	p_count			= get_players_count() - ((g_dedicated_server)? 1 : 0);
-
 	xrClientData*		tmp_client = static_cast<xrClientData*>(
 		m_server->GetClientByID(to));
 	game_PlayerState*	tmp_ps = tmp_client->ps;
@@ -733,9 +730,6 @@ void game_sv_GameState::OnEvent (NET_Packet &tNetPacket, u16 type, u32 time, Cli
 			if (psNET_direct_connect) //IsGameTypeSingle())
 				break;
 
-			if (Level().IsDemoPlay())
-				break;
-
 			if (g_dedicated_server && (CL == m_server->GetServerClient()))
 				break;
 
@@ -970,40 +964,6 @@ void game_sv_GameState::MapRotation_ListMaps	()
 	}
 	Msg("- --------------------------------");
 };
-
-void game_sv_GameState::OnRoundStart			()
-{ 
-	m_bMapNeedRotation = false;
-	m_bFastRestart = false;
-
-	for (int t=0; t<TEAM_COUNT; t++)
-	{
-		for (u32 i=0; i<rpoints[t].size(); i++)
-		{
-			RPoint rp	= rpoints[t][i];
-			rp.bBlocked = false;
-		}
-	};
-	rpointsBlocked.clear			();
-}// старт раунда
-
-void game_sv_GameState::OnRoundEnd()
-{ 
-	if ( round_end_reason == eRoundEnd_GameRestarted || round_end_reason == eRoundEnd_GameRestartedFast )
-	{
-		m_bMapNeedRotation = false;
-	}
-	else
-	{
-		m_bMapNeedRotation = true; 
-	}
-
-	m_bFastRestart = false;
-	if ( round_end_reason == eRoundEnd_GameRestartedFast )
-	{
-		m_bFastRestart = true;
-	}
-}// конец раунда
 
 void game_sv_GameState::SaveMapList				()
 {

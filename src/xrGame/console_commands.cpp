@@ -102,7 +102,6 @@ int				g_keypress_on_start	= 1;
 
 ENGINE_API extern float	g_console_sensitive;
 
-void register_mp_console_commands();
 //-----------------------------------------------------------
 
 		BOOL	g_bCheckTime			= FALSE;
@@ -2271,5 +2270,4 @@ extern BOOL dbg_moving_bones_snd_player;
 	CMD3(CCC_String,    "slot_3",				g_quick_use_slots[3], 32);
 
 	CMD4(CCC_Integer,	"keypress_on_start",	&g_keypress_on_start, 0, 1);
-	register_mp_console_commands				();
 }

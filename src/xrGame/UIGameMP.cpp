@@ -19,10 +19,6 @@ UIGameMP::~UIGameMP()
 
 bool UIGameMP::IR_UIOnKeyboardPress(int dik)
 {
-	if ( is_binded(kCROUCH, dik) && Level().IsDemoPlay())
-	{
-		return true;
-	}
 	return inherited::IR_UIOnKeyboardPress(dik);
 }
 
@@ -30,23 +26,6 @@ bool UIGameMP::IR_UIOnKeyboardRelease(int dik)
 {
 	return inherited::IR_UIOnKeyboardRelease(dik);
 }
-/*
-bool UIGameMP::IsMapDescShown()
-{
-	VERIFY(m_pMapDesc);
-	return m_pMapDesc->IsShown();
-}
-void UIGameMP::ShowMapDesc()
-{
-	if (Level().IsDemoPlay())
-		return;
-	
-	VERIFY(m_pMapDesc);
-	if (!m_pMapDesc->IsShown())
-	{
-		m_pMapDesc->ShowDialog(true);
-	}
-}*/
 
 bool UIGameMP::IsServerInfoShown	()
 {
@@ -57,9 +36,6 @@ bool UIGameMP::IsServerInfoShown	()
 //shows only if it has some info ...
 bool UIGameMP::ShowServerInfo()
 {
-	if (Level().IsDemoPlay())
-		return true;
-
 	VERIFY2(m_pServerInfo, "game client UI not created");
 	if (!m_pServerInfo)
 	{

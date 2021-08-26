@@ -135,8 +135,6 @@ IClient*	xrServer::client_Find_Get	(ClientID ID)
 	return newCL;
 };
 
-u32	g_sv_Client_Reconnect_Time = 3;
-
 void		xrServer::client_Destroy	(IClient* C)
 {
 	// Delete assosiated entity
@@ -208,9 +206,6 @@ INT g_sv_SendUpdate = 0;
 
 void xrServer::Update	()
 {
-	if (Level().IsDemoPlayStarted() || Level().IsDemoPlayFinished())
-		return;								//diabling server when demo is playing
-
 	NET_Packet		Packet;
 
 	VERIFY						(verify_entities());
@@ -983,8 +978,6 @@ void xrServer::PerformCheckClientsForMaxPing()
 	MaxPingClientDisconnector temp_functor(this);
 	ForEachClientDoSender(temp_functor);
 }
-
-extern	BOOL	g_bCollectStatisticData;
 
 //xr_token game_types[];
 LPCSTR GameTypeToString(EGameIDs gt, bool bShort);

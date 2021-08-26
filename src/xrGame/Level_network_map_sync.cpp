@@ -54,7 +54,7 @@ bool CLevel::synchronize_map_data()
 #endif // #ifdef DEBUG
 	ClientReceive(); 
 
-	if ((map_data.m_wait_map_time >= 1000) && (!map_data.m_map_sync_received) && !IsDemoPlay())//about 5 seconds
+	if ((map_data.m_wait_map_time >= 1000) && (!map_data.m_map_sync_received))//about 5 seconds
 	{
 		Msg("Wait map data time out: reconnecting...");
 		MakeReconnect();
