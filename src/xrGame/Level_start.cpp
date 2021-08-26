@@ -92,15 +92,8 @@ bool CLevel::net_start1				()
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect  - ???
-		if (!xr_strcmp(p.m_game_type, "single"))
-		{
-			Server = xr_new<xrServer>();
-		}
-		else
-		{
-			g_allow_heap_min = false;
-			Server = xr_new<xrGameSpyServer>();
-		}
+		g_allow_heap_min = false;
+		Server = xr_new<xrGameSpyServer>();
 
 		if (xr_strcmp(p.m_alife,"alife"))
 		{
