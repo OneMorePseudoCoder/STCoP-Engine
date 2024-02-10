@@ -10113,6 +10113,9 @@
     <ClCompile Include="bone_groups.cpp">
       <Filter>Core\Server\Games\client</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon_Extended.cpp">
+      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Automatic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">
