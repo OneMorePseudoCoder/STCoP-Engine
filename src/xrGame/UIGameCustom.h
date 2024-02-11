@@ -17,7 +17,6 @@ class CUIWindow;
 class CUIXml;
 class CUIActorMenu;
 class CUIPdaWnd;			
-struct KillMessageStruct;
 class CUIMainIngameWnd;
 class CUIMessagesWindow;
 
@@ -116,9 +115,6 @@ public:
     StaticDrawableWrapper* GetCustomStatic(const char* id);
     void RemoveCustomStatic(const char* id);
     void CommonMessageOut(const char* text);
-    virtual void ChangeTotalMoneyIndicator(const char* newMoneyString) {}
-    virtual void DisplayMoneyChange(const char* deltaMoney) {}
-    virtual void DisplayMoneyBonus(KillMessageStruct* bonus) {}
     virtual void UnLoad();
     void Load();
     void OnConnected();

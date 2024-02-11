@@ -4,7 +4,6 @@
 #include "xrserver.h"
 #include "game_cl_base.h"
 #include "xrmessages.h"
-#include "xrGameSpyServer.h"
 #include "../xrEngine/x_ray.h"
 #include "../xrEngine/device.h"
 #include "../xrEngine/IGame_Persistent.h"
@@ -93,7 +92,7 @@ bool CLevel::net_start1				()
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect  - ???
 		g_allow_heap_min = false;
-		Server = xr_new<xrGameSpyServer>();
+		Server = xr_new<xrServer>();
 
 		if (xr_strcmp(p.m_alife,"alife"))
 		{

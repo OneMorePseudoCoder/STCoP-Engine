@@ -12,14 +12,11 @@ class CUITextWnd;
 class CUIXml;
 class CUIFrameWindow;
 class UIHint;
-
 class CUITaskWnd;
-//-class CUIFactionWarWnd;
 class CUIRankingWnd;
 class CUILogsWnd;
 class CUIAnimatedStatic;
 class UIHint;
-
 
 class CUIPdaWnd: public CUIDialogWnd
 {
@@ -44,7 +41,6 @@ protected:
 
 public:
 	CUITaskWnd*				pUITaskWnd;
-//-	CUIFactionWarWnd*		pUIFactionWarWnd;
 	CUIRankingWnd*			pUIRankingWnd;
 	CUILogsWnd*				pUILogsWnd;
 

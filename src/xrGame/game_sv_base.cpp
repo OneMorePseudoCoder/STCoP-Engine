@@ -13,7 +13,6 @@
 #include "string_table.h"
 
 #include "debug_renderer.h"
-#include "xrGameSpyServer.h"
 
 ENGINE_API	bool g_dedicated_server;
 
@@ -735,19 +734,12 @@ void game_sv_GameState::OnEvent (NET_Packet &tNetPacket, u16 type, u32 time, Cli
 
 bool game_sv_GameState::CheckNewPlayer(xrClientData* CL)
 {
-	xrGameSpyServer*		gs_server = smart_cast<xrGameSpyServer*>(m_server);
-	R_ASSERT				(gs_server);
+	xrServer* gs_server = smart_cast<xrServer*>(m_server);
+	R_ASSERT(gs_server);
 	
-	char const *			error_msg = NULL;
-	ClientID				tmp_client_id(CL->ID);
+	char const* error_msg = NULL;
+	ClientID tmp_client_id(CL->ID);
 	
-	if (gs_server->IsPublicServer())
-	{
-	} else
-	{
-			CheckPlayerName(CL);
-	}
-
 	if (error_msg)
 	{
 		m_server->SendProfileCreationError(CL, error_msg);
