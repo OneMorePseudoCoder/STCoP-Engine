@@ -12,7 +12,7 @@
 #include "game_cl_base.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "../xrphysics/IPHWorld.h"
-//extern CPHWorld*	ph_world;
+
 #define CHOOSE_MAX(x,inst_x,y,inst_y,z,inst_z)\
 	if(x>y)\
 		if(x>z){inst_x;}\
@@ -39,17 +39,15 @@ void CGraviArtefact::Load(LPCSTR section)
 {
 	inherited::Load(section);
 
-	if(pSettings->line_exist(section, "jump_height")) m_fJumpHeight = pSettings->r_float(section,"jump_height");
-//	m_fEnergy = pSettings->r_float(section,"energy");
+	if (pSettings->line_exist(section, "jump_height")) 
+		m_fJumpHeight = pSettings->r_float(section,"jump_height");
 }
-
-
 
 void CGraviArtefact::UpdateCLChild() 
 {
-
 	VERIFY(!physics_world()->Processing());
-	if (getVisible() && m_pPhysicsShell) {
+	if (getVisible() && m_pPhysicsShell) 
+	{
 		if (m_fJumpHeight) {
 			Fvector dir; 
 			dir.set(0, -1.f, 0);
@@ -59,29 +57,12 @@ void CGraviArtefact::UpdateCLChild()
 			if(Level().ObjectSpace.RayPick(Position(), dir, m_fJumpHeight, collide::rqtBoth, RQ, this)) 
 			{
 				dir.y = 1.f; 
-				m_pPhysicsShell->applyImpulse(dir, 
-											  30.f * Device.fTimeDelta * 
-											  m_pPhysicsShell->getMass());
+				m_pPhysicsShell->applyImpulse(dir, 30.f * Device.fTimeDelta * m_pPhysicsShell->getMass());
 			}
 		}
-	} else 
-		if(H_Parent()) 
-		{
-			XFORM().set(H_Parent()->XFORM());
-			
-			if (GameID() == eGameIDArtefactHunt && m_CarringBoneID != u16(-1))
-			{
-				IKinematics* K	= smart_cast<IKinematics*>(H_Parent()->Visual());
-				if (K)
-				{
-					K->CalculateBones	();
-					Fmatrix Ruck_MTX	= K->LL_GetTransform(m_CarringBoneID);
-					Fvector	x;
-					x.set(-0.1f, 0.f, -0.3f);
-					Ruck_MTX.translate_add(x);
-					Ruck_MTX.mulA_43	(XFORM());
-					XFORM().set(Ruck_MTX);
-				};
-			};
-		};
+	} 
+	else if (H_Parent()) 
+	{
+		XFORM().set(H_Parent()->XFORM());
+	};
 }

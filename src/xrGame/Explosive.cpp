@@ -736,13 +736,12 @@ void CExplosive::GetExplosionBox(Fvector	&size)
 {
 	size.set(m_vExplodeSize);
 }
+
 void CExplosive::SetExplosionSize(const Fvector	&new_size)
 {
 	m_vExplodeSize.set(new_size);
 	
 }
-
-
 
 void CExplosive::ActivateExplosionBox(const Fvector &size,Fvector &in_out_pos)
 {
@@ -752,16 +751,14 @@ void CExplosive::ActivateExplosionBox(const Fvector &size,Fvector &in_out_pos)
 	ActivateShapeExplosive( self_obj, size, m_vExplodeSize, in_out_pos );
 	if(self_shell&&self_shell->isActive())self_shell->EnableCollision();
 }
+
 void CExplosive::net_Relcase(CObject* O)
 {
-	if (GameID() == eGameIDSingle)
-	{
-		if(O->ID()==m_iCurrentParentID)
-			m_iCurrentParentID=u16(-1);
-	}
-	
-	BLASTED_OBJECTS_I I=std::find(m_blasted_objects.begin(),m_blasted_objects.end(),smart_cast<CPhysicsShellHolder*>(O));
-	if(m_blasted_objects.end()!=I)
+	if (O->ID() == m_iCurrentParentID)
+		m_iCurrentParentID = u16(-1);
+
+	BLASTED_OBJECTS_I I = std::find(m_blasted_objects.begin(),m_blasted_objects.end(),smart_cast<CPhysicsShellHolder*>(O));
+	if (m_blasted_objects.end() != I)
 	{
 		m_blasted_objects.erase(I);
 	}

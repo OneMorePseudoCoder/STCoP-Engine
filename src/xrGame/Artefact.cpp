@@ -116,18 +116,8 @@ void CArtefact::OnH_A_Chield()
 	inherited::OnH_A_Chield		();
 
 	StopLights();
-	if (IsGameTypeSingle())
-	{
-		SwitchAfParticles(false);
-	}
-	else
-	{
-		IKinematics* K	= smart_cast<IKinematics*>(H_Parent()->Visual());
-		if (K)
-			m_CarringBoneID			= K->LL_BoneID("bip01_head");
-		else
-			m_CarringBoneID = u16(-1);
-	}
+	SwitchAfParticles(false);
+
 	if(m_detectorObj)
 	{
 		m_detectorObj->m_currPatrolPath = NULL;
@@ -327,7 +317,6 @@ void CArtefact::MoveTo(Fvector const &  position)
 	//m_bInInterpolation = false;	
 }
 
-
 #include "inventoryOwner.h"
 #include "Entity_alive.h"
 void CArtefact::UpdateXForm()
@@ -473,7 +462,6 @@ void CArtefact::SwitchVisibility(bool b)
 
 void CArtefact::StopActivation()
 {
-	//VERIFY2(m_activationObj, "activation object not initialized");
 	if (!m_activationObj)
 		return;
 	m_activationObj->Stop();
@@ -488,7 +476,8 @@ void CArtefact::ForceTransform(const Fmatrix& m)
 
 void CArtefact::CreateArtefactActivation()
 {
-	if (m_activationObj) {
+	if (m_activationObj) 
+	{
 		return;
 	}
 	m_activationObj = xr_new<SArtefactActivation>(this, H_Parent()->ID());
@@ -612,11 +601,7 @@ void CArtefact::OnActiveItem ()
 
 void CArtefact::OnHiddenItem ()
 {
-	if(IsGameTypeSingle())
-		SwitchState(eHiding);
-	else
-		SwitchState(eHidden);
-
+	SwitchState(eHiding);
 	inherited::OnHiddenItem		();
 	SetState					(eHidden);
 	SetNextState				(eHidden);

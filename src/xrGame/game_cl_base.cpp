@@ -10,15 +10,10 @@
 #include "UI/UIMessagesWindow.h"
 #include "UI/UIDialogWnd.h"
 #include "string_table.h"
-#include "game_cl_base_weapon_usage_statistic.h"
-
-EGameIDs ParseStringToGameType	(LPCSTR str);
-LPCSTR GameTypeToString			(EGameIDs gt, bool bShort);
 
 game_cl_GameState::game_cl_GameState()
 {
 	local_player				= createPlayerState(NULL);	//initializing account info
-	m_WeaponUsageStatistic		= NULL;
 
 	m_game_type_name			= 0;
 
@@ -29,8 +24,6 @@ game_cl_GameState::game_cl_GameState()
 
 	m_u16VotingEnabled			= 0;
 	m_bServerControlHits		= true;
-
-	m_WeaponUsageStatistic		= xr_new<WeaponUsageStatistic>();
 }
 
 game_cl_GameState::~game_cl_GameState()
@@ -41,7 +34,6 @@ game_cl_GameState::~game_cl_GameState()
 	players.clear();
 
 	shedule_unregister();
-	xr_delete(m_WeaponUsageStatistic);
 	xr_delete(local_player);
 }
 
@@ -115,7 +107,6 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 	P.r_u32			(m_start_time);
 	m_u16VotingEnabled = u16(P.r_u8());
 	m_bServerControlHits = !!P.r_u8();	
-	m_WeaponUsageStatistic->SetCollectData(!!P.r_u8());
 
 	// Players
 	u16	p_count;
@@ -140,15 +131,13 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 			//***********************************************
 			u16 OldFlags = IP->flags__;
 			u8 OldVote = IP->m_bCurrentVoteAgreed;
-			//-----------------------------------------------
 			IP->net_Import(P);
-			//-----------------------------------------------
-			if (OldFlags != IP->flags__)
-				if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
 			//***********************************************
 			valid_players.push_back(ID);
-		}else{
-			if (ID == local_svdpnid)//Level().GetClientID())
+		}
+		else
+		{
+			if (ID == local_svdpnid)
 			{
 				game_PlayerState::skip_Import(P);	//this mean that local_player not created yet ..
 				continue;
@@ -156,23 +145,13 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 			
 			IP = createPlayerState	(&P);
 			
-			if (Type() != eGameIDSingle)
-				OnPlayerFlagsChanged(IP);
-
 			players.insert			(std::make_pair(ID,IP));
 			valid_players.push_back	(ID);
 		}
 	}
 	not_exsiting_clients_deleter	tmp_deleter(&valid_players, &local_player, &local_svdpnid);
 	
-	players.erase(
-		std::remove_if(
-			players.begin(),
-			players.end(),
-			tmp_deleter
-		),
-		players.end()
-	);
+	players.erase(std::remove_if(players.begin(), players.end(), tmp_deleter), players.end());
 
 	net_import_GameTime(P);
 }
@@ -185,20 +164,14 @@ void	game_cl_GameState::net_import_update(NET_Packet& P)
 
 	// Update
 	PLAYERS_MAP_IT I	= players.find(ID);
-	/*VERIFY2(I != players.end(), 
-		make_string("Player ClientID = %d not found in players map", ID.value()).c_str());*/
+
 	if (players.end()!=I)
 	{
-		game_PlayerState* IP		= I->second;
-//		CopyMemory	(&IP,&PS,sizeof(PS));		
+		game_PlayerState* IP		= I->second;		
 		//***********************************************
 		u16 OldFlags = IP->flags__;
 		u8 OldVote = IP->m_bCurrentVoteAgreed;
-		//-----------------------------------------------
 		IP->net_Import(P);
-		//-----------------------------------------------
-		if (OldFlags != IP->flags__)
-			if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
 		//***********************************************
 	}
 	else
@@ -234,17 +207,13 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			if (newClientId == local_svdpnid)
 			{
 				PS = local_player;
-			} else
+			} 
+			else
 			{
 				PS = createPlayerState(&P);
 			}
 			VERIFY2(PS, "failed to create player state");
 			
-			if (Type() != eGameIDSingle)
-			{
-				players.insert(std::make_pair(newClientId, PS));
-				OnNewPlayerConnected(newClientId);
-			}
 			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			//---------------------------------------
 		}break;
@@ -335,8 +304,6 @@ void game_cl_GameState::shedule_Update		(u32 dt)
 	{
 	case GAME_PHASE_INPROGRESS:
 		{
-			if (!IsGameTypeSingle())
-				m_WeaponUsageStatistic->Update();
 		}break;
 	default:
 		{
@@ -397,17 +364,6 @@ void				game_cl_GameState::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 		{
 		}break;
 	};
-
-	switch (new_phase)
-	{
-		case GAME_PHASE_INPROGRESS:
-			{
-				m_WeaponUsageStatistic->Clear();
-			}break;
-		default:
-			{
-			}break;
-	}	
 }
 
 void game_cl_GameState::SendPickUpEvent(u16 ID_who, u16 ID_what)
@@ -423,8 +379,8 @@ void game_cl_GameState::SendPickUpEvent(u16 ID_who, u16 ID_what)
 
 void game_cl_GameState::set_type_name(LPCSTR s)	
 { 
-	EGameIDs gid =			ParseStringToGameType	(s);
-	m_game_type_name		= GameTypeToString		(gid, false); 
+	EGameIDs gid =			eGameIDSingle;
+	m_game_type_name		= "single";
 	if(OnClient())
 	{
 		xr_strcpy					(g_pGamePersistent->m_game_params.m_game_type, m_game_type_name.c_str());

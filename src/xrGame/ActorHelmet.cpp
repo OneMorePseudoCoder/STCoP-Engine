@@ -5,7 +5,6 @@
 #include "Torch.h"
 #include "BoneProtections.h"
 #include "../Include/xrRender/Kinematics.h"
-//#include "CustomOutfit.h"
 
 CHelmet::CHelmet()
 {
@@ -54,14 +53,11 @@ void CHelmet::Load(LPCSTR section)
 
 	m_BonesProtectionSect			= READ_IF_EXISTS(pSettings, r_string, section, "bones_koeff_protection",  "" );
 	m_fShowNearestEnemiesDistance	= READ_IF_EXISTS(pSettings, r_float, section, "nearest_enemies_show_dist",  0.0f );
-
 }
 
 void CHelmet::ReloadBonesProtection()
 {
-	CObject* parent = H_Parent();
-	if(IsGameTypeSingle())
-		parent = smart_cast<CObject*>(Level().CurrentViewEntity());
+	CObject* parent = smart_cast<CObject*>(Level().CurrentViewEntity());
 
 	if(parent && parent->Visual() && m_BonesProtectionSect.size())
 		m_boneProtection->reload( m_BonesProtectionSect, smart_cast<IKinematics*>(parent->Visual()));
@@ -69,8 +65,7 @@ void CHelmet::ReloadBonesProtection()
 
 BOOL CHelmet::net_Spawn(CSE_Abstract* DC)
 {
-	if(IsGameTypeSingle())
-		ReloadBonesProtection();
+	ReloadBonesProtection();
 
 	BOOL res = inherited::net_Spawn(DC);
 	return					(res);
@@ -197,9 +192,7 @@ bool CHelmet::install_upgrade_impl( LPCSTR section, bool test )
 
 void CHelmet::AddBonesProtection(LPCSTR bones_section)
 {
-	CObject* parent = H_Parent();
-	if(IsGameTypeSingle())
-		parent = smart_cast<CObject*>(Level().CurrentViewEntity());
+	CObject* parent = smart_cast<CObject*>(Level().CurrentViewEntity());
 
 	if ( parent && parent->Visual() && m_BonesProtectionSect.size() )
 		m_boneProtection->add(bones_section, smart_cast<IKinematics*>( parent->Visual() ) );
@@ -211,23 +204,12 @@ float CHelmet::HitThroughArmor(float hit_power, s16 element, float ap, bool& add
 	if(hit_type == ALife::eHitTypeFireWound)
 	{
 		float ba = GetBoneArmor(element);
-		if(ba<0.0f)
+		if (ba<0.0f)
 			return NewHitPower;
 
 		float BoneArmor = ba*GetCondition();
-		if(/*!fis_zero(ba, EPS) && */(ap > BoneArmor))
+		if (ap > BoneArmor)
 		{
-			//пуля пробила бронь
-			if(!IsGameTypeSingle())
-			{
-				float hit_fraction = (ap - BoneArmor) / ap;
-				if(hit_fraction < m_boneProtection->m_fHitFracActor)
-					hit_fraction = m_boneProtection->m_fHitFracActor;
-
-				NewHitPower *= hit_fraction;
-				NewHitPower *= m_boneProtection->getBoneProtection(element);
-			}
-
 			VERIFY(NewHitPower>=0.0f);
 		}
 		else

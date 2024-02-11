@@ -130,11 +130,7 @@ void CGrenade::State(u32 state)
 bool CGrenade::DropGrenade()
 {
 	EMissileStates grenade_state = static_cast<EMissileStates>(GetState());
-	if (((grenade_state == eThrowStart) ||
-		(grenade_state == eReady) ||
-		(grenade_state == eThrow)) &&
-		(!m_thrown)
-		)
+	if (((grenade_state == eThrowStart) || (grenade_state == eReady) || (grenade_state == eThrow)) && (!m_thrown))
 	{
 		Throw();
 		return true;
@@ -144,19 +140,19 @@ bool CGrenade::DropGrenade()
 
 void CGrenade::DiscardState()
 {
-	if(IsGameTypeSingle() && (GetState()==eReady || GetState()==eThrow) )
+	if (GetState() == eReady || GetState() == eThrow)
 		OnStateSwitch(eIdle);
 }
 
 void CGrenade::SendHiddenItem						()
 {
-	if (GetState()==eThrow)
+	if (GetState() == eThrow)
 	{
-//		Msg("MotionMarks !!![%d][%d]", ID(), Device.dwFrame);
-		Throw				();
+		Throw();
 	}
-	CActor* pActor = smart_cast<CActor*>( m_pInventory->GetOwner());
-	if (pActor && (GetState()==eReady || GetState()==eThrow))
+	
+	CActor* pActor = smart_cast<CActor*>(m_pInventory->GetOwner());
+	if (pActor && (GetState() == eReady || GetState() == eThrow))
 	{
 		return;
 	}
@@ -272,19 +268,16 @@ void CGrenade::OnAnimationEnd(u32 state)
 	}
 }
 
-
 void CGrenade::UpdateCL() 
 {
 	inherited::UpdateCL			();
 	CExplosive::UpdateCL		();
-
-	if(!IsGameTypeSingle())	make_Interpolation();
 }
-
 
 bool CGrenade::Action(u16 cmd, u32 flags) 
 {
-	if(inherited::Action(cmd, flags)) return true;
+	if (inherited::Action(cmd, flags)) 
+		return true;
 
 	switch(cmd) 
 	{
@@ -320,11 +313,6 @@ bool CGrenade::Action(u16 cmd, u32 flags)
 
 bool CGrenade::NeedToDestroyObject()	const
 {
-	if ( IsGameTypeSingle()			) return false;
-	if ( Remote()					) return false;
-	if ( TimePassedAfterIndependant() > m_dwGrenadeRemoveTime)
-		return true;
-
 	return false;
 }
 

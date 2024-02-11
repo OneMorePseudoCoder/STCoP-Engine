@@ -15,7 +15,6 @@
 #include "Actor.h"
 #include "AI/Stalker/ai_stalker.h"
 #include "character_info.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "../xrcdb/xr_collide_defs.h"
 #include "../xrengine/xr_collide_form.h"
 #include "weapon.h"
@@ -52,7 +51,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 				CActor* actor		= smart_cast<CActor*>(entity);
 				CAI_Stalker* stalker= smart_cast<CAI_Stalker*>(entity);
 				// в кого попали?
-				if (actor && IsGameTypeSingle()/**/||stalker/**/){
+				if (actor /**/||stalker/**/){
 					// попали в актера или сталкера
 					Fsphere S		= cform->getSphere();
 					entity->XFORM().transform_tiny	(S.P)	;
@@ -67,18 +66,6 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 							// попали в актера
 							float hpf				= 1.f;
 							float ahp				= actor->HitProbability();
-#if 1
-#	if 0
-							CObject					*weapon_object = Level().Objects.net_Find	(bullet->weapon_id);
-							if (weapon_object) {
-								CWeapon				*weapon = smart_cast<CWeapon*>(weapon_object);
-								if (weapon) {
-									float fly_dist		= bullet->fly_dist+dist;
-									float dist_factor	= _min(1.f,fly_dist/Level().BulletManager().m_fHPMaxDist);
-									ahp					= dist_factor*weapon->hit_probability() + (1.f-dist_factor)*1.f;
-								}
-							}
-#	else
 							float					game_difficulty_hit_probability = actor->HitProbability();
 							CAI_Stalker				*stalker = smart_cast<CAI_Stalker*>(initiator);
 							if (stalker)
@@ -96,17 +83,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 							}
 
 							ahp						= dist_factor*game_difficulty_hit_probability + (1.f-dist_factor)*1.f;
-#	endif
-#else
-							CAI_Stalker* i_stalker	= smart_cast<CAI_Stalker*>(initiator);
-							// если стрелял сталкер, учитываем - hit_probability_factor сталкерa иначе - 1.0
-							if (i_stalker) {
-								hpf					= i_stalker->SpecificCharacter().hit_probability_factor();
-								float fly_dist		= bullet->fly_dist+dist;
-								float dist_factor	= _min(1.f,fly_dist/Level().BulletManager().m_fHPMaxDist);
-								ahp					= dist_factor*actor->HitProbability() + (1.f-dist_factor)*1.f;
-							}
-#endif
+
 							if (Random.randF(0.f,1.f)>(ahp*hpf)){ 
 								bRes				= FALSE;	// don't hit actor
 								play_whine			= true;		// play whine sound
@@ -256,9 +233,9 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 		}
 	}
 
-	if (g_clear) E.Repeated = false;
-	if (GameID() == eGameIDSingle) E.Repeated = false;
-	bool NeedShootmark = true;//!E.Repeated;
+	E.Repeated = false;
+
+	bool NeedShootmark = true;
 	
 	if (smart_cast<CActor*>(E.R.O))
 	{
@@ -274,11 +251,9 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 	}
 	
 	//визуальное обозначение попадание на объекте
-//	Fvector			hit_normal;
 	FireShotmark	(&E.bullet, E.bullet.dir, E.point, E.R, E.tgt_material, E.normal, NeedShootmark);
 	
 	Fvector original_dir = E.bullet.dir;
-	//ObjectHit(&E.bullet, E.end_point, E.R, E.tgt_material, hit_normal);
 
 	SBullet_Hit hit_param = E.hit_result;
 
@@ -309,17 +284,6 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 	if (E.bullet.flags.allow_sendhit && !E.Repeated)
 	{
 		//-------------------------------------------------
-		bool AddStatistic = false;
-		if (GameID() != eGameIDSingle && E.bullet.flags.allow_sendhit && smart_cast<CActor*>(E.R.O)
-			&& Game().m_WeaponUsageStatistic->CollectData())
-		{
-			CActor* pActor = smart_cast<CActor*>(E.R.O);
-			if (pActor)// && pActor->g_Alive())
-			{
-				Game().m_WeaponUsageStatistic->OnBullet_Hit(&E.bullet, E.R.O->ID(), (s16)E.R.element, E.point);
-				AddStatistic = true;
-			};
-		};
 
 		SHit	Hit = SHit(	hit_param.power,
 							original_dir,
@@ -331,7 +295,7 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 							E.bullet.armor_piercing,
 							E.bullet.flags.aim_bullet);
 
-		Hit.GenHeader(u16((AddStatistic)? GE_HIT_STATISTIC : GE_HIT)&0xffff, E.R.O->ID());
+		Hit.GenHeader(u16(GE_HIT) & 0xffff, E.R.O->ID());
 		Hit.whoID			= E.bullet.parent_id;
 		Hit.weaponID		= E.bullet.weapon_id;
 		Hit.BulletID		= E.bullet.m_dwID;
@@ -339,7 +303,6 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 		NET_Packet			np;
 		Hit.Write_Packet	(np);
 		
-//		Msg("Hit sended: %d[%d,%d]", Hit.whoID, Hit.weaponID, Hit.BulletID);
 		CGameObject::u_EventSend(np);
 	}
 }

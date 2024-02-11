@@ -100,7 +100,6 @@ void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector 
 			fire_pos = pMissileA->XFORM().c;
 		}
 	}
-
 }
 
 void CActor::g_WeaponBones	(int &L, int &R1, int &R2)
@@ -131,6 +130,7 @@ void CActor::SetCantRunState(bool bDisable)
 		u_EventSend	(P);
 	};
 }
+
 void CActor::SetWeaponHideState (u16 State, bool bSet)
 {
 	if (g_Alive() && this == Level().CurrentControlEntity())
@@ -142,66 +142,17 @@ void CActor::SetWeaponHideState (u16 State, bool bSet)
 		u_EventSend	(P);
 	};
 }
+
 static	u16 BestWeaponSlots [] = {
 	INV_SLOT_3		,		// 2
 	INV_SLOT_2		,		// 1
 	GRENADE_SLOT	,		// 3
 	KNIFE_SLOT		,		// 0
 };
+
 void CActor::SelectBestWeapon	(CObject* O)
 {
-	if (!O) return;
-	if ( IsGameTypeSingle() ) return;
-	//if (Level().CurrentControlEntity() != this) return;
-	//if (OnClient()) return;
-	//-------------------------------------------------
-	CWeapon* pWeapon			= smart_cast<CWeapon*>(O);
-	CGrenade* pGrenade			= smart_cast<CGrenade*>(O);
-	CArtefact* pArtefact		= smart_cast<CArtefact*>(O);
-	CInventoryItem*	pIItem		= smart_cast<CInventoryItem*> (O);
-	bool NeedToSelectBestWeapon = false;
-
-	if (pArtefact && pArtefact->H_Parent()) //just take an artefact
-		return;
-	
-	if ((pWeapon || pGrenade || pArtefact) && pIItem)
-	{
-		NeedToSelectBestWeapon = true;
-		if ((GameID() == eGameIDArtefactHunt) || (GameID() == eGameIDCaptureTheArtefact)) //only for test...
-		{
-			if (pIItem->BaseSlot() == INV_SLOT_2 || pIItem->BaseSlot() == INV_SLOT_3)
-			{
-				CInventoryItem* pIItemInSlot = inventory().ItemFromSlot(pIItem->BaseSlot());
-				if (pIItemInSlot != NULL && pIItemInSlot != pIItem)				
-					NeedToSelectBestWeapon = false;
-			}
-		}
-	}
-	if (!NeedToSelectBestWeapon) return;
-	//-------------------------------------------------
-	for (int i=0; i<4; i++)
-	{
-		if (inventory().ItemFromSlot(BestWeaponSlots[i]) )
-		{
-			if (inventory().GetActiveSlot() != BestWeaponSlots[i])
-			{
-				PIItem best_item = inventory().ItemFromSlot(BestWeaponSlots[i]);
-				if (best_item && best_item->can_kill())
-				{
-#ifdef DEBUG
-					Msg("--- Selecting best weapon [%d], Frame[%d]", BestWeaponSlots[i], Device.dwFrame);
-#endif // #ifdef DEBUG
-					inventory().Activate(BestWeaponSlots[i]);
-				} else
-				{
-#ifdef DEBUG
-					Msg("--- Weapon is not best...");
-#endif // #ifdef DEBUG
-				}
-			}
-			return;
-		};
-	};
+	return;
 }
 
 #define ENEMY_HIT_SPOT	"mp_hit_sector_location"
@@ -226,7 +177,6 @@ void	CActor::HitSector(CObject* who, CObject* weapon)
 			if (pWeapon->IsSilencerAttached())
 			{
 				bShowHitSector = false;
-
 			}
 		}
 	}
@@ -322,8 +272,6 @@ void	CActor::SpawnAmmoForWeapon	(CInventoryItem *pIItem)
 	CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (pIItem);
 	if (!pWM || !pWM->AutoSpawnAmmo()) return;
 
-	///	CWeaponAmmo* pAmmo = smart_cast<CWeaponAmmo*>(inventory().GetAny( (pWM->m_ammoTypes[0].c_str()) ));
-	//	if (!pAmmo) 
 	pWM->SpawnAmmo(0xffffffff, NULL, ID());
 };
 
@@ -337,27 +285,6 @@ void	CActor::RemoveAmmoForWeapon	(CInventoryItem *pIItem)
 
 	CWeaponAmmo* pAmmo = smart_cast<CWeaponAmmo*>(inventory().GetAny( pWM->m_ammoTypes[0].c_str() ));
 	if (!pAmmo) return;
-	//--- мы нашли патроны к текущему оружию	
-	/*
-	//--- проверяем не подходят ли они к чему-то еще
-	bool CanRemove = true;
-	TIItemContainer::const_iterator I = inventory().m_all.begin();//, B = I;
-	TIItemContainer::const_iterator E = inventory().m_all.end();
-	for ( ; I != E; ++I)
-	{
-	CInventoryItem* pItem = (*I);//->m_pIItem;
-	CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (pItem);
-	if (!pWM || !pWM->AutoSpawnAmmo()) continue;
-	if (pWM == pIItem) continue;
-	if (pWM->m_ammoTypes[0] != pAmmo->CInventoryItem::object().cNameSect()) continue;
-	CanRemove = false;
-	break;
-	};
 
-	if (!CanRemove) return;
-	*/
 	pAmmo->DestroyObject();
-	//	NET_Packet			P;
-	//	u_EventGen			(P,GE_DESTROY,pAmmo->ID());
-	//	u_EventSend			(P);
 };

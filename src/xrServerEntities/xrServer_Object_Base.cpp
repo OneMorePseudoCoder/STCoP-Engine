@@ -230,12 +230,6 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 	}
 
 	tNetPacket.w_u16			(m_tSpawnID);
-//	tNetPacket.w_float			(m_spawn_probability);
-//	tNetPacket.w_u32			(m_spawn_flags.get());
-//	tNetPacket.w_stringZ		(m_spawn_control);
-//	tNetPacket.w_u32			(m_max_spawn_count);
-//	tNetPacket.w_u64			(m_min_spawn_interval);
-//	tNetPacket.w_u64			(m_max_spawn_interval);
 
 #ifdef XRSE_FACTORY_EXPORTS
 	CScriptValueContainer::assign();
@@ -246,23 +240,13 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 	tNetPacket.w_u16			(0);
 	STATE_Write					(tNetPacket);
 	u16 size					= u16(tNetPacket.w_tell() - position);
-//#ifdef XRSE_FACTORY_EXPORTS
-	R_ASSERT3					((m_tClassID == CLSID_SPECTATOR) || (size > sizeof(size)),
-		"object isn't successfully saved, get your backup :(",name_replace());
-//#endif
+	R_ASSERT3					((m_tClassID == CLSID_SPECTATOR) || (size > sizeof(size)), "object isn't successfully saved, get your backup :(",name_replace());
 	tNetPacket.w_seek			(position,&size,sizeof(u16));
 }
 
 static enum EGameTypes {
 	GAME_ANY							= 0,
 	GAME_SINGLE							= 1,
-	GAME_DEATHMATCH						= 2,
-//	GAME_CTF							= 3,
-//	GAME_ASSAULT						= 4,	// Team1 - assaulting, Team0 - Defending
-	GAME_CS								= 5,
-	GAME_TEAMDEATHMATCH					= 6,
-	GAME_ARTEFACTHUNT					= 7,
-	GAME_CAPTURETHEARTEFACT				= 8,
 
 	//identifiers in range [100...254] are registered for script game type
 	GAME_DUMMY							= 255	// temporary game type
@@ -423,12 +407,6 @@ Flags16&	CSE_Abstract::flags			()
 xr_token game_types[]={
 	{ "any_game",				eGameIDNoGame				},
 	{ "single",					eGameIDSingle				},
-	{ "deathmatch",				eGameIDDeathmatch			},
-	{ "team_deathmatch",		eGameIDTeamDeathmatch		},
-	{ "artefacthunt",			eGameIDArtefactHunt			},
-	{ "capture_the_artefact",	eGameIDCaptureTheArtefact	},
-	//eGameIDDominationZone
-	//eGameIDTeamDominationZone
 	{ 0,				0				}
 };
 
@@ -438,13 +416,6 @@ void CSE_Abstract::FillProps(LPCSTR pref, PropItemVec& items)
 #ifdef XRSE_FACTORY_EXPORTS
     m_gameType.FillProp(pref, items);
 #endif // #ifdef XRSE_FACTORY_EXPORTS
-/*
-#ifdef XRGAME_EXPORTS
-#	ifdef DEBUG
-	PHelper().CreateToken8		(items,	PrepareKey(pref,"Game Type"),			&s_gameid,		game_types);
-    PHelper().CreateU16			(items,	PrepareKey(pref, "Respawn Time (s)"),	&RespawnTime,	0,43200);
-
-*/
 }
 
 void CSE_Abstract::FillProp					(LPCSTR pref, PropItemVec &items)
@@ -459,19 +430,3 @@ bool CSE_Abstract::validate					()
 {
 	return						(true);
 }
-
-/**
-void CSE_Abstract::save_update				(NET_Packet &tNetPacket)
-{
-	tNetPacket.w				(&m_spawn_count,sizeof(m_spawn_count));
-	tNetPacket.w				(&m_last_spawn_time,sizeof(m_last_spawn_time));
-	tNetPacket.w				(&m_next_spawn_time,sizeof(m_next_spawn_time));
-}
-
-void CSE_Abstract::load_update				(NET_Packet &tNetPacket)
-{
-	tNetPacket.r				(&m_spawn_count,sizeof(m_spawn_count));
-	tNetPacket.r				(&m_last_spawn_time,sizeof(m_last_spawn_time));
-	tNetPacket.r				(&m_next_spawn_time,sizeof(m_next_spawn_time));
-}
-/**/

@@ -129,7 +129,6 @@ void CActor::RunTalkDialog(CInventoryOwner* talk_partner, bool disable_break)
 		if(CurrentGameUI()->TopInputReceiver())
 			CurrentGameUI()->TopInputReceiver()->HideDialog();
 
-//		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(disable_break);
 		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(talk_partner->bDisableBreakDialog);
 	}
 }
@@ -143,15 +142,12 @@ void CActor::StartTalk (CInventoryOwner* talk_partner)
 		det->HideDetector				(true);
 	}
 
-
 	CGameObject* GO = smart_cast<CGameObject*>(talk_partner); VERIFY(GO);
 	CInventoryOwner::StartTalk(talk_partner);
 }
 
 void CActor::NewPdaContact		(CInventoryOwner* pInvOwner)
-{	
-	if(!IsGameTypeSingle()) return;
-
+{
 	bool b_alive = !!(smart_cast<CEntityAlive*>(pInvOwner))->g_Alive();
 	CurrentGameUI()->UIMainIngameWnd->AnimateContacts(b_alive);
 
@@ -161,9 +157,10 @@ void CActor::NewPdaContact		(CInventoryOwner* pInvOwner)
 void CActor::LostPdaContact		(CInventoryOwner* pInvOwner)
 {
 	CGameObject* GO = smart_cast<CGameObject*>(pInvOwner);
-	if (GO){
-
-		for(int t = ALife::eRelationTypeFriend; t<ALife::eRelationTypeLast; ++t){
+	if (GO)
+	{
+		for(int t = ALife::eRelationTypeFriend; t<ALife::eRelationTypeLast; ++t)
+		{
 			ALife::ERelationType tt = (ALife::ERelationType)t;
 			Level().MapManager().RemoveMapLocation(RELATION_REGISTRY().GetSpotName(tt),	GO->ID());
 		}

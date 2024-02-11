@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Level.h"
-#include "UIGameDM.h"
 #include "xrServer.h"
 #include "spectator.h"
 #include "actor.h"

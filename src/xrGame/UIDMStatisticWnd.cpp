@@ -44,14 +44,6 @@ void CUIDMStatisticWnd::Update				()
 	if (!Game().local_player) return;
 
 	PLAYERS_STATS_it pPlayerI;
-	if (!Game().m_WeaponUsageStatistic->GetPlayer(Game().local_player->getName(), pPlayerI)) 
-	{
-		while (GetItemCount())
-		{
-			RemoveItem(0);
-		}
-		return;
-	};
 	Player_Statistic* pPS = &(*pPlayerI);
 	//-----------------------------------------	
 	while (pPS->aWeaponStats.size() < GetItemCount())

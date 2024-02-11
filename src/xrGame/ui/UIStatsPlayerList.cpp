@@ -45,7 +45,6 @@ void CUIStatsPlayerList::Init(CUIXml& xml_doc, LPCSTR path)
 	CUIXmlInit::InitScrollView	(xml_doc, path, 0, this);
 	SetFixedScrollBar			(false);
 
-
 	m_bStatus_mode				= xml_doc.ReadAttribInt(path,0,"status_mode",0)? true: false;
 	m_bSpectator				= xml_doc.ReadAttribInt(path,0,"spectator",0)? true: m_bStatus_mode;
 	SetSpectator				(m_bSpectator);
@@ -60,9 +59,6 @@ void CUIStatsPlayerList::Init(CUIXml& xml_doc, LPCSTR path)
 		LPCSTR name 			= xml_doc.ReadAttrib("field",i,"name");
 		float width 			= xml_doc.ReadAttribFlt("field",i,"width");
 
-		if (0 == xr_strcmp(name, "artefacts") && GameID() != eGameIDArtefactHunt)
-			continue;
-		
 		AddField				(name,width);
 	}
 	xml_doc.SetLocalRoot		(xml_doc.GetRoot());
@@ -70,20 +66,6 @@ void CUIStatsPlayerList::Init(CUIXml& xml_doc, LPCSTR path)
 	// init item text params
 	CUIXmlInit::InitFont		(xml_doc, strconcat(sizeof(_path),_path, path, ":text_format"), 0, m_i.c, m_i.f);
 	m_i.h						= xml_doc.ReadAttribFlt(strconcat(sizeof(_path),_path, path, ":text_format"), 0, "height", 25);
-
-	// init list header
-	switch (GameID())
-	{
-	case eGameIDCaptureTheArtefact:
-	case eGameIDArtefactHunt:
-	case eGameIDTeamDeathmatch:
-		if (!m_bSpectator || m_bStatus_mode)
-            InitTeamHeader(xml_doc, path);
-	case eGameIDDeathmatch:
-		InitHeader(xml_doc, path);
-	default:
-		break;
-	}
 }
 
 LPCSTR CUIStatsPlayerList::GetST_entry(LPCSTR itm)
@@ -239,16 +221,6 @@ void CUIStatsPlayerList::Update()
 	pl_count = items.size();
 
     CStringTable st;
-    if (GameID() == eGameIDArtefactHunt && !m_bSpectator)
-	{
-        xr_sprintf(teaminfo, "%s: %u, %s: %u, %s: %d",*st.translate("mp_artefacts_upcase"),pl_artefacts, *st.translate("mp_players"), pl_count, *st.translate("mp_frags_upcase"),pl_frags );
-		m_header_text->SetText(teaminfo);
-	}
-	else if (GameID() == eGameIDTeamDeathmatch && !m_bSpectator)
-	{
-		xr_sprintf(teaminfo, "%s: %d, %s: %u", *st.translate("mp_frags_upcase"), pl_frags, *st.translate("mp_players"), pl_count);
-		m_header_text->SetText(teaminfo);
-	}	
 
 	if (m_bSpectator)
 	{

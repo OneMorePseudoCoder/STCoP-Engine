@@ -94,8 +94,6 @@ CPHMovementControl::CPHMovementControl(CObject* parent)
 	block_damage_step_end = u64(-1);
 }
 
-
-
 CPHMovementControl::~CPHMovementControl(void)
 {
 	if(m_character)
@@ -104,25 +102,20 @@ CPHMovementControl::~CPHMovementControl(void)
 	phcapture_destroy(m_capture);
 }
 
-
-
 static ALife::EHitType	 DefineCollisionHitType	( u16 material_idx )	
 {
-	if(GMLib.GetMaterialByIdx( material_idx )->Flags.test(SGameMtl::flInjurious)&&IsGameTypeSingle())
+	if (GMLib.GetMaterialByIdx( material_idx )->Flags.test(SGameMtl::flInjurious))
 		return ALife::eHitTypeRadiation;
 	else									
 		return ALife::eHitTypeStrike;
-//	return (GameID() == eGameIDSingle) ? ALife::eHitTypeStrike : ALife::eHitTypePhysicStrike;
 }//
 
-
-//static Fvector old_pos={0,0,0};
-//static bool bFirst=true;
 void CPHMovementControl::AddControlVel	(const Fvector& vel)
 {
 	vExternalImpulse.add(vel);
 	bExernalImpulse=true;
 }
+
 void CPHMovementControl::ApplyImpulse(const Fvector& dir,const float P)
 {
 	VERIFY( m_character );
@@ -135,11 +128,13 @@ void CPHMovementControl::ApplyImpulse(const Fvector& dir,const float P)
 	AddControlVel(force);
  	m_character->ApplyImpulse(dir,P);
 }
+
 void CPHMovementControl::SetVelocityLimit(float val)
 {
 	if(m_character)
 		m_character->SetMaximumVelocity(val);
 }
+
 float CPHMovementControl::VelocityLimit()
 {
 	if(!m_character || !m_character->b_exist) return 0.f;
@@ -147,12 +142,12 @@ float CPHMovementControl::VelocityLimit()
 }
 
 void CPHMovementControl::in_shedule_Update(u32 DT)
-{
-	
+{	
 	if(!m_capture)
 		return;
+
 	if(m_capture->Failed())
-				phcapture_destroy(m_capture);
+		phcapture_destroy(m_capture);
 }
 
 void CPHMovementControl::Calculate(Fvector& vAccel,const Fvector& camDir,float /**ang_speed/**/,float jump,float /**dt/**/,bool /**bLight/**/)
@@ -997,7 +992,7 @@ void	CPHMovementControl::AllocateCharacterObject(CharacterType type)
 {
 	switch(type)
 	{
-		case actor:		m_character = create_actor_character( IsGameTypeSingle() )	;	break;
+		case actor:		m_character = create_actor_character( true )	;	break;
 		//case actor:	m_character = xr_new<CPHActorCharacter>	()					;	break;
 		//case ai:		m_character = xr_new<CPHAICharacter>	()					;	break;
 		case ai:		m_character = create_ai_character()							;	break;

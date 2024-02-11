@@ -22,7 +22,7 @@ bool CLevel::Load_GameSpecific_Before()
 	g_pGamePersistent->LoadTitle		();
 	string_path							fn_game;
 	
-	if (GamePersistent().GameType() == eGameIDSingle && !ai().get_alife() && FS.exist(fn_game,"$level$","level.ai") && !net_Hosts.empty())
+	if (!ai().get_alife() && FS.exist(fn_game,"$level$","level.ai") && !net_Hosts.empty())
 		ai().load						(net_SessionName());
 
 	if (!g_dedicated_server && !ai().get_alife() && ai().get_game_graph() && FS.exist(fn_game, "$level$", "level.game")) {
@@ -199,7 +199,7 @@ void CLevel::Load_GameSpecific_CFORM	( CDB::TRI* tris, u32 count )
 		}
 		if ((*I)->GetID()>max_ID)				max_ID			= (*I)->GetID(); 
 	}
-	// Msg("* Material remapping ID: [Max:%d, StaticMax:%d]",max_ID,max_static_ID);
+
 	VERIFY(max_static_ID<0xFFFF);
 	
 	if (static_mtl_count < 128) {
@@ -240,8 +240,4 @@ void CLevel::Load_GameSpecific_CFORM	( CDB::TRI* tris, u32 count )
 }
 
 void CLevel::BlockCheatLoad()
-{
-#ifndef	DEBUG
-	if( game && (GameID() != eGameIDSingle) ) phTimefactor=1.f;
-#endif
-}
+{}

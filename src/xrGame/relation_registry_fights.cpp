@@ -6,11 +6,9 @@
 #include "stdafx.h"
 #include "relation_registry.h"
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
-RELATION_REGISTRY::FIGHT_DATA::FIGHT_DATA			()
+RELATION_REGISTRY::FIGHT_DATA::FIGHT_DATA()
 {
 	attacker = defender = 0xffff;
 	total_hit = 0;
@@ -21,16 +19,15 @@ RELATION_REGISTRY::FIGHT_DATA::FIGHT_DATA			()
 }
 
 //////////////////////////////////////////////////////////////////////////
-extern bool	IsGameTypeSingle();
 void RELATION_REGISTRY::FightRegister (u16 attacker, u16 defender, ALife::ERelationType defender_to_attacker, float hit_amount)
 {
 	UpdateFightRegister();
 
 	FIGHT_VECTOR& fights = fight_registry();
-	for(FIGHT_VECTOR_IT it = fights.begin(); it != fights.end(); it++)
+	for (FIGHT_VECTOR_IT it = fights.begin(); it != fights.end(); it++)
 	{
 		FIGHT_DATA& fight_data = *it;
-		if(attacker == fight_data.attacker && defender == fight_data.defender)
+		if (attacker == fight_data.attacker && defender == fight_data.defender)
 		{
 			fight_data.time_old = fight_data.time;
 			fight_data.time = Device.dwTimeGlobal;
@@ -39,7 +36,7 @@ void RELATION_REGISTRY::FightRegister (u16 attacker, u16 defender, ALife::ERelat
 		}
 	}
 
-	if(it == fights.end())
+	if (it == fights.end())
 	{
 		FIGHT_DATA fight_data;
 		fight_data.attacker = attacker;
@@ -54,11 +51,11 @@ void RELATION_REGISTRY::FightRegister (u16 attacker, u16 defender, ALife::ERelat
 RELATION_REGISTRY::FIGHT_DATA* RELATION_REGISTRY::FindFight(u16 object_id, bool by_attacker)
 {
 	FIGHT_VECTOR& fights = fight_registry();
-	for(FIGHT_VECTOR_IT it = fights.begin(); it != fights.end(); it++)
+	for (FIGHT_VECTOR_IT it = fights.begin(); it != fights.end(); it++)
 	{
 		FIGHT_DATA& fight_data = *it;
 		u16 id_to_find = by_attacker?fight_data.attacker:fight_data.defender;
-		if(object_id == id_to_find)
+		if (object_id == id_to_find)
 		{
 			return &fight_data;
 		}
@@ -66,7 +63,6 @@ RELATION_REGISTRY::FIGHT_DATA* RELATION_REGISTRY::FindFight(u16 object_id, bool 
 
 	return NULL;
 }
-
 
 bool fight_time_pred(RELATION_REGISTRY::FIGHT_DATA& fight_data)
 {

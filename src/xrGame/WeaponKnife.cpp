@@ -91,23 +91,8 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 	case eFire:
 		{
 			//-------------------------------------------
-			m_eHitType		= m_eHitType_1;
-			//fHitPower		= fHitPower_1;
-			if (ParentIsActor())
-			{
-				if (GameID() == eGameIDSingle)
-				{
-					fCurrentHit			= fvHitPower_1[g_SingleGameDifficulty];
-				}
-				else
-				{
-					fCurrentHit			= fvHitPower_1[egdMaster];
-				}
-			}
-			else
-			{
-				fCurrentHit			= fvHitPower_1[egdMaster];
-			}
+			m_eHitType = m_eHitType_1;
+			fCurrentHit = ParentIsActor() ? fvHitPower_1[g_SingleGameDifficulty] : fvHitPower_1[egdMaster];
 			fHitImpulse_cur	= fHitImpulse_1;
 			//-------------------------------------------
 			switch2_Attacking	(S);
@@ -115,23 +100,8 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 	case eFire2:
 		{
 			//-------------------------------------------
-			m_eHitType		= m_eHitType_2;
-			//fHitPower		= fHitPower_2;
-			if (ParentIsActor())
-			{
-				if (GameID() == eGameIDSingle)
-				{
-					fCurrentHit			= fvHitPower_2[g_SingleGameDifficulty];
-				}
-				else
-				{
-					fCurrentHit			= fvHitPower_2[egdMaster];
-				}
-			}
-			else
-			{
-				fCurrentHit			= fvHitPower_2[egdMaster];
-			}
+			m_eHitType = m_eHitType_2;
+			fCurrentHit = ParentIsActor() ? fvHitPower_2[g_SingleGameDifficulty] : fvHitPower_2[egdMaster];
 			fHitImpulse_cur	= fHitImpulse_2;
 			//-------------------------------------------
 			switch2_Attacking	(S);
@@ -139,18 +109,15 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 	}
 }
 
-
 void CWeaponKnife::KnifeStrike(const Fvector& pos, const Fvector& dir)
 {
 	CObject* real_victim = TryPick(pos, dir, m_hit_dist);
 	if (real_victim)
 	{
-		float new_khit = m_eHitType == m_eHitType_1 ? 
-			float(m_Splash1PerVictimsHCount) : float(m_Splash2HitsCount);
+		float new_khit = m_eHitType == m_eHitType_1 ? float(m_Splash1PerVictimsHCount) : float(m_Splash2HitsCount);
 		MakeShot(pos, dir, new_khit);
 		return;
 	}
-	
 	
 	shot_targets_t	dest_hits(_alloca(sizeof(Fvector)*m_hits_count), m_hits_count);
 	
@@ -158,13 +125,10 @@ void CWeaponKnife::KnifeStrike(const Fvector& pos, const Fvector& dir)
 	{
 #ifdef DEBUG
 		m_dbg_data.m_targets_vectors.clear();
-		std::copy(dest_hits.begin(), dest_hits.end(),
-			std::back_insert_iterator<dbg_draw_data::targets_t>(
-				m_dbg_data.m_targets_vectors));
+		std::copy(dest_hits.begin(), dest_hits.end(), std::back_insert_iterator<dbg_draw_data::targets_t>(m_dbg_data.m_targets_vectors));
 #endif
 		float tmp_k_hit = 1.0f;
-		for (shot_targets_t::const_iterator i = dest_hits.begin(),
-			ie = dest_hits.end(); i != ie; ++i)
+		for (shot_targets_t::const_iterator i = dest_hits.begin(), ie = dest_hits.end(); i != ie; ++i)
 		{
 			Fvector shot_dir;
 			shot_dir.set(*i).sub(pos).normalize();

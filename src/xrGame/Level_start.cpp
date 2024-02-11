@@ -305,11 +305,6 @@ void CLevel::InitializeClientGame	(NET_Packet& P)
 	game->Init				();
 	m_bGameConfigStarted	= TRUE;
 
-	if (!IsGameTypeSingle())
-	{
-		init_compression();
-	}
-	
 	R_ASSERT				(Load_GameSpecific_After ());
 }
 

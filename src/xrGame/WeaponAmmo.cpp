@@ -61,11 +61,11 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType)
 	if(pSettings->line_exist(section,"can_be_unlimited"))
 		m_flags.set(cfCanBeUnlimited, pSettings->r_bool(section, "can_be_unlimited"));
 
-	m_flags.set			(cfExplosive, pSettings->r_bool(section, "explosive"));
+	m_flags.set(cfExplosive, pSettings->r_bool(section, "explosive"));
 
 	bullet_material_idx		=  GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
-	VERIFY	(u16(-1)!=bullet_material_idx);
-	VERIFY	(param_s.fWallmarkSize>0);
+	VERIFY(u16(-1)!=bullet_material_idx);
+	VERIFY(param_s.fWallmarkSize>0);
 
 	m_InvShortName			= CStringTable().translate( pSettings->r_string(section, "inv_name_short"));
 }
@@ -130,12 +130,11 @@ void CWeaponAmmo::OnH_B_Chield()
 
 void CWeaponAmmo::OnH_B_Independent(bool just_before_destroy) 
 {
-	if(!Useful()) {
-		
-		if (Local()){
-			DestroyObject	();
-		}
-		m_ready_to_destroy	= true;
+	if (!Useful()) 
+	{
+		if (Local())
+			DestroyObject();
+		m_ready_to_destroy = true;
 	}
 	inherited::OnH_B_Independent(just_before_destroy);
 }
@@ -146,21 +145,11 @@ bool CWeaponAmmo::Useful() const
 	// Если IItem еще не полностью использованый, вернуть true
 	return !!m_boxCurr;
 }
-/*
-s32 CWeaponAmmo::Sort(PIItem pIItem) 
-{
-	// Если нужно разместить IItem после this - вернуть 1, если
-	// перед - -1. Если пофиг то 0.
-	CWeaponAmmo *l_pA = smart_cast<CWeaponAmmo*>(pIItem);
-	if(!l_pA) return 0;
-	if(xr_strcmp(cNameSect(), l_pA->cNameSect())) return 0;
-	if(m_boxCurr <= l_pA->m_boxCurr) return 1;
-	else return -1;
-}
-*/
+
 bool CWeaponAmmo::Get(CCartridge &cartridge) 
 {
-	if(!m_boxCurr) return false;
+	if (!m_boxCurr) 
+		return false;
 	cartridge.m_ammoSect = cNameSect();
 	
 	cartridge.param_s = cartridge_param;
@@ -175,21 +164,16 @@ bool CWeaponAmmo::Get(CCartridge &cartridge)
 
 void CWeaponAmmo::renderable_Render() 
 {
-	if(!m_ready_to_destroy)
+	if (!m_ready_to_destroy)
 		inherited::renderable_Render();
 }
 
 void CWeaponAmmo::UpdateCL() 
 {
-	VERIFY2								(_valid(renderable.xform),*cName());
-	inherited::UpdateCL	();
-	VERIFY2								(_valid(renderable.xform),*cName());
-	
-	if(!IsGameTypeSingle())
-		make_Interpolation	();
-
-	VERIFY2								(_valid(renderable.xform),*cName());
-
+	VERIFY2(_valid(renderable.xform),*cName());
+	inherited::UpdateCL();
+	VERIFY2(_valid(renderable.xform),*cName());
+	VERIFY2(_valid(renderable.xform),*cName());
 }
 
 void CWeaponAmmo::net_Export(NET_Packet& P) 
@@ -206,22 +190,23 @@ void CWeaponAmmo::net_Import(NET_Packet& P)
 	P.r_u16					(m_boxCurr);
 }
 
-CInventoryItem *CWeaponAmmo::can_make_killing	(const CInventory *inventory) const
+CInventoryItem *CWeaponAmmo::can_make_killing(const CInventory *inventory) const
 {
 	VERIFY					(inventory);
 
 	TIItemContainer::const_iterator	I = inventory->m_all.begin();
 	TIItemContainer::const_iterator	E = inventory->m_all.end();
-	for ( ; I != E; ++I) {
-		CWeapon		*weapon = smart_cast<CWeapon*>(*I);
+	for ( ; I != E; ++I) 
+	{
+		CWeapon	*weapon = smart_cast<CWeapon*>(*I);
 		if (!weapon)
 			continue;
-		xr_vector<shared_str>::const_iterator	i = std::find(weapon->m_ammoTypes.begin(),weapon->m_ammoTypes.end(),cNameSect());
+		xr_vector<shared_str>::const_iterator i = std::find(weapon->m_ammoTypes.begin(),weapon->m_ammoTypes.end(),cNameSect());
 		if (i != weapon->m_ammoTypes.end())
-			return			(weapon);
+			return	(weapon);
 	}
 
-	return					(0);
+	return (0);
 }
 
 float CWeaponAmmo::Weight() const

@@ -133,33 +133,20 @@ void CMissile::OnActiveItem		()
 
 void CMissile::OnHiddenItem()
 {
-
-//. -Hide
-	if(IsGameTypeSingle())
-		SwitchState			(eHiding);
-	else
-		SwitchState			(eHidden);
-//-
-
-	inherited::OnHiddenItem	();
-	SetState				(eHidden);
-	SetNextState			(eHidden);
+	SwitchState(eHiding);
+	inherited::OnHiddenItem();
+	SetState(eHidden);
+	SetNextState(eHidden);
 }
-
 
 void CMissile::spawn_fake_missile()
 {
-	if (OnClient()) return;
+	if (OnClient()) 
+		return;
 
 	if (!getDestroy())
 	{
-		CSE_Abstract		*object = Level().spawn_item(
-			*cNameSect(),
-			Position(),
-			(g_dedicated_server)?u32(-1):ai_location().level_vertex_id(),
-			ID(),
-			true
-		);
+		CSE_Abstract *object = Level().spawn_item(*cNameSect(), Position(), (g_dedicated_server)?u32(-1):ai_location().level_vertex_id(), ID(), true);
 
 		CSE_ALifeObject				*alife_object = smart_cast<CSE_ALifeObject*>(object);
 		VERIFY						(alife_object);
@@ -175,11 +162,7 @@ void CMissile::spawn_fake_missile()
 void CMissile::OnH_A_Chield() 
 {
 	inherited::OnH_A_Chield();
-
-//	if(!m_fake_missile && !smart_cast<CMissile*>(H_Parent())) 
-//		spawn_fake_missile	();
 }
-
 
 void CMissile::OnH_B_Independent(bool just_before_destroy) 
 {
@@ -585,9 +568,11 @@ bool CMissile::Action(u16 cmd, u32 flags)
 
 void  CMissile::UpdateFireDependencies_internal	()
 {
-	if (0==H_Parent())		return;
+	if (0==H_Parent())		
+		return;
 
-    if (Device.dwFrame!=dwFP_Frame){
+    if (Device.dwFrame!=dwFP_Frame)
+	{
 		dwFP_Frame = Device.dwFrame;
 
 		UpdateXForm			();
@@ -595,17 +580,9 @@ void  CMissile::UpdateFireDependencies_internal	()
 		if (GetHUDmode() && !IsHidden())
 		{
 			R_ASSERT(0);  //implement this!!!
-/*
-			// 1st person view - skeletoned
-			CKinematics* V			= smart_cast<CKinematics*>(GetHUD()->Visual());
-			VERIFY					(V);
-			V->CalculateBones		();
-
-			// fire point&direction
-			Fmatrix& parent			= GetHUD()->Transform	();
-			m_throw_direction.set	(parent.k);
-*/
-		}else{
+		}
+		else
+		{
 			// 3rd person
 			Fmatrix& parent			= H_Parent()->XFORM();
 			m_throw_direction.set	(m_vThrowDir);
@@ -616,13 +593,9 @@ void  CMissile::UpdateFireDependencies_internal	()
 
 void CMissile::activate_physic_shell()
 {
-	if (!smart_cast<CMissile*>(H_Parent())) {
+	if (!smart_cast<CMissile*>(H_Parent())) 
+	{
 		inherited::activate_physic_shell();
-		if(m_pPhysicsShell&&m_pPhysicsShell->isActive()&&!IsGameTypeSingle())
-		{
-				m_pPhysicsShell->add_ObjectContactCallback		(ExitContactCallback);
-				m_pPhysicsShell->set_CallbackData	(smart_cast<CPhysicsShellHolder*>(H_Root()));
-		}
 		return;
 	}
 
@@ -633,7 +606,8 @@ void CMissile::activate_physic_shell()
 
 	Fvector				a_vel;
 	CInventoryOwner		*inventory_owner = smart_cast<CInventoryOwner*>(H_Root());
-	if (inventory_owner && inventory_owner->use_throw_randomness()) {
+	if (inventory_owner && inventory_owner->use_throw_randomness()) 
+	{
 		float			fi,teta,r;
 		fi				= ::Random.randF(0.f,2.f*M_PI);
 		teta			= ::Random.randF(0.f,M_PI);
@@ -647,7 +621,8 @@ void CMissile::activate_physic_shell()
 	XFORM().set			(m_throw_matrix);
 
 	CEntityAlive		*entity_alive = smart_cast<CEntityAlive*>(H_Root());
-	if (entity_alive && entity_alive->character_physics_support()){
+	if (entity_alive && entity_alive->character_physics_support())
+	{
 		Fvector			parent_vel;
 		entity_alive->character_physics_support()->movement()->GetCharacterVelocity(parent_vel);
 		l_vel.add		(parent_vel);
@@ -669,6 +644,7 @@ void CMissile::activate_physic_shell()
 	kinematics->CalculateBones_Invalidate();
 	kinematics->CalculateBones			(TRUE);
 }
+
 void	CMissile::net_Relcase(CObject* O)
 {
 	inherited::net_Relcase(O);
@@ -704,7 +680,6 @@ u32	CMissile::ef_weapon_type		() const
 	VERIFY	(m_ef_weapon_type != u32(-1));
 	return	(m_ef_weapon_type);
 }
-
 
 bool CMissile::render_item_ui_query()
 {

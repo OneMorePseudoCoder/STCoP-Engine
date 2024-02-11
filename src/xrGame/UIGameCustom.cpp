@@ -18,8 +18,6 @@
 
 #include "xrEngine/x_ray.h"
 
-EGameIDs ParseStringToGameType(const char* str);
-
 struct predicate_find_stat
 {
     const char* id;
@@ -333,7 +331,7 @@ void CMapListHelper::LoadMapInfo(const char* cfgName, const xr_string& levelName
                 m_storage.resize(m_storage.size()+1);
                 SGameTypeMaps& lastItem = m_storage.back();
                 lastItem.m_game_type_name = gameType;
-                lastItem.m_game_type_id = ParseStringToGameType(gameType.c_str());
+                lastItem.m_game_type_id = eGameIDSingle;
                 suitableLevels = &m_storage.back();
             }
             MPLevelDesc levelDesc;

@@ -77,7 +77,6 @@ namespace file_transfer
 	class server_site;
 };//namespace file_transfer
 
-class clientdata_proxy;
 class server_info_uploader;
 
 class xrServer	: public IPureServer  
@@ -89,7 +88,6 @@ private:
 	cheaters_t					m_cheaters;
 	
 	file_transfer::server_site*	m_file_transfers;
-	clientdata_proxy*			m_screenshot_proxies[MAX_PLAYERS_COUNT*2];
 	void	initialize_screenshot_proxies();
 	void	deinitialize_screenshot_proxies();
 	

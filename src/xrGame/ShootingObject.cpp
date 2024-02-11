@@ -180,32 +180,31 @@ void CShootingObject::Light_Start	()
 	}
 }
 
-void CShootingObject::Light_Render	(const Fvector& P)
+void CShootingObject::Light_Render(const Fvector& P)
 {
-	float light_scale			= light_time/light_lifetime;
+	float light_scale = light_time / light_lifetime;
 	R_ASSERT(light_render);
 
-	light_render->set_position	(P);
-	light_render->set_color		(light_build_color.r*light_scale,light_build_color.g*light_scale,light_build_color.b*light_scale);
-	light_render->set_range		(light_build_range*light_scale);
+	light_render->set_position(P);
+	light_render->set_color(light_build_color.r * light_scale,light_build_color.g * light_scale, light_build_color.b * light_scale);
+	light_render->set_range(light_build_range * light_scale);
 
-	if(	!light_render->get_active() )
+	if (!light_render->get_active())
 	{
-		light_render->set_active	(true);
+		light_render->set_active(true);
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Particles
 //////////////////////////////////////////////////////////////////////////
 
-void CShootingObject::StartParticles (CParticlesObject*& pParticles, LPCSTR particles_name, 
-									 const Fvector& pos, const  Fvector& vel, bool auto_remove_flag)
+void CShootingObject::StartParticles(CParticlesObject*& pParticles, LPCSTR particles_name, const Fvector& pos, const  Fvector& vel, bool auto_remove_flag)
 {
-	if(!particles_name) return;
+	if (!particles_name) 
+		return;
 
-	if(pParticles != NULL) 
+	if (pParticles != NULL) 
 	{
 		UpdateParticles(pParticles, pos, vel);
 		return;
@@ -216,13 +215,13 @@ void CShootingObject::StartParticles (CParticlesObject*& pParticles, LPCSTR part
 	UpdateParticles(pParticles, pos, vel);
 	CSpectator* tmp_spectr = smart_cast<CSpectator*>(Level().CurrentControlEntity());
 	bool in_hud_mode = IsHudModeNow();
-	if (in_hud_mode && tmp_spectr &&
-		(tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
+	if (in_hud_mode && tmp_spectr && (tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
 	{
 		in_hud_mode = false;
 	}
 	pParticles->Play(in_hud_mode);
 }
+
 void CShootingObject::StopParticles (CParticlesObject*&	pParticles)
 {
 	if(pParticles == NULL) return;
@@ -231,10 +230,10 @@ void CShootingObject::StopParticles (CParticlesObject*&	pParticles)
 	CParticlesObject::Destroy(pParticles);
 }
 
-void CShootingObject::UpdateParticles (CParticlesObject*& pParticles, 
-							   const Fvector& pos, const Fvector& vel)
+void CShootingObject::UpdateParticles(CParticlesObject*& pParticles, const Fvector& pos, const Fvector& vel)
 {
-	if(!pParticles)		return;
+	if (!pParticles)		
+		return;
 
 	Fmatrix particles_pos; 
 	particles_pos.set	(get_ParticlesXFORM());
@@ -242,14 +241,12 @@ void CShootingObject::UpdateParticles (CParticlesObject*& pParticles,
 	
 	pParticles->SetXFORM(particles_pos);
 
-	if(!pParticles->IsAutoRemove() && !pParticles->IsLooped() 
-		&& !pParticles->PSI_alive())
+	if (!pParticles->IsAutoRemove() && !pParticles->IsLooped() && !pParticles->PSI_alive())
 	{
 		pParticles->Stop		();
 		CParticlesObject::Destroy(pParticles);
 	}
 }
-
 
 void CShootingObject::LoadShellParticles (LPCSTR section, LPCSTR prefix)
 {
@@ -286,47 +283,44 @@ void CShootingObject::LoadFlameParticles (LPCSTR section, LPCSTR prefix)
 	m_sSmokeParticlesCurrent = m_sSmokeParticles;
 }
 
-
-void CShootingObject::OnShellDrop	(const Fvector& play_pos,
-									 const Fvector& parent_vel)
+void CShootingObject::OnShellDrop(const Fvector& play_pos, const Fvector& parent_vel)
 {
-	if(!m_sShellParticles) return;
-	if( Device.vCameraPosition.distance_to_sqr(play_pos)>10*4) return;
+	if (!m_sShellParticles) 
+		return;
 
-	CParticlesObject* pShellParticles	= CParticlesObject::Create(*m_sShellParticles,TRUE);
+	if (Device.vCameraPosition.distance_to_sqr(play_pos) > 10 * 4)
+		return;
+
+	CParticlesObject* pShellParticles = CParticlesObject::Create(*m_sShellParticles,TRUE);
 
 	Fmatrix particles_pos; 
-	particles_pos.set		(get_ParticlesXFORM());
-	particles_pos.c.set		(play_pos);
+	particles_pos.set(get_ParticlesXFORM());
+	particles_pos.c.set(play_pos);
 
-	pShellParticles->UpdateParent		(particles_pos, parent_vel);
+	pShellParticles->UpdateParent(particles_pos, parent_vel);
 	CSpectator* tmp_spectr = smart_cast<CSpectator*>(Level().CurrentControlEntity());
 	bool in_hud_mode = IsHudModeNow();
-	if (in_hud_mode && tmp_spectr &&
-		(tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
+	if (in_hud_mode && tmp_spectr && (tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
 	{
 		in_hud_mode = false;
 	}
 	pShellParticles->Play(in_hud_mode);
 }
 
-
 //партиклы дыма
-void CShootingObject::StartSmokeParticles	(const Fvector& play_pos,
-											const Fvector& parent_vel)
+void CShootingObject::StartSmokeParticles(const Fvector& play_pos, const Fvector& parent_vel)
 {
 	CParticlesObject* pSmokeParticles = NULL;
 	StartParticles(pSmokeParticles, *m_sSmokeParticlesCurrent, play_pos, parent_vel, true);
 }
 
-
-void CShootingObject::StartFlameParticles	()
+void CShootingObject::StartFlameParticles()
 {
-	if(0==m_sFlameParticlesCurrent.size()) return;
+	if (0 == m_sFlameParticlesCurrent.size()) 
+		return;
 
 	//если партиклы циклические
-	if(m_pFlameParticles && m_pFlameParticles->IsLooped() && 
-		m_pFlameParticles->IsPlaying()) 
+	if (m_pFlameParticles && m_pFlameParticles->IsLooped() && m_pFlameParticles->IsPlaying()) 
 	{
 		UpdateFlameParticles();
 		return;
@@ -336,44 +330,46 @@ void CShootingObject::StartFlameParticles	()
 	m_pFlameParticles = CParticlesObject::Create(*m_sFlameParticlesCurrent,FALSE);
 	UpdateFlameParticles();
 	
-	
 	CSpectator* tmp_spectr = smart_cast<CSpectator*>(Level().CurrentControlEntity());
 	bool in_hud_mode = IsHudModeNow();
-	if (in_hud_mode && tmp_spectr &&
-		(tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
+	if (in_hud_mode && tmp_spectr && (tmp_spectr->GetActiveCam() != CSpectator::eacFirstEye))
 	{
 		in_hud_mode = false;
 	}
-	m_pFlameParticles->Play(in_hud_mode);
-		
 
+	m_pFlameParticles->Play(in_hud_mode);
 }
+
 void CShootingObject::StopFlameParticles	()
 {
-	if(0==m_sFlameParticlesCurrent.size()) return;
-	if(m_pFlameParticles == NULL) return;
+	if (0 == m_sFlameParticlesCurrent.size()) 
+		return;
+
+	if (m_pFlameParticles == NULL) 
+		return;
 
 	m_pFlameParticles->SetAutoRemove(true);
 	m_pFlameParticles->Stop();
 	m_pFlameParticles = NULL;
 }
 
-void CShootingObject::UpdateFlameParticles	()
+void CShootingObject::UpdateFlameParticles()
 {
-	if(0==m_sFlameParticlesCurrent.size())		return;
-	if(!m_pFlameParticles)				return;
+	if (0 == m_sFlameParticlesCurrent.size())		
+		return;
 
-	Fmatrix		pos; 
-	pos.set		(get_ParticlesXFORM()	); 
-	pos.c.set	(get_CurrentFirePoint()	);
+	if (!m_pFlameParticles)				
+		return;
+
+	Fmatrix	pos; 
+	pos.set(get_ParticlesXFORM()); 
+	pos.c.set(get_CurrentFirePoint());
 
 	VERIFY(_valid(pos));
 
-	m_pFlameParticles->SetXFORM			(pos);
+	m_pFlameParticles->SetXFORM(pos);
 
-	if(!m_pFlameParticles->IsLooped() && 
-		!m_pFlameParticles->IsPlaying() &&
-		!m_pFlameParticles->PSI_alive())
+	if (!m_pFlameParticles->IsLooped() && !m_pFlameParticles->IsPlaying() && !m_pFlameParticles->PSI_alive())
 	{
 		m_pFlameParticles->Stop();
 		CParticlesObject::Destroy(m_pFlameParticles);
@@ -392,20 +388,21 @@ void CShootingObject::UpdateLight()
 
 void CShootingObject::StopLight			()
 {
-	if(light_render){
+	if (light_render)
+	{
 		light_render->set_active(false);
 	}
 }
 
 void CShootingObject::RenderLight()
 {
-	if ( light_render && light_time>0 ) 
+	if (light_render && light_time > 0) 
 	{
 		Light_Render(get_CurrentFirePoint());
 	}
 }
 
-bool CShootingObject::SendHitAllowed		(CObject* pUser)
+bool CShootingObject::SendHitAllowed(CObject* pUser)
 {
 	if (Game().IsServerControlHits())
 		return OnServer();
@@ -436,13 +433,7 @@ bool CShootingObject::SendHitAllowed		(CObject* pUser)
 
 extern void random_dir(Fvector& tgt_dir, const Fvector& src_dir, float dispersion);
 
-void CShootingObject::FireBullet(const Fvector& pos, 
-								 const Fvector& shot_dir, 
-								 float fire_disp,
-								 const CCartridge& cartridge,
-								 u16 parent_id,
-								 u16 weapon_id,
-								 bool send_hit)
+void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, float fire_disp, const CCartridge& cartridge, u16 parent_id, u16 weapon_id, bool send_hit)
 {
 	Fvector dir;
 	random_dir(dir,shot_dir,fire_disp);
@@ -456,76 +447,50 @@ void CShootingObject::FireBullet(const Fvector& pos,
 	{
 		if (ParentMayHaveAimBullet())
 		{
-			if (m_fPredBulletTime==0.0)
+			if (m_fPredBulletTime == 0.0)
 			{
-				aim_bullet=true;
+				aim_bullet = true;
 			}
 			else
 			{
 				if ((Device.fTimeGlobal-m_fPredBulletTime)>=m_fTimeToAim)
 				{
-					aim_bullet=true;
+					aim_bullet = true;
 				}
 				else
 				{
-					aim_bullet=false;
+					aim_bullet = false;
 				}
 			}
 		}
 		else
 		{
-			aim_bullet=false;
+			aim_bullet = false;
 		}
 	}
 	else
 	{
-		aim_bullet=false;
+		aim_bullet = false;
 	}
 	m_fPredBulletTime = Device.fTimeGlobal;
 
 	float l_fHitPower = 0.0f;
-	if (ParentIsActor())//если из оружия стреляет актёр(игрок)
-	{
-		if (GameID() == eGameIDSingle)
-		{
-			l_fHitPower			= fvHitPower[g_SingleGameDifficulty];
-		}
-		else
-		{
-			l_fHitPower			= fvHitPower[egdMaster];
-		}
-	}
-	else
-	{
-		l_fHitPower			= fvHitPower[egdMaster];
-	}
-
-	Level().BulletManager().AddBullet( pos, 
-										dir,
-										m_fStartBulletSpeed * cur_silencer_koef.bullet_speed,
-										l_fHitPower * cur_silencer_koef.hit_power,
-										fHitImpulse * cur_silencer_koef.hit_impulse,
-										parent_id, 
-										weapon_id,
-										ALife::eHitTypeFireWound, 
-										fireDistance, 
-										cartridge, 
-										m_air_resistance_factor,
-										send_hit, 
-										aim_bullet);
+	l_fHitPower = ParentIsActor() ? fvHitPower[g_SingleGameDifficulty] : fvHitPower[egdMaster];
+	Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed * cur_silencer_koef.bullet_speed, l_fHitPower * cur_silencer_koef.hit_power, fHitImpulse * cur_silencer_koef.hit_impulse, parent_id, weapon_id, ALife::eHitTypeFireWound, fireDistance, cartridge, m_air_resistance_factor, send_hit, aim_bullet);
 }
-void CShootingObject::FireStart	()
+
+void CShootingObject::FireStart()
 {
-	bWorking=true;	
-}
-void CShootingObject::FireEnd	()				
-{ 
-	bWorking=false;	
+	bWorking = true;	
 }
 
-void CShootingObject::StartShotParticles	()
+void CShootingObject::FireEnd()				
+{ 
+	bWorking = false;
+}
+
+void CShootingObject::StartShotParticles()
 {
 	CParticlesObject* pSmokeParticles = NULL;
-	StartParticles(pSmokeParticles, *m_sShotParticles, 
-					m_vCurrentShootPos, m_vCurrentShootDir, true);
+	StartParticles(pSmokeParticles, *m_sShotParticles, m_vCurrentShootPos, m_vCurrentShootDir, true);
 }

@@ -602,15 +602,6 @@ SERVER_ENTITY_DECLARE_END
 //add_to_type_list(CSE_ALifeStationaryMgun)
 //#define script_type_list save_type_list(CSE_ALifeStationaryMgun)
 
-SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeTeamBaseZone,CSE_ALifeSpaceRestrictor)
-									CSE_ALifeTeamBaseZone	(LPCSTR caSection);
-	virtual							~CSE_ALifeTeamBaseZone	();
-
-	u8								m_team;
-SERVER_ENTITY_DECLARE_END
-add_to_type_list(CSE_ALifeTeamBaseZone)
-#define script_type_list save_type_list(CSE_ALifeTeamBaseZone)
-
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeInventoryBox,CSE_ALifeDynamicObjectVisual)
 	bool				m_can_take;
 	bool				m_closed;

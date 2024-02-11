@@ -27,9 +27,7 @@
 
 BOOL	GodMode	()	
 { 
-	if (GameID() == eGameIDSingle) 
-		return psActorFlags.test(AF_GODMODE|AF_GODMODE_RT); 
-	return FALSE;	
+	return psActorFlags.test(AF_GODMODE | AF_GODMODE_RT);
 }
 
 CActorCondition::CActorCondition(CActor *object) :
@@ -46,8 +44,6 @@ CActorCondition::CActorCondition(CActor *object) :
 	m_fSprintK					= 0.f;
 	m_fAlcohol					= 0.f;
 	m_fSatiety					= 1.0f;
-
-//	m_vecBoosts.clear();
 
 	VERIFY						(object);
 	m_object					= object;
@@ -185,109 +181,103 @@ void CActorCondition::UpdateCondition()
 
 		m_fAlcohol		+= m_fV_Alcohol*m_fDeltaTime;
 		clamp			(m_fAlcohol,			0.0f,		1.0f);
-		if(IsGameTypeSingle())
-		{
-			CEffectorCam* ce = Actor()->Cameras().GetCamEffector((ECamEffectorType)effAlcohol);
-			if(ce)
-				RemoveEffector(m_object,effAlcohol);
-		}
+		CEffectorCam* ce = Actor()->Cameras().GetCamEffector((ECamEffectorType)effAlcohol);
+		if (ce)
+			RemoveEffector(m_object,effAlcohol);
 	}
 
-	if (GodMode())				return;
-	if (!object().g_Alive())	return;
-	if (!object().Local() && m_object != Level().CurrentViewEntity())		return;	
+	if (GodMode())				
+		return;
+	
+	if (!object().g_Alive())	
+		return;
+	
+	if (!object().Local() && m_object != Level().CurrentViewEntity())		
+		return;	
 	
 	float base_weight			= object().MaxCarryWeight();
 	float cur_weight			= object().inventory().TotalWeight();
 
 	if ((object().mstate_real&mcAnyMove))
 	{
-		ConditionWalk( cur_weight / base_weight,
-			isActorAccelerated( object().mstate_real,object().IsZoomAimingMode() ),
-			(object().mstate_real&mcSprint) != 0 );
+		ConditionWalk(cur_weight / base_weight, isActorAccelerated( object().mstate_real,object().IsZoomAimingMode()), (object().mstate_real&mcSprint) != 0);
 	}
 	else
 	{
-		ConditionStand( cur_weight / base_weight );
+		ConditionStand(cur_weight / base_weight);
 	}
 	
-	if ( IsGameTypeSingle() )
+	float k_max_power = 1.0f;
+	if( true )
 	{
-		float k_max_power = 1.0f;
-		if( true )
+		k_max_power = 1.0f + _min(cur_weight, base_weight) / base_weight + _max(0.0f, (cur_weight - base_weight) / 10.0f);
+	}
+	else
+	{
+		k_max_power = 1.0f;
+	}
+
+	SetMaxPower		(GetMaxPower() - m_fPowerLeakSpeed * m_fDeltaTime * k_max_power);
+
+	m_fAlcohol		+= m_fV_Alcohol * m_fDeltaTime;
+	clamp			(m_fAlcohol, 0.0f, 1.0f);
+
+	CEffectorCam* ce = Actor()->Cameras().GetCamEffector((ECamEffectorType)effAlcohol);
+	if (m_fAlcohol > 0.0001f)
+	{
+		if (!ce)
 		{
-			k_max_power = 1.0f + _min(cur_weight, base_weight) / base_weight
-				+ _max(0.0f, (cur_weight - base_weight) / 10.0f);
+			AddEffector(m_object,effAlcohol, "effector_alcohol", GET_KOEFF_FUNC(this, &CActorCondition::GetAlcohol));
+		}
+	}
+	else
+	{
+		if (ce)
+			RemoveEffector(m_object,effAlcohol);
+	}
+	
+	string512			pp_sect_name;
+	shared_str ln		= Level().name();
+	if (ln.size())
+	{
+		CEffectorPP* ppe = object().Cameras().GetPPEffector((EEffectorPPType)effPsyHealth);
+
+		strconcat(sizeof(pp_sect_name),pp_sect_name, "effector_psy_health", "_", *ln);
+		if (!pSettings->section_exist(pp_sect_name))
+			xr_strcpy(pp_sect_name, "effector_psy_health");
+
+		if	(!fsimilar(GetPsyHealth(), 1.0f, 0.05f))
+		{
+			if (!ppe)
+			{
+				AddEffector(m_object, effPsyHealth, pp_sect_name, GET_KOEFF_FUNC(this, &CActorCondition::GetPsy));
+			}
 		}
 		else
 		{
-			k_max_power = 1.0f;
+			if (ppe)
+				RemoveEffector(m_object, effPsyHealth);
 		}
-		SetMaxPower		(GetMaxPower() - m_fPowerLeakSpeed * m_fDeltaTime * k_max_power);
 	}
-
-
-	m_fAlcohol		+= m_fV_Alcohol*m_fDeltaTime;
-	clamp			(m_fAlcohol,			0.0f,		1.0f);
-
-	if ( IsGameTypeSingle() )
-	{	
-		CEffectorCam* ce = Actor()->Cameras().GetCamEffector((ECamEffectorType)effAlcohol);
-		if	((m_fAlcohol>0.0001f) ){
-			if(!ce){
-				AddEffector(m_object,effAlcohol, "effector_alcohol", GET_KOEFF_FUNC(this, &CActorCondition::GetAlcohol));
-			}
-		}else{
-			if(ce)
-				RemoveEffector(m_object,effAlcohol);
-		}
-
-		
-		string512			pp_sect_name;
-		shared_str ln		= Level().name();
-		if(ln.size())
-		{
-			CEffectorPP* ppe	= object().Cameras().GetPPEffector((EEffectorPPType)effPsyHealth);
-			
-
-			strconcat			(sizeof(pp_sect_name),pp_sect_name, "effector_psy_health", "_", *ln);
-			if(!pSettings->section_exist(pp_sect_name))
-				xr_strcpy			(pp_sect_name, "effector_psy_health");
-
-			if	( !fsimilar(GetPsyHealth(), 1.0f, 0.05f) )
-			{
-				if(!ppe)
-				{
-					AddEffector(m_object,effPsyHealth, pp_sect_name, GET_KOEFF_FUNC(this, &CActorCondition::GetPsy));
-				}
-			}else
-			{
-				if(ppe)
-					RemoveEffector(m_object,effPsyHealth);
-			}
-		}
-//-		if(fis_zero(GetPsyHealth()))
-//-			SetHealth( 0.0f );
-	};
 
 	UpdateSatiety();
 	UpdateBoosters();
 
 	inherited::UpdateCondition();
 
-	if( IsGameTypeSingle() )
-		UpdateTutorialThresholds();
+	UpdateTutorialThresholds();
 
-	if(GetHealth()<0.05f && m_death_effector==NULL && IsGameTypeSingle())
+	if (GetHealth()<0.05f && m_death_effector==NULL)
 	{
-		if(pSettings->section_exist("actor_death_effector"))
+		if (pSettings->section_exist("actor_death_effector"))
 			m_death_effector = xr_new<CActorDeathEffector>(this, "actor_death_effector");
 	}
-	if(m_death_effector && m_death_effector->IsActual())
+	
+	if (m_death_effector && m_death_effector->IsActual())
 	{
 		m_death_effector->UpdateCL	();
 
-		if(!m_death_effector->IsActual())
+		if (!m_death_effector->IsActual())
 			m_death_effector->Stop();
 	}
 
@@ -296,12 +286,12 @@ void CActorCondition::UpdateCondition()
 
 void CActorCondition::UpdateBoosters()
 {
-	for(u8 i=0;i<eBoostMaxCount;i++)
+	for (u8 i=0;i<eBoostMaxCount;i++)
 	{
 		BOOSTER_MAP::iterator it = m_booster_influences.find((EBoostParams)i);
-		if(it!=m_booster_influences.end())
+		if (it!=m_booster_influences.end())
 		{
-			it->second.fBoostTime -= m_fDeltaTime/(IsGameTypeSingle()?Level().GetGameTimeFactor():1.0f);
+			it->second.fBoostTime -= m_fDeltaTime / Level().GetGameTimeFactor();
 			if(it->second.fBoostTime<=0.0f)
 			{
 				DisableBoostParameters(it->second);
@@ -310,7 +300,7 @@ void CActorCondition::UpdateBoosters()
 		}
 	}
 
-	if(m_object == Level().CurrentViewEntity())
+	if (m_object == Level().CurrentViewEntity())
 		CurrentGameUI()->UIMainIngameWnd->UpdateBoosterIndicators(m_booster_influences);
 }
 
@@ -431,12 +421,6 @@ void CActorCondition::UpdateRadiation()
 
 void CActorCondition::UpdateSatiety()
 {
- 	if (!IsGameTypeSingle()) 
-	{
-		m_fDeltaPower += m_fV_SatietyPower * m_fDeltaTime;
- 		return;
-	}
-
 	if(m_fSatiety>0)
 	{
 		m_fSatiety -= m_fV_Satiety*m_fDeltaTime;
@@ -485,7 +469,6 @@ void CActorCondition::ConditionStand(float weight)
 	m_fPower			-= power;
 }
 
-
 bool CActorCondition::IsCantWalk() const
 {
 	if(m_fPower< m_fCantWalkPowerBegin)
@@ -497,7 +480,7 @@ bool CActorCondition::IsCantWalk() const
 
 bool CActorCondition::IsCantWalkWeight()
 {
-	if(IsGameTypeSingle() && !GodMode())
+	if (!GodMode())
 	{
 		float max_w	= m_object->MaxWalkWeight();
 

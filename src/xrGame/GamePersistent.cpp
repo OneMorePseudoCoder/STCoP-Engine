@@ -38,16 +38,6 @@
 #	include "ai_debug.h"
 #endif // _EDITOR
 
-//#ifdef DEBUG_MEMORY_MANAGER
-//	static	void *	ode_alloc	(size_t size)								{ return Memory.mem_alloc(size,"ODE");			}
-//	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return Memory.mem_realloc(ptr,newsize,"ODE");	}
-//	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);							}
-//#else // DEBUG_MEMORY_MANAGER
-//	static	void *	ode_alloc	(size_t size)								{ return xr_malloc(size);			}
-//	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return xr_realloc(ptr,newsize);	}
-//	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);				}
-//#endif // DEBUG_MEMORY_MANAGER
-
 CGamePersistent::CGamePersistent(void)
 {
 	m_bPickableDOF				= false;
@@ -73,12 +63,7 @@ CGamePersistent::CGamePersistent(void)
 	m_frame_counter				= 0;
 	m_last_stats_frame			= u32(-2);
 #endif
-	// 
-	//dSetAllocHandler			(ode_alloc		);
-	//dSetReallocHandler			(ode_realloc	);
-	//dSetFreeHandler				(ode_free		);
 
-	// 
 	BOOL	bDemoMode	= (0!=strstr(Core.Params,"-demomode "));
 	if (bDemoMode)
 	{
@@ -91,7 +76,9 @@ CGamePersistent::CGamePersistent(void)
 		Device.seqFrame.Add	(this);
 		eDemoStart			=	Engine.Event.Handler_Attach("GAME:demo",this);	
 		uTime2Change		=	0;
-	} else {
+	} 
+	else 
+	{
 		pDemoFile			=	NULL;
 		eDemoStart			=	NULL;
 	}
@@ -112,9 +99,11 @@ CGamePersistent::~CGamePersistent(void)
 void CGamePersistent::RegisterModel(IRenderVisual* V)
 {
 	// Check types
-	switch (V->getType()){
+	switch (V->getType())
+	{
 	case MT_SKELETON_ANIM:
-	case MT_SKELETON_RIGID:{
+	case MT_SKELETON_RIGID:
+	{
 		u16 def_idx		= GMLib.GetMaterialIdx("default_object");
 		R_ASSERT2		(GMLib.GetMaterialByIdx(def_idx)->Flags.is(SGameMtl::flDynamic),"'default_object' - must be dynamic");
 		IKinematics* K	= smart_cast<IKinematics*>(V); VERIFY(K);
@@ -145,7 +134,6 @@ void CGamePersistent::OnAppStart()
 	m_pMainMenu					= xr_new<CMainMenu>();
 }
 
-
 void CGamePersistent::OnAppEnd	()
 {
 	if(m_pMainMenu->IsActive())
@@ -159,7 +147,6 @@ void CGamePersistent::OnAppEnd	()
 	clean_game_globals			();
 
 	GMLib.Unload				();
-
 }
 
 void CGamePersistent::Start		(LPCSTR op)
@@ -186,73 +173,13 @@ void CGamePersistent::OnGameStart()
 	UpdateGameType				();
 }
 
-LPCSTR GameTypeToString(EGameIDs gt, bool bShort)
-{
-	switch(gt)
-	{
-	case eGameIDSingle:
-		return "single";
-		break;
-	case eGameIDDeathmatch:
-		return (bShort)?"dm":"deathmatch";
-		break;
-	case eGameIDTeamDeathmatch:
-		return (bShort)?"tdm":"teamdeathmatch";
-		break;
-	case eGameIDArtefactHunt:
-		return (bShort)?"ah":"artefacthunt";
-		break;
-	case eGameIDCaptureTheArtefact:
-		return (bShort)?"cta":"capturetheartefact";
-		break;
-	case eGameIDDominationZone:
-		return (bShort)?"dz":"dominationzone";
-		break;
-	case eGameIDTeamDominationZone:
-		return (bShort)?"tdz":"teamdominationzone";
-		break;
-	default :
-		return		"---";
-	}
-}
-
-EGameIDs ParseStringToGameType(LPCSTR str)
-{
-	if (!xr_strcmp(str, "single")) 
-		return eGameIDSingle;
-	else
-		if (!xr_strcmp(str, "deathmatch") || !xr_strcmp(str, "dm")) 
-			return eGameIDDeathmatch;
-		else
-			if (!xr_strcmp(str, "teamdeathmatch") || !xr_strcmp(str, "tdm")) 
-				return eGameIDTeamDeathmatch;
-			else
-				if (!xr_strcmp(str, "artefacthunt") || !xr_strcmp(str, "ah")) 
-					return eGameIDArtefactHunt;
-				else
-					if (!xr_strcmp(str, "capturetheartefact") || !xr_strcmp(str, "cta")) 
-						return eGameIDCaptureTheArtefact;
-					else
-						if (!xr_strcmp(str, "dominationzone")) 
-							return eGameIDDominationZone;
-						else
-							if (!xr_strcmp(str, "teamdominationzone")) 
-								return eGameIDTeamDominationZone;
-							else 
-								return eGameIDNoGame; //EGameIDs
-}
-
 void CGamePersistent::UpdateGameType			()
 {
 	__super::UpdateGameType		();
 
-	m_game_params.m_e_game_type = ParseStringToGameType(m_game_params.m_game_type);
+	m_game_params.m_e_game_type = eGameIDSingle;
 
-
-	if (m_game_params.m_e_game_type == eGameIDSingle)
-		g_current_keygroup = _sp;
-	else
-		g_current_keygroup = _mp;
+	g_current_keygroup = _sp;
 }
 
 void CGamePersistent::OnGameEnd	()
@@ -269,7 +196,8 @@ void CGamePersistent::WeathersUpdate()
 	{
 		CActor* actor				= smart_cast<CActor*>(Level().CurrentViewEntity());
 		BOOL bIndoor				= TRUE;
-		if (actor) bIndoor			= actor->renderable_ROS()->get_luminocity_hemi()<0.05f;
+		if (actor) 
+			bIndoor			= actor->renderable_ROS()->get_luminocity_hemi()<0.05f;
 
 		int data_set				= (Random.randF()<(1.f-Environment().CurrentEnv->weight))?0:1; 
 		
@@ -280,19 +208,21 @@ void CGamePersistent::WeathersUpdate()
 		VERIFY						(_env);
 
 		CEnvAmbient* env_amb		= _env->env_ambient;
-		if (env_amb) {
+		if (env_amb) 
+		{
 			CEnvAmbient::SSndChannelVec& vec	= current_env->env_ambient->get_snd_channels();
 			CEnvAmbient::SSndChannelVecIt I		= vec.begin();
 			CEnvAmbient::SSndChannelVecIt E		= vec.end();
 			
-			for (u32 idx=0; I!=E; ++I,++idx) {
+			for (u32 idx=0; I!=E; ++I,++idx) 
+			{
 				CEnvAmbient::SSndChannel& ch	= **I;
 				R_ASSERT						(idx<20);
-				if(ambient_sound_next_time[idx]==0)//first
+				if (ambient_sound_next_time[idx] == 0)//first
 				{
 					ambient_sound_next_time[idx] = Device.dwTimeGlobal + ch.get_rnd_sound_first_time();
-				}else
-				if(Device.dwTimeGlobal > ambient_sound_next_time[idx])
+				}
+				else if (Device.dwTimeGlobal > ambient_sound_next_time[idx])
 				{
 					ref_sound& snd					= ch.get_rnd_sound();
 
@@ -313,31 +243,15 @@ void CGamePersistent::WeathersUpdate()
 					VERIFY							(snd._handle());
 					u32 _length_ms					= iFloor(snd.get_length_sec()*1000.0f);
 					ambient_sound_next_time[idx]	= Device.dwTimeGlobal + _length_ms + ch.get_rnd_sound_time();
-//					Msg("- Playing ambient sound channel [%s] file[%s]",ch.m_load_section.c_str(),snd._handle()->file_name());
 				}
 			}
-/*
-			if (Device.dwTimeGlobal > ambient_sound_next_time)
-			{
-				ref_sound* snd			= env_amb->get_rnd_sound();
-				ambient_sound_next_time	= Device.dwTimeGlobal + env_amb->get_rnd_sound_time();
-				if (snd)
-				{
-					Fvector	pos;
-					float	angle		= ::Random.randF(PI_MUL_2);
-					pos.x				= _cos(angle);
-					pos.y				= 0;
-					pos.z				= _sin(angle);
-					pos.normalize		().mul(env_amb->get_rnd_sound_dist()).add(Device.vCameraPosition);
-					pos.y				+= 10.f;
-					snd->play_at_pos	(0,pos);
-				}
-			}
-*/
+
 			// start effect
-			if ((FALSE==bIndoor) && (0==ambient_particles) && Device.dwTimeGlobal>ambient_effect_next_time){
+			if ((FALSE==bIndoor) && (0==ambient_particles) && Device.dwTimeGlobal>ambient_effect_next_time)
+			{
 				CEnvAmbient::SEffect* eff			= env_amb->get_rnd_effect(); 
-				if (eff){
+				if (eff)
+				{
 					Environment().wind_gust_factor	= eff->wind_gust_factor;
 					ambient_effect_next_time		= Device.dwTimeGlobal + env_amb->get_rnd_effect_time();
 					ambient_effect_stop_time		= Device.dwTimeGlobal + eff->life_time;
@@ -346,7 +260,6 @@ void CGamePersistent::WeathersUpdate()
 					ambient_effect_wind_end			= Device.fTimeGlobal + eff->life_time/1000.f;
 					ambient_effect_wind_out_time	= Device.fTimeGlobal + eff->life_time/1000.f + eff->wind_blast_out_time;
 					ambient_effect_wind_on			= true;
-										
 					ambient_particles				= CParticlesObject::Create(eff->particles.c_str(),FALSE,false);
 					Fvector pos; pos.add			(Device.vCameraPosition,eff->offset); 
 					ambient_particles->play_at_pos	(pos);
@@ -476,13 +389,9 @@ void CGamePersistent::update_logo_intro()
 extern int g_keypress_on_start;
 void CGamePersistent::game_loaded()
 {
-	if(Device.dwPrecacheFrame<=2)
+	if (Device.dwPrecacheFrame<=2)
 	{
-		if(	g_pGameLevel							&&
-			g_pGameLevel->bReady					&&
-			(allow_intro() && g_keypress_on_start)	&&
-			load_screen_renderer.b_need_user_input	&& 
-			m_game_params.m_e_game_type == eGameIDSingle)
+		if (g_pGameLevel && g_pGameLevel->bReady && (allow_intro() && g_keypress_on_start) && load_screen_renderer.b_need_user_input)
 		{
 			VERIFY				(NULL==m_intro);
 			m_intro				= xr_new<CUISequencer>();
@@ -577,8 +486,10 @@ void CGamePersistent::OnFrame	()
 	if(Device.Paused())
 	{
 #ifndef MASTER_GOLD
-		if (Level().CurrentViewEntity() && IsGameTypeSingle()) {
-			if (!g_actor || (g_actor->ID() != Level().CurrentViewEntity()->ID())) {
+		if (Level().CurrentViewEntity()) 
+		{
+			if (!g_actor || (g_actor->ID() != Level().CurrentViewEntity()->ID())) 
+			{
 				CCustomMonster	*custom_monster = smart_cast<CCustomMonster*>(Level().CurrentViewEntity());
 				if (custom_monster) // can be spectator in multiplayer
 					custom_monster->UpdateCamera();
@@ -631,7 +542,7 @@ void CGamePersistent::OnFrame	()
 			}
 		}
 #else // MASTER_GOLD
-		if (g_actor && IsGameTypeSingle())
+		if (g_actor)
 		{
 			CCameraBase* C = NULL;
 			if(!Actor()->Holder())
@@ -746,39 +657,23 @@ static BOOL bEntryFlag		= TRUE;
 
 void CGamePersistent::OnAppActivate		()
 {
-	bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
-	bIsMP		&= !Device.Paused();
-
-	if( !bIsMP )
-	{
-		Device.Pause			(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
-	}else
-	{
-		Device.Pause			(FALSE, TRUE, TRUE, "CGP::OnAppActivate MP");
-	}
+	Device.Pause			(FALSE, !bRestorePause, TRUE, "CGP::OnAppActivate");
 
 	bEntryFlag = TRUE;
 }
 
 void CGamePersistent::OnAppDeactivate	()
 {
-	if(!bEntryFlag) return;
-
-	bool bIsMP = (g_pGameLevel && Level().game && GameID() != eGameIDSingle);
+	if (!bEntryFlag) 
+		return;
 
 	bRestorePause = FALSE;
 
-	if ( !bIsMP )
-	{
-		bRestorePause			= Device.Paused();
-		Device.Pause			(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
-	}else
-	{
-		Device.Pause			(TRUE, FALSE, TRUE, "CGP::OnAppDeactivate MP");
-	}
+	bRestorePause			= Device.Paused();
+	Device.Pause			(TRUE, TRUE, TRUE, "CGP::OnAppDeactivate");
+
 	bEntryFlag = FALSE;
 }
-
 
 bool CGamePersistent::OnRenderPPUI_query()
 {
@@ -798,6 +693,7 @@ void CGamePersistent::OnRenderPPUI_PP()
 {
 	MainMenu()->OnRenderPPUI_PP();
 }
+
 #include "string_table.h"
 #include "../xrEngine/x_ray.h"
 void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
@@ -819,7 +715,7 @@ void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
 			R_ASSERT( ai().script_engine().functor( "loadscreen.get_mp_tip_number", m_functor ) );
 			tip_num				= m_functor(map_name.c_str());
 		}
-//		tip_num = 83;
+
 		xr_sprintf				(buff, "%s%d:", CStringTable().translate("ls_tip_number").c_str(), tip_num);
 		shared_str				tmp = buff;
 		
@@ -834,12 +730,13 @@ void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
 
 bool CGamePersistent::CanBePaused()
 {
-	return IsGameTypeSingle();
+	return true;
 }
+
 void CGamePersistent::SetPickableEffectorDOF(bool bSet)
 {
 	m_bPickableDOF = bSet;
-	if(!bSet)
+	if (!bSet)
 		RestoreEffectorDOF();
 }
 
@@ -864,15 +761,15 @@ void CGamePersistent::RestoreEffectorDOF()
 {
 	SetEffectorDOF			(m_dof[3]);
 }
+
 #include "hudmanager.h"
 
-//	m_dof		[4];	// 0-dest 1-current 2-from 3-original
 void CGamePersistent::UpdateDof()
 {
 	static float diff_far	= pSettings->r_float("zone_pick_dof","far");//70.0f;
 	static float diff_near	= pSettings->r_float("zone_pick_dof","near");//-70.0f;
 
-	if(m_bPickableDOF)
+	if (m_bPickableDOF)
 	{
 		Fvector pick_dof;
 		pick_dof.y	= HUD().GetCurrentRayQuery().range;
@@ -881,8 +778,9 @@ void CGamePersistent::UpdateDof()
 		m_dof[0]	= pick_dof;
 		m_dof[2]	= m_dof[1]; //current
 	}
-	if(m_dof[1].similar(m_dof[0]))
-						return;
+	
+	if (m_dof[1].similar(m_dof[0]))
+		return;
 
 	float td			= Device.fTimeDelta;
 	Fvector				diff;

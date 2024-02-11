@@ -64,8 +64,6 @@ void CActor::IR_OnKeyboardPress(int cmd)
 	{
 	case kWPN_FIRE:
 	{
-		if ((mstate_wishful & mcLookout) && !IsGameTypeSingle()) return;
-
 		u16 slot = inventory().GetActiveSlot();
 		if (inventory().ActiveItem() && (slot == INV_SLOT_3 || slot == INV_SLOT_2))
 			mstate_wishful &= ~mcSprint;
@@ -187,15 +185,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
 			if (itm)
 			{
-				if (IsGameTypeSingle())
-				{
-					inventory().Eat(itm);
-				}
-				else
-				{
-					inventory().ClientEat(itm);
-				}
-
+				inventory().Eat(itm);
 				StaticDrawableWrapper* _s = CurrentGameUI()->AddCustomStatic("item_used", true);
 				string1024					str;
 				strconcat(sizeof(str), str, *CStringTable().translate("st_item_used"), ": ", itm->NameItem());
@@ -448,31 +438,25 @@ void CActor::ActorUse()
 	{
 		if (m_pPersonWeLookingAt)
 		{
-			CEntityAlive* pEntityAliveWeLookingAt =
-				smart_cast<CEntityAlive*>(m_pPersonWeLookingAt);
+			CEntityAlive* pEntityAliveWeLookingAt = smart_cast<CEntityAlive*>(m_pPersonWeLookingAt);
 
 			VERIFY(pEntityAliveWeLookingAt);
 
-			if (IsGameTypeSingle())
+			if (pEntityAliveWeLookingAt->g_Alive())
 			{
-
-				if (pEntityAliveWeLookingAt->g_Alive())
+				TryToTalk();
+			}
+			else
+			{
+				//только если находимся в режиме single
+				CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
+				if (pGameSP)
 				{
-					TryToTalk();
-				}
-				else
-				{
-					//только если находимся в режиме single
-					CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
-					if (pGameSP)
+					if (!m_pPersonWeLookingAt->deadbody_closed_status())
 					{
-						if (!m_pPersonWeLookingAt->deadbody_closed_status())
-						{
-							if (pEntityAliveWeLookingAt->AlreadyDie() &&
-								pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
-								// 99.9% dead
-								pGameSP->StartCarBody(this, m_pPersonWeLookingAt);
-						}
+						if (pEntityAliveWeLookingAt->AlreadyDie() && pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
+						// 99.9% dead
+						pGameSP->StartCarBody(this, m_pPersonWeLookingAt);
 					}
 				}
 			}
@@ -490,9 +474,7 @@ void CActor::ActorUse()
 			if (b_allow && !character_physics_support()->movement()->PHCapture())
 			{
 				character_physics_support()->movement()->PHCaptureObject(object, element);
-
 			}
-
 		}
 		else
 		{
@@ -504,15 +486,13 @@ void CActor::ActorUse()
 				CGameObject::u_EventSend(P);
 				return;
 			}
-
 		}
 	}
 }
 
 BOOL CActor::HUDview()const
 {
-	return IsFocused() && (cam_active == eacFirstEye) &&
-		((!m_holder) || (m_holder && m_holder->allowWeapon() && m_holder->HUDView()));
+	return IsFocused() && (cam_active == eacFirstEye) && ((!m_holder) || (m_holder && m_holder->allowWeapon() && m_holder->HUDView()));
 }
 
 static	u16 SlotsToCheck[] = {
@@ -597,7 +577,6 @@ float	CActor::GetLookFactor()
 {
 	if (m_input_external_handler)
 		return m_input_external_handler->mouse_scale_factor();
-
 
 	float factor = 1.f;
 

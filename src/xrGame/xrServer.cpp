@@ -8,7 +8,6 @@
 #include "xrServer_Objects_ALife_All.h"
 #include "level.h"
 #include "game_cl_base.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "ai_space.h"
 #include "../xrEngine/IGame_Persistent.h"
 #include "string_table.h"
@@ -17,7 +16,6 @@
 #include "../xrEngine/XR_IOConsole.h"
 #include "ui/UIInventoryUtilities.h"
 #include "file_transfer.h"
-#include "screenshot_server.h"
 #include "xrServer_info.h"
 #include <functional>
 
@@ -332,36 +330,7 @@ void xrServer::SendUpdatePacketsToAll()
 }
 
 void xrServer::SendUpdatesToAll()
-{
-	if (IsGameTypeSingle())
-		return;
-	
-	KickCheaters();
-
-
-	//sending game_update 
-	fastdelegate::FastDelegate1<IClient*,void> sendtofd;
-	sendtofd.bind(this, &xrServer::SendGameUpdateTo);
-	ForEachClientDoSender(sendtofd);
-
-	if ((Device.dwTimeGlobal - m_last_update_time) >= u32(1000/psNET_ServerUpdate))
-	{
-		MakeUpdatePackets				();
-		SendUpdatePacketsToAll			();
-
-#ifdef DEBUG
-		g_sv_SendUpdate = 0;
-#endif			
-		if (game->sv_force_sync)	Perform_game_export();
-		VERIFY						(verify_entities());
-		m_last_update_time			= Device.dwTimeGlobal;
-	}
-	if (m_file_transfers)
-	{
-		m_file_transfers->update_transfer();
-		m_file_transfers->stop_obsolete_receivers();
-	}
-}
+{}
 
 xr_vector<shared_str>	_tmp_log;
 void console_log_cb(LPCSTR text)
@@ -803,8 +772,7 @@ void			xrServer::Server_Client_Check	( IClient* CL )
 
 bool		xrServer::OnCL_QueryHost		() 
 {
-	if (game->Type() == eGameIDSingle) return false;
-	return (GetClientsCount() != 0); 
+	return false;
 };
 
 CSE_Abstract*	xrServer::GetEntity			(u32 Num)
@@ -816,7 +784,6 @@ CSE_Abstract*	xrServer::GetEntity			(u32 Num)
 	};
 	return NULL;
 };
-
 
 void		xrServer::OnChatMessage(NET_Packet* P, xrClientData* CL)
 {
@@ -979,9 +946,6 @@ void xrServer::PerformCheckClientsForMaxPing()
 	ForEachClientDoSender(temp_functor);
 }
 
-//xr_token game_types[];
-LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
-
 void xrServer::GetServerInfo( CServerInfo* si )
 {
 	string32  tmp;
@@ -991,8 +955,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();
 	si->AddItem( "Uptime", time, RGB(255,228,0) );
 
-//	xr_strcpy( tmp256, get_token_name(game_types, game->Type() ) );
-	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
+	xr_strcpy( tmp256, "single" );
 
 	si->AddItem( "Game type", tmp256, RGB(128,255,255) );
 
@@ -1034,55 +997,16 @@ void xrServer::KickCheaters			()
 }
 
 void xrServer::MakeScreenshot(ClientID const & admin_id, ClientID const & cheater_id)
-{
-	if ((cheater_id == SV_Client->ID) && g_dedicated_server)
-	{
-		return;
-	}
-	for (int i = 0; i < sizeof(m_screenshot_proxies)/sizeof(clientdata_proxy*); ++i)
-	{
-		if (!m_screenshot_proxies[i]->is_active())
-		{
-			m_screenshot_proxies[i]->make_screenshot(admin_id, cheater_id);
-			Msg("* admin [%d] is making screeshot of client [%d]", admin_id, cheater_id);
-			return;
-		}
-	}
-	Msg("! ERROR: SV: not enough file transfer proxies for downloading screenshot, please try later ...");
-}
-void xrServer::MakeConfigDump(ClientID const & admin_id, ClientID const & cheater_id)
-{
-	if ((cheater_id == SV_Client->ID) && g_dedicated_server)
-	{
-		return;
-	}
-	for (int i = 0; i < sizeof(m_screenshot_proxies)/sizeof(clientdata_proxy*); ++i)
-	{
-		if (!m_screenshot_proxies[i]->is_active())
-		{
-			m_screenshot_proxies[i]->make_config_dump(admin_id, cheater_id);
-			Msg("* admin [%d] is making config dump of client [%d]", admin_id, cheater_id);
-			return;
-		}
-	}
-	Msg("! ERROR: SV: not enough file transfer proxies for downloading file, please try later ...");
-}
+{}
 
+void xrServer::MakeConfigDump(ClientID const & admin_id, ClientID const & cheater_id)
+{}
 
 void xrServer::initialize_screenshot_proxies()
-{
-	for (int i = 0; i < sizeof(m_screenshot_proxies)/sizeof(clientdata_proxy*); ++i)
-	{
-		m_screenshot_proxies[i] = xr_new<clientdata_proxy>(m_file_transfers);
-	}
-}
+{}
+
 void xrServer::deinitialize_screenshot_proxies()
-{
-	for (int i = 0; i < sizeof(m_screenshot_proxies)/sizeof(clientdata_proxy*); ++i)
-	{
-		xr_delete(m_screenshot_proxies[i]);
-	}
-}
+{}
 
 struct PlayerInfoWriter
 {

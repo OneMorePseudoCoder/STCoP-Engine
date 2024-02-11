@@ -75,16 +75,13 @@ void CUIMMShniaga::InitShniaga(CUIXml& xml_doc, LPCSTR path)
 
 		CreateList			(m_buttons_new,			xml_doc, "menu_new_game");
 	}
-	else {
-		if (GameID() == eGameIDSingle) {
-			VERIFY			(Actor());
-			if (g_actor && !Actor()->g_Alive())
-				CreateList	(m_buttons, xml_doc, "menu_main_single_dead");
-			else
-				CreateList	(m_buttons, xml_doc, "menu_main_single");
-		}
+	else 
+	{
+		VERIFY(Actor());
+		if (g_actor && !Actor()->g_Alive())
+			CreateList(m_buttons, xml_doc, "menu_main_single_dead");
 		else
-			CreateList		(m_buttons, xml_doc, "menu_main_mm");
+			CreateList(m_buttons, xml_doc, "menu_main_single");
 	}
 
     ShowMain				();
@@ -94,8 +91,7 @@ void CUIMMShniaga::InitShniaga(CUIXml& xml_doc, LPCSTR path)
 }
 
 void CUIMMShniaga::OnDeviceReset()
-{
-}
+{}
 
 extern CActor*		g_actor;
 
@@ -124,22 +120,15 @@ void CUIMMShniaga::CreateList(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCS
 		st->SetFont					(pF);
 		st->SetTextComplexMode		(false);
 		st->SetTextST				(xml_doc.ReadAttrib	("btn", i, "caption"));
-
-//		float font_height			= st->GetFont()->GetHeight();
-//		UI().ClientToScreenScaledHeight(font_height);
-
-//.		st->SetTextOffset			(0, (button_height-font_height)/2.0f);
 		st->SetTextColor			(color);
 		st->SetTextAlignment		(CGameFont::alCenter);
 		st->SetVTextAlignment		(valCenter);
 		st->SetWindowName			(xml_doc.ReadAttrib("btn", i, "name"));
 		st->SetMessageTarget		(this);
 
-
 		lst.push_back(st);
 	}
 	xml_doc.SetLocalRoot(xml_doc.GetRoot());
-
 }
 
 void CUIMMShniaga::SetPage		(enum_page_id page_id, LPCSTR xml_file, LPCSTR xml_path)

@@ -113,8 +113,6 @@ const char* CUIStatsPlayerInfo::GetInfoByID(const char* id){
 	else if (0 == xr_strcmp(id,"rank"))
 	{
 		int team = m_pPlayerInfo->team;
-		if (GameID() != eGameIDDeathmatch)
-			team -= 1;
 
 		if (0 == team)
             xr_sprintf(ans,"ui_hud_status_green_0%d",(int)m_pPlayerInfo->rank + 1);
