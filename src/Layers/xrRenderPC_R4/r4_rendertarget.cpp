@@ -319,6 +319,12 @@ CRenderTarget::CRenderTarget		()
 		b_bloom_msaa			= xr_new<CBlender_bloom_build_msaa>		();
 		b_postprocess_msaa	= xr_new<CBlender_postprocess_msaa>	();
 	}
+	else
+	{
+        b_bloom_msaa = nullptr;
+        b_postprocess_msaa = nullptr;		
+	}
+
 	b_luminance				= xr_new<CBlender_luminance>		();
 	b_combine				= xr_new<CBlender_combine>			();
 	b_ssao					= xr_new<CBlender_SSAO_noMSAA>		();
@@ -1029,25 +1035,24 @@ CRenderTarget::~CRenderTarget	()
 	ID3DBaseTexture*	pSurf = 0;
 
 	pSurf = t_envmap_0->surface_get();
-	if (pSurf) pSurf->Release();
+	if (pSurf) 
+		pSurf->Release();
 	_SHOW_REF("t_envmap_0 - #small",pSurf);
 
 	pSurf = t_envmap_1->surface_get();
-	if (pSurf) pSurf->Release();
+	if (pSurf) 
+		pSurf->Release();
 	_SHOW_REF("t_envmap_1 - #small",pSurf);
-	//_SHOW_REF("t_envmap_0 - #small",t_envmap_0->pSurface);
-	//_SHOW_REF("t_envmap_1 - #small",t_envmap_1->pSurface);
 #endif // DEBUG
-	t_envmap_0->surface_set		(NULL);
-	t_envmap_1->surface_set		(NULL);
-	t_envmap_0.destroy			();
-	t_envmap_1.destroy			();
 
-	//	TODO: DX10: Check if we need old style SMAPs
-//	_RELEASE					(rt_smap_ZB);
+	t_envmap_0->surface_set(NULL);
+	t_envmap_1->surface_set(NULL);
+	t_envmap_0.destroy();
+	t_envmap_1.destroy();
 
 	// Jitter
-	for (int it=0; it<TEX_jitter_count; it++)	{
+	for (int it=0; it<TEX_jitter_count; it++)	
+	{
 		t_noise	[it]->surface_set	(NULL);
 #ifdef DEBUG
 		_SHOW_REF("t_noise_surf[it]",t_noise_surf[it]);
@@ -1062,49 +1067,52 @@ CRenderTarget::~CRenderTarget	()
 	_RELEASE					(t_noise_surf_mipped);
 
 	// 
-	accum_spot_geom_destroy		();
-	accum_omnip_geom_destroy	();
-	accum_point_geom_destroy	();
+	accum_spot_geom_destroy();
+	accum_omnip_geom_destroy();
+	accum_point_geom_destroy();
 	accum_volumetric_geom_destroy();
 
 	// Blenders
-	xr_delete					(b_combine				);
-	xr_delete					(b_luminance			);
-	xr_delete					(b_bloom				);
-	xr_delete					(b_accum_reflected		);
-	xr_delete					(b_accum_spot			);
-	xr_delete					(b_accum_point			);
-	xr_delete					(b_accum_direct			);
-	xr_delete					(b_ssao					);
+	xr_delete(b_combine);
+	xr_delete(b_luminance);
+	xr_delete(b_bloom);
+	xr_delete(b_accum_reflected);
+	xr_delete(b_accum_spot);
+	xr_delete(b_accum_point);
+	xr_delete(b_accum_direct);
+	xr_delete(b_ssao);
 
-   if( RImplementation.o.dx10_msaa )
-   {
-      int bound = RImplementation.o.dx10_msaa_samples;
-
-      if( RImplementation.o.dx10_msaa_opt )
-         bound = 1;
-
-	  for( int i = 0; i < bound; ++i )
-	  {
-		  xr_delete					(b_combine_msaa[i]);
-		  xr_delete					(b_accum_direct_msaa[i]);
-		  xr_delete					(b_accum_mask_msaa[i]);
-		  xr_delete					(b_accum_direct_volumetric_msaa[i]);
-		  //xr_delete					(b_accum_direct_volumetric_sun_msaa[i]);
-		  xr_delete					(b_accum_spot_msaa[i]);
-		  xr_delete					(b_accum_volumetric_msaa[i]);
-		  xr_delete					(b_accum_point_msaa[i]);
-		  xr_delete					(b_accum_reflected_msaa[i]);
-		  xr_delete					(b_ssao_msaa[i]);
-	  }
-   }
-	xr_delete					(b_accum_mask			);
-	xr_delete					(b_cut					);
-	xr_delete					(b_occq					);
-	xr_delete					(b_hdao_cs				);
-	if( RImplementation.o.dx10_msaa )
+	if (RImplementation.o.dx10_msaa)
 	{
-        xr_delete( b_hdao_msaa_cs );
+		int bound = RImplementation.o.dx10_msaa_samples;
+
+		if (RImplementation.o.dx10_msaa_opt)
+			bound = 1;
+
+		for (int i = 0; i < bound; ++i)
+		{
+			xr_delete(b_combine_msaa[i]);
+			xr_delete(b_accum_direct_msaa[i]);
+			xr_delete(b_accum_mask_msaa[i]);
+			xr_delete(b_accum_direct_volumetric_msaa[i]);
+			xr_delete(b_accum_spot_msaa[i]);
+			xr_delete(b_accum_volumetric_msaa[i]);
+			xr_delete(b_accum_point_msaa[i]);
+			xr_delete(b_accum_reflected_msaa[i]);
+			xr_delete(b_ssao_msaa[i]);
+		}
+		xr_delete(b_postprocess_msaa);
+		xr_delete(b_bloom_msaa);
+	}
+
+	xr_delete(b_accum_mask);
+	xr_delete(b_cut);
+	xr_delete(b_occq);
+	xr_delete(b_hdao_cs);
+
+	if (RImplementation.o.dx10_msaa)
+	{
+        xr_delete(b_hdao_msaa_cs);
     }
 }
 

@@ -694,16 +694,20 @@ CUISequencer* g_tutorial2 = NULL;
 
 void start_tutorial(LPCSTR name)
 {
-	if(g_tutorial){
-		VERIFY				(!g_tutorial2);
-		g_tutorial2			= g_tutorial;
+	// Skip any game tutorial on load screen
+	if (load_screen_renderer.IsActive())
+		return;
+
+	if (g_tutorial)
+	{
+		VERIFY(!g_tutorial2);
+		g_tutorial2 = g_tutorial;
 	};
 
-	g_tutorial							= xr_new<CUISequencer>();
-	g_tutorial->Start					(name);
-	if(g_tutorial2)
+	g_tutorial = xr_new<CUISequencer>();
+	g_tutorial->Start(name);
+	if (g_tutorial2)
 		g_tutorial->m_pStoredInputReceiver = g_tutorial2->m_pStoredInputReceiver;
-
 }
 
 void stop_tutorial()

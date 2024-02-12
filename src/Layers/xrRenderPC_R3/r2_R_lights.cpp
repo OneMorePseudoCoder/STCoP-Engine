@@ -164,24 +164,25 @@ void	CRender::render_lights	(light_Package& LP)
 		
       //		if (was_spot_shadowed)		->	accum spot shadowed
 		if		(!L_spot_s.empty())
-		{ 
-         PIX_EVENT(ACCUM_SPOT);
-			for (u32 it=0; it<L_spot_s.size(); it++)
+		{
+			bool needVolumetric = RImplementation.o.advancedpp && ps_r2_ls_flags.is(R2FLAG_VOLUMETRIC_LIGHTS);
+
+			PIX_EVENT(ACCUM_SPOT);
+			PIX_EVENT(ACCUM_VOLUMETRIC);
+
+			for (u32 it=0; it < L_spot_s.size(); it++)
 			{
 				Target->accum_spot			(L_spot_s[it]);
 				render_indirect				(L_spot_s[it]);
+
+				if (needVolumetric)
+					Target->accum_volumetric(L_spot_s[it]);
 			}
-
-         PIX_EVENT(ACCUM_VOLUMETRIC);
-			if (RImplementation.o.advancedpp && ps_r2_ls_flags.is(R2FLAG_VOLUMETRIC_LIGHTS))
-			for (u32 it=0; it<L_spot_s.size(); it++)
-				Target->accum_volumetric(L_spot_s[it]);
-
 			L_spot_s.clear	();
 		}
 	}
 
-   PIX_EVENT(POINT_LIGHTS_ACCUM);
+	PIX_EVENT(POINT_LIGHTS_ACCUM);
 	// Point lighting (unshadowed, if left)
 	if (!LP.v_point.empty())		{
 		xr_vector<light*>&	Lvec		= LP.v_point;

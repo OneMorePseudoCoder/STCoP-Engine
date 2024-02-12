@@ -226,7 +226,7 @@ void CWeaponMagazinedWGrenade::state_Fire(float dt)
 	VERIFY(fOneShotTime>0.f);
 
 	//режим стрельбы очередями
-	if (m_bGrenadeMode)
+	if (!m_bGrenadeMode)
 		inherited::state_Fire(dt);
 }
 
