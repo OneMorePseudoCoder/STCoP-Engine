@@ -12,5 +12,4 @@ void Event::Set() { SetEvent(handle); }
 
 void Event::Wait() const { WaitForSingleObject(handle, INFINITE); }
 
-bool Event::Wait(u32 millisecondsTimeout) const
-{ return WaitForSingleObject(handle, millisecondsTimeout)!=WAIT_TIMEOUT; }
+bool Event::Wait(u32 millisecondsTimeout) const { return WaitForSingleObject(handle, millisecondsTimeout)!=WAIT_TIMEOUT; }

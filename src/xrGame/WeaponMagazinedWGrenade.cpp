@@ -528,10 +528,10 @@ void CWeaponMagazinedWGrenade::PlayAnimShow()
 	if (IsGrenadeLauncherAttached())
 	{
 		if (!m_bGrenadeMode)
+		{
 			HUD_VisualBulletUpdate();
-
-		if (!m_bGrenadeMode)
 			PlayHUDMotion("anm_show_w_gl", FALSE, this, GetState());
+		}
 		else
 			PlayHUDMotion("anm_show_g", FALSE, this, GetState());
 	}
@@ -727,12 +727,9 @@ bool CWeaponMagazinedWGrenade::IsNecessaryItem(const shared_str& item_sect)
 
 u8 CWeaponMagazinedWGrenade::GetCurrentHudOffsetIdx()
 {
-	bool b_aiming = ((IsZoomed() && m_zoom_params.m_fZoomRotationFactor <= 1.f) || (!IsZoomed() && m_zoom_params.m_fZoomRotationFactor > 0.f));
-	
-	if(!b_aiming)
+	if (!((IsZoomed() && m_zoom_params.m_fZoomRotationFactor <= 1.f) || (!IsZoomed() && m_zoom_params.m_fZoomRotationFactor > 0.f)))
 		return		0;
-	else
-	if(m_bGrenadeMode)
+	else if(m_bGrenadeMode)
 		return		2;
 	else
 		return		1;
@@ -811,7 +808,6 @@ void CWeaponMagazinedWGrenade::net_Spawn_install_upgrades	( Upgrades_type saved_
 	// this is intended behaviour
 }
 
-
 #include "string_table.h"
 bool CWeaponMagazinedWGrenade::GetBriefInfo(II_BriefInfo& info)
 {
@@ -825,7 +821,8 @@ bool CWeaponMagazinedWGrenade::GetBriefInfo(II_BriefInfo& info)
 	if (bHasBulletsToHide && !m_bGrenadeMode)
 	{
 		last_hide_bullet = ae >= bullet_cnt ? bullet_cnt : bullet_cnt - ae - 1;
-		if (ae == 0) last_hide_bullet = -1;
+		if (ae == 0) 
+			last_hide_bullet = -1;
 	}
 
 	if (HasFireModes())
@@ -838,6 +835,7 @@ bool CWeaponMagazinedWGrenade::GetBriefInfo(II_BriefInfo& info)
 			info.fire_mode._set(fire_mode);
 		}
 	}
+
 	if (m_pInventory->ModifyFrame() <= m_BriefInfo_CalcFrame)
 		return false;
 

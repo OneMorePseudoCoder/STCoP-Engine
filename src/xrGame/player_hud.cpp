@@ -75,7 +75,8 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 			{
 				pm->m_base_name			= anm;
 				pm->m_additional_name	= anm;
-			}else
+			}
+			else
 			{
 				R_ASSERT2(_GetItemCount(anm.c_str())==2, anm.c_str());
 				string512				str_item;
@@ -87,7 +88,6 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 			}
 
 			//and load all motions for it
-
 			for(u32 i=0; i<=8; ++i)
 			{
 				if(i==0)
@@ -106,10 +106,6 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 					pm->m_animations.resize			(pm->m_animations.size()+1);
 					pm->m_animations.back().mid		= motion_ID;
 					pm->m_animations.back().name	= buff;
-					//Msg("motion %s sucessfull loaded", buff);
-#ifdef DEBUG
-//					Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
-#endif // #ifdef DEBUG
 				}
 			}
 			VERIFY2(pm->m_animations.size(),make_string("motion not found [%s]", pm->m_base_name.c_str()).c_str());
@@ -200,7 +196,6 @@ void attachable_hud_item::setup_firedeps(firedeps& fd)
 		Fmatrix& fire_mat								= m_model->LL_GetTransform(m_measures.m_fire_bone);
 		fire_mat.transform_tiny							(fd.vLastFP, m_measures.m_fire_point_offset);
 		m_item_transform.transform_tiny					(fd.vLastFP);
-		//fd.vLastFP.add(Device.vCameraPosition);
 
 		fd.vLastFD.set									(0.f,0.f,1.f);
 		m_item_transform.transform_dir					(fd.vLastFD);
@@ -306,16 +301,29 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 	m_hands_offset[0][0].set	(0,0,0);
 	m_hands_offset[1][0].set	(0,0,0);
 
-	strconcat					(sizeof(val_name),val_name,"aim_hud_offset_pos",_prefix);
-	m_hands_offset[0][1]		= pSettings->r_fvector3(sect_name, val_name);
-	strconcat					(sizeof(val_name),val_name,"aim_hud_offset_rot",_prefix);
-	m_hands_offset[1][1]		= pSettings->r_fvector3(sect_name, val_name);
+	strconcat(sizeof(val_name), val_name, "aim_hud_offset_pos", _prefix);
+	if (pSettings->line_exist(sect_name, val_name))
+		m_hands_offset[0][1] = pSettings->r_fvector3(sect_name, val_name);
+	else
+		m_hands_offset[0][1] = { 0.f, 0.f, 0.f };
 
-	strconcat					(sizeof(val_name),val_name,"gl_hud_offset_pos",_prefix);
-	m_hands_offset[0][2]		= pSettings->r_fvector3(sect_name, val_name);
-	strconcat					(sizeof(val_name),val_name,"gl_hud_offset_rot",_prefix);
-	m_hands_offset[1][2]		= pSettings->r_fvector3(sect_name, val_name);
+	strconcat(sizeof(val_name), val_name, "aim_hud_offset_rot", _prefix);
+	if (pSettings->line_exist(sect_name, val_name))
+		m_hands_offset[1][1] = pSettings->r_fvector3(sect_name, val_name);
+	else
+		m_hands_offset[1][1] = { 0.f, 0.f, 0.f };
 
+	strconcat(sizeof(val_name), val_name, "gl_hud_offset_pos", _prefix);
+	if (pSettings->line_exist(sect_name, val_name))
+		m_hands_offset[0][2] = pSettings->r_fvector3(sect_name, val_name);
+	else
+		m_hands_offset[0][2] = { 0.f, 0.f, 0.f };
+
+	strconcat(sizeof(val_name), val_name, "gl_hud_offset_rot", _prefix);
+	if (pSettings->line_exist(sect_name, val_name))
+		m_hands_offset[1][2] = pSettings->r_fvector3(sect_name, val_name);
+	else
+		m_hands_offset[1][2] = { 0.f, 0.f, 0.f };
 
 	R_ASSERT2(pSettings->line_exist(sect_name,"fire_point")==pSettings->line_exist(sect_name,"fire_bone"),		sect_name.c_str());
 	R_ASSERT2(pSettings->line_exist(sect_name,"fire_point2")==pSettings->line_exist(sect_name,"fire_bone2"),	sect_name.c_str());

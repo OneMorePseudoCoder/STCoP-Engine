@@ -5,9 +5,6 @@
 #include "IInputReceiver.h"
 #include "../include/editor/ide.hpp"
 
-#ifndef _EDITOR
-# include "xr_input_xinput.h"
-#endif
 CInput* pInput = NULL;
 IInputReceiver dummyController;
 
@@ -262,42 +259,6 @@ void CInput::KeyUpdate()
     if (b_alt_tab)
         SendMessage(Device.m_hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 #endif
-    /*
-    #ifndef _EDITOR
-    //update xinput if exist
-    for( DWORD iUserIndex=0; iUserIndex<DXUT_MAX_CONTROLLERS; iUserIndex++ )
-    {
-    DXUTGetGamepadState( iUserIndex, &g_GamePads[iUserIndex], true, false );
-
-    if( !g_GamePads[iUserIndex].bConnected )
-    continue; // unplugged?
-
-    bool new_b, old_b;
-    new_b = !!(g_GamePads[iUserIndex].wPressedButtons & XINPUT_GAMEPAD_A);
-    old_b = !!(g_GamePads[iUserIndex].wLastButtons & XINPUT_GAMEPAD_A);
-
-    if(new_b != old_b)
-    {
-    if(old_b)
-    cbStack.back()->IR_OnMousePress(0);
-    else
-    cbStack.back()->IR_OnMouseRelease(0);
-    }
-    int dx,dy;
-    dx = iFloor(g_GamePads[iUserIndex].fThumbRX*6);
-    dy = iFloor(g_GamePads[iUserIndex].fThumbRY*6);
-    if(dx || dy)
-    cbStack.back()->IR_OnMouseMove ( dx, dy );
-    }
-
-    if(Device.fTimeGlobal > stop_vibration_time)
-    {
-    stop_vibration_time = flt_max;
-    set_vibration (0, 0);
-    }
-    //xinput
-    #endif
-    */
 }
 bool CInput::get_dik_name(int dik, LPSTR dest_str, int dest_sz)
 {
@@ -637,6 +598,7 @@ void CInput::exclusive_mode(const bool& exclusive)
     unacquire();
     acquire(exclusive);
 }
+
 bool CInput::get_exclusive_mode()
 {
     return g_exclusive;
@@ -645,7 +607,4 @@ bool CInput::get_exclusive_mode()
 void CInput::feedback(u16 s1, u16 s2, float time)
 {
     stop_vibration_time = RDEVICE.fTimeGlobal + time;
-#ifndef _EDITOR
-    //. set_vibration (s1, s2);
-#endif
 }

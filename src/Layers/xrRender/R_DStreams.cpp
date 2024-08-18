@@ -9,12 +9,11 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-int		rsDVB_Size			= 512+1024;
+int		rsDVB_Size			= 4096;
 int		rsDIB_Size			= 512;
 
 void _VertexStream::Create	()
 {
-	//dxRenderDeviceRender::Instance().Resources->Evict		();
 	DEV->Evict();
 
 	mSize					= rsDVB_Size*1024;
@@ -166,7 +165,6 @@ void _VertexStream::_clear()
 //////////////////////////////////////////////////////////////////////////
 void	_IndexStream::Create	()
 {
-	//dxRenderDeviceRender::Instance().Resources->Evict		();
 	DEV->Evict();
 
 	mSize					= rsDIB_Size*1024;
@@ -263,8 +261,8 @@ void	_IndexStream::reset_begin	()
 	old_pIB				= pIB;
 	Destroy				();
 }
+
 void	_IndexStream::reset_end	()
 {
 	Create				();
-	//old_pIB				= NULL;
 }
