@@ -443,12 +443,7 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 }
 
 void CInventory::Activate(u16 slot, bool bForce) 
-{	
-	if(!OnServer())
-	{
-		return;
-	}
-
+{
 	PIItem tmp_item = NULL;
 	if (slot != NO_ACTIVE_SLOT)
 		tmp_item = ItemFromSlot(slot);
@@ -548,37 +543,9 @@ bool CInventory::Action(u16 cmd, u32 flags)
 		};
 	};
 
-	if (g_pGameLevel && OnClient() && pActor) 
-	{
-		switch(cmd)
-		{
-		case kUSE:		break;
-		
-		case kDROP:		
-			{
-				SendActionEvent	(cmd, flags);
-				return			true;
-			}break;
+	if (ActiveItem() && ActiveItem()->Action(cmd, flags)) 
+		return true;
 
-		case kWPN_NEXT:
-		case kWPN_RELOAD:
-		case kWPN_FIRE:
-		case kWPN_FUNC:
-		case kWPN_FIREMODE_NEXT:
-		case kWPN_FIREMODE_PREV:
-		case kWPN_ZOOM	 : 
-		case kTORCH:
-		case kNIGHT_VISION:
-			{
-				SendActionEvent(cmd, flags);
-			}break;
-		}
-	}
-
-
-	if (	ActiveItem() && 
-			ActiveItem()->Action(cmd, flags)) 
-											return true;
 	bool b_send_event = false;
 	switch(cmd) 
 	{
@@ -612,9 +579,6 @@ bool CInventory::Action(u16 cmd, u32 flags)
 		}break;
 	}
 
-	if (b_send_event && g_pGameLevel && OnClient() && pActor)
-		SendActionEvent(cmd, flags);
-
 	return false;
 }
 
@@ -631,60 +595,50 @@ void CInventory::ActiveWeapon( u16 slot )
 
 void CInventory::Update() 
 {
-	if( OnServer() )
+	if (m_iActiveSlot != m_iNextActiveSlot)
 	{
-		if(m_iActiveSlot!=m_iNextActiveSlot)
+		CObject* pActor_owner = smart_cast<CObject*>(m_pOwner);
+		if (Level().CurrentViewEntity() == pActor_owner)
 		{
-			CObject* pActor_owner = smart_cast<CObject*>(m_pOwner);
-			if (Level().CurrentViewEntity() == pActor_owner)
-			{
-				if(	(m_iNextActiveSlot!=NO_ACTIVE_SLOT) && 
-					 ItemFromSlot(m_iNextActiveSlot)	&&
-					 !g_player_hud->allow_activation(ItemFromSlot(m_iNextActiveSlot)->cast_hud_item())
-				   )
-				   return;
-			}
-			if( ActiveItem() )
-			{
-				CHudItem* hi = ActiveItem()->cast_hud_item();
-				
-				if(!hi->IsHidden())
-				{
-					if(hi->GetState()==CHUDState::eIdle && hi->GetNextState()==CHUDState::eIdle)
-						hi->SendDeactivateItem();
-
-					UpdateDropTasks	();
-					return;
-				}
-			}
-			
-			if (GetNextActiveSlot() != NO_ACTIVE_SLOT)
-			{
-				PIItem tmp_next_active = ItemFromSlot(GetNextActiveSlot());
-				if (tmp_next_active)
-				{
-					if (IsSlotBlocked(tmp_next_active))
-					{
-						Activate(m_iActiveSlot);
-						return;
-					} else
-					{
-						tmp_next_active->ActivateItem();
-					}
-				}
-			}
-			
-//			if ( m_iActiveSlot != GetNextActiveSlot() ) {
-//				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-//					LogStackTrace	("");
-//				Msg					("[%6d][%s] CInventory::Activate changing active slot from %d to next active slot %d", Device.dwTimeGlobal, name, m_iActiveSlot, GetNextActiveSlot() );
-//			}
-			m_iActiveSlot			= GetNextActiveSlot();
+			if ((m_iNextActiveSlot!=NO_ACTIVE_SLOT) && ItemFromSlot(m_iNextActiveSlot) && !g_player_hud->allow_activation(ItemFromSlot(m_iNextActiveSlot)->cast_hud_item()))
+				return;
 		}
-		if((GetNextActiveSlot()!=NO_ACTIVE_SLOT) && ActiveItem() && ActiveItem()->cast_hud_item()->IsHidden())
-				ActiveItem()->ActivateItem();
+
+		if (ActiveItem())
+		{
+			CHudItem* hi = ActiveItem()->cast_hud_item();
+			if (!hi->IsHidden())
+			{
+				if (hi->GetState() == CHUDState::eIdle && hi->GetNextState() == CHUDState::eIdle)
+					hi->SendDeactivateItem();
+
+				UpdateDropTasks	();
+				return;
+			}
+		}
+
+		if (GetNextActiveSlot() != NO_ACTIVE_SLOT)
+		{
+			PIItem tmp_next_active = ItemFromSlot(GetNextActiveSlot());
+			if (tmp_next_active)
+			{
+				if (IsSlotBlocked(tmp_next_active))
+				{
+					Activate(m_iActiveSlot);
+					return;
+				} 
+				else
+				{
+					tmp_next_active->ActivateItem();
+				}
+			}
+		}
+		m_iActiveSlot			= GetNextActiveSlot();
 	}
+
+	if ((GetNextActiveSlot()!=NO_ACTIVE_SLOT) && ActiveItem() && ActiveItem()->cast_hud_item()->IsHidden())
+		ActiveItem()->ActivateItem();
+
 	UpdateDropTasks	();
 }
 
@@ -724,13 +678,10 @@ void CInventory::UpdateDropItem(PIItem pIItem)
 		pIItem->SetDropManual(FALSE);
 		pIItem->DenyTrade();
 
-		if ( OnServer() ) 
-		{
-			NET_Packet					P;
-			pIItem->object().u_EventGen	(P, GE_OWNERSHIP_REJECT, pIItem->object().H_Parent()->ID());
-			P.w_u16						(u16(pIItem->object().ID()));
-			pIItem->object().u_EventSend(P);
-		}
+		NET_Packet					P;
+		pIItem->object().u_EventGen	(P, GE_OWNERSHIP_REJECT, pIItem->object().H_Parent()->ID());
+		P.w_u16						(u16(pIItem->object().ID()));
+		pIItem->object().u_EventSend(P);
 	}// dropManual
 }
 
@@ -739,23 +690,20 @@ PIItem CInventory::Same(const PIItem pIItem, bool bSearchRuck) const
 {
 	const TIItemContainer &list = bSearchRuck ? m_ruck : m_belt;
 
-	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		const PIItem l_pIItem = *it;
-		
-		if((l_pIItem != pIItem) && 
-				!xr_strcmp(l_pIItem->object().cNameSect(), 
-				pIItem->object().cNameSect())) 
+		if ((l_pIItem != pIItem) && !xr_strcmp(l_pIItem->object().cNameSect(), pIItem->object().cNameSect())) 
 			return l_pIItem;
 	}
 	return NULL;
 }
 
 //ищем на поясе вещь для слота 
-
 PIItem CInventory::SameSlot(const u16 slot, PIItem pIItem, bool bSearchRuck) const
 {
-	if(slot == NO_ACTIVE_SLOT) 	return NULL;
+	if (slot == NO_ACTIVE_SLOT) 	
+		return NULL;
 
 	const TIItemContainer &list = bSearchRuck ? m_ruck : m_belt;
 	
@@ -773,12 +721,11 @@ PIItem CInventory::Get(LPCSTR name, bool bSearchRuck) const
 {
 	const TIItemContainer &list = bSearchRuck ? m_ruck : m_belt;
 	
-	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(!xr_strcmp(pIItem->object().cNameSect(), name) && 
-								pIItem->Useful()) 
-				return pIItem;
+		if (!xr_strcmp(pIItem->object().cNameSect(), name) && pIItem->Useful()) 
+			return pIItem;
 	}
 	return NULL;
 }
@@ -787,11 +734,10 @@ PIItem CInventory::Get(CLASS_ID cls_id, bool bSearchRuck) const
 {
 	const TIItemContainer &list = bSearchRuck ? m_ruck : m_belt;
 	
-	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem->object().CLS_ID == cls_id && 
-								pIItem->Useful()) 
+		if (pIItem->object().CLS_ID == cls_id && pIItem->Useful()) 
 				return pIItem;
 	}
 	return NULL;
@@ -801,12 +747,13 @@ PIItem CInventory::Get(const u16 id, bool bSearchRuck) const
 {
 	const TIItemContainer &list = bSearchRuck ? m_ruck : m_belt;
 
-	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem->object().ID() == id) 
+		if (pIItem->object().ID() == id) 
 			return pIItem;
 	}
+
 	return NULL;
 }
 
@@ -814,8 +761,9 @@ PIItem CInventory::Get(const u16 id, bool bSearchRuck) const
 PIItem CInventory::GetAny(LPCSTR name) const
 {
 	PIItem itm = Get(name, false);
-	if(!itm)
+	if (!itm)
 		itm = Get(name, true);
+
 	return itm;
 }
 
@@ -823,13 +771,13 @@ PIItem CInventory::item(CLASS_ID cls_id) const
 {
 	const TIItemContainer &list = m_all;
 
-	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem->object().CLS_ID == cls_id && 
-			pIItem->Useful()) 
+		if (pIItem->object().CLS_ID == cls_id && pIItem->Useful()) 
 			return pIItem;
 	}
+
 	return NULL;
 }
 
@@ -839,17 +787,15 @@ float CInventory::TotalWeight() const
 	return m_fTotalWeight;
 }
 
-
 float CInventory::CalcTotalWeight()
 {
 	float weight = 0;
-	for(TIItemContainer::const_iterator it = m_all.begin(); m_all.end() != it; ++it) 
+	for (TIItemContainer::const_iterator it = m_all.begin(); m_all.end() != it; ++it) 
 		weight += (*it)->Weight();
 
 	m_fTotalWeight = weight;
 	return m_fTotalWeight;
 }
-
 
 u32 CInventory::dwfGetSameItemCount(LPCSTR caSection, bool SearchAll)
 {
@@ -864,6 +810,7 @@ u32 CInventory::dwfGetSameItemCount(LPCSTR caSection, bool SearchAll)
 	
 	return		(l_dwCount);
 }
+
 u32		CInventory::dwfGetGrenadeCount(LPCSTR caSection, bool SearchAll)
 {
 	u32			l_dwCount = 0;
@@ -966,7 +913,8 @@ bool CInventory::ClientEat(PIItem pIItem)
 
 bool CInventory::InSlot(const CInventoryItem* pIItem) const
 {
-	if(pIItem->CurrPlace() != eItemPlaceSlot)	return false;
+	if (pIItem->CurrPlace() != eItemPlaceSlot)	
+		return false;
 
 	VERIFY(m_slots[pIItem->CurrSlot()].m_pIItem == pIItem);
 
@@ -975,16 +923,19 @@ bool CInventory::InSlot(const CInventoryItem* pIItem) const
 
 bool CInventory::InBelt(const CInventoryItem* pIItem) const
 {
-	if(Get(pIItem->object().ID(), false)) return true;
+	if (Get(pIItem->object().ID(), false)) 
+		return true;
+
 	return false;
 }
 
 bool CInventory::InRuck(const CInventoryItem* pIItem) const
 {
-	if(Get(pIItem->object().ID(), true)) return true;
+	if (Get(pIItem->object().ID(), true))
+		return true;
+
 	return false;
 }
-
 
 bool CInventory::CanPutInSlot(PIItem pIItem, u16 slot_id) const
 {
@@ -1006,6 +957,7 @@ bool CInventory::CanPutInSlot(PIItem pIItem, u16 slot_id) const
 	
 	return false;
 }
+
 //проверяет можем ли поместить вещь на пояс,
 //при этом реально ничего не меняется
 bool CInventory::CanPutInBelt(PIItem pIItem)
@@ -1017,6 +969,7 @@ bool CInventory::CanPutInBelt(PIItem pIItem)
 
 	return FreeRoom_inBelt(m_belt, pIItem, BeltWidth(), 1);
 }
+
 //проверяет можем ли поместить вещь в рюкзак,
 //при этом реально ничего не меняется
 bool CInventory::CanPutInRuck(PIItem pIItem) const
@@ -1032,14 +985,16 @@ u32	CInventory::dwfGetObjectCount()
 
 CInventoryItem	*CInventory::tpfGetObjectByIndex(int iIndex)
 {
-	if ((iIndex >= 0) && (iIndex < (int)m_all.size())) {
+	if ((iIndex >= 0) && (iIndex < (int)m_all.size())) 
+	{
 		TIItemContainer	&l_list = m_all;
 		int			i = 0;
 		for(TIItemContainer::iterator l_it = l_list.begin(); l_list.end() != l_it; ++l_it, ++i) 
 			if (i == iIndex)
                 return	(*l_it);
 	}
-	else {
+	else 
+	{
 		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"invalid inventory index!");
 		return	(0);
 	}
@@ -1061,7 +1016,6 @@ CInventoryItem	*CInventory::GetItemFromInventory(LPCSTR caItemName)
 	return	(0);
 }
 
-
 bool CInventory::CanTakeItem(CInventoryItem *inventory_item) const
 {
 	VERIFY			(inventory_item);
@@ -1082,7 +1036,6 @@ bool CInventory::CanTakeItem(CInventoryItem *inventory_item) const
 
 	return	true;
 }
-
 
 u32  CInventory::BeltWidth() const
 {
@@ -1146,7 +1099,6 @@ bool CInventory::isBeautifulForActiveSlot	(CInventoryItem *pIItem)
 	return				(false);
 }
 
-//.#include "WeaponHUD.h"
 void CInventory::Items_SetCurrentEntityHud(bool current_entity)
 {
 	TIItemContainer::iterator it;
@@ -1165,8 +1117,6 @@ void CInventory::Items_SetCurrentEntityHud(bool current_entity)
 //call this only via Actor()->SetWeaponHideState()
 void CInventory::SetSlotsBlocked(u16 mask, bool bBlock)
 {
-	R_ASSERT(OnServer());
-
 	for(u16 i = FirstSlot(), ie = LastSlot(); i <= ie; ++i)
 	{
 		if(mask & (1<<i))
@@ -1181,7 +1131,8 @@ void CInventory::SetSlotsBlocked(u16 mask, bool bBlock)
 	if (bBlock)
 	{
 		TryDeactivateActiveSlot();	
-	} else
+	} 
+	else
 	{
 		TryActivatePrevSlot();
 	}
@@ -1192,16 +1143,10 @@ void CInventory::TryActivatePrevSlot()
 	u16 ActiveSlot		= GetActiveSlot();
 	u16 PrevActiveSlot	= GetPrevActiveSlot();
 	u16 NextActiveSlot	= GetNextActiveSlot();
-	if ((
-			(ActiveSlot == NO_ACTIVE_SLOT) ||
-			(NextActiveSlot == NO_ACTIVE_SLOT)
-		) &&
-		(PrevActiveSlot != NO_ACTIVE_SLOT))
+	if (((ActiveSlot == NO_ACTIVE_SLOT) || (NextActiveSlot == NO_ACTIVE_SLOT)) && (PrevActiveSlot != NO_ACTIVE_SLOT))
 	{
 		PIItem prev_active_item = ItemFromSlot(PrevActiveSlot);
-		if (prev_active_item &&
-			!IsSlotBlocked(prev_active_item) &&
-			m_slots[PrevActiveSlot].CanBeActivated())
+		if (prev_active_item && !IsSlotBlocked(prev_active_item) && m_slots[PrevActiveSlot].CanBeActivated())
 		{
 #ifndef MASTER_GOLD
 			Msg("Set slots blocked: activating prev slot [%d], Frame[%d]", PrevActiveSlot, Device.dwFrame);
@@ -1220,14 +1165,10 @@ void CInventory::TryDeactivateActiveSlot	()
 	if ((ActiveSlot == NO_ACTIVE_SLOT) && (NextActiveSlot == NO_ACTIVE_SLOT))
 		return;
 	
-	PIItem		active_item = (ActiveSlot != NO_ACTIVE_SLOT) ? 
-		ItemFromSlot(ActiveSlot) : NULL;
-	PIItem		next_active_item = (NextActiveSlot != NO_ACTIVE_SLOT) ?
-		ItemFromSlot(NextActiveSlot) : NULL;
+	PIItem		active_item = (ActiveSlot != NO_ACTIVE_SLOT) ? ItemFromSlot(ActiveSlot) : NULL;
+	PIItem		next_active_item = (NextActiveSlot != NO_ACTIVE_SLOT) ? ItemFromSlot(NextActiveSlot) : NULL;
 
-	if (active_item &&
-		(IsSlotBlocked(active_item) || !m_slots[ActiveSlot].CanBeActivated())
-		)
+	if (active_item && (IsSlotBlocked(active_item) || !m_slots[ActiveSlot].CanBeActivated()))
 	{
 #ifndef MASTER_GOLD
 		Msg("Set slots blocked: activating slot [-1], Frame[%d]", Device.dwFrame);
@@ -1235,9 +1176,8 @@ void CInventory::TryDeactivateActiveSlot	()
 		ItemFromSlot(ActiveSlot)->DiscardState();
 		Activate			(NO_ACTIVE_SLOT);
 		SetPrevActiveSlot	(ActiveSlot);
-	} else if (next_active_item &&
-		(IsSlotBlocked(next_active_item) || !m_slots[NextActiveSlot].CanBeActivated())
-		)
+	} 
+	else if (next_active_item && (IsSlotBlocked(next_active_item) || !m_slots[NextActiveSlot].CanBeActivated()))
 	{
 		Activate			(NO_ACTIVE_SLOT);
 		SetPrevActiveSlot	(NextActiveSlot);
@@ -1250,15 +1190,13 @@ void CInventory::BlockSlot(u16 slot_id)
 	
 	++m_blocked_slots[slot_id];
 	
-	VERIFY2(m_blocked_slots[slot_id] < 5,
-		make_string("blocked slot [%d] overflow").c_str());	
+	VERIFY2(m_blocked_slots[slot_id] < 5, make_string("blocked slot [%d] overflow").c_str());	
 }
 
 void CInventory::UnblockSlot(u16 slot_id)
 {
 	VERIFY(slot_id <= LAST_SLOT);
-	VERIFY2(m_blocked_slots[slot_id] > 0,
-		make_string("blocked slot [%d] underflow").c_str());	
+	VERIFY2(m_blocked_slots[slot_id] > 0, make_string("blocked slot [%d] underflow").c_str());	
 	
 	--m_blocked_slots[slot_id];	
 }

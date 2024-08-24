@@ -215,13 +215,12 @@ u8 CWeaponAutomaticShotgun::AddCartridge		(u8 cnt)
 		++iAmmoElapsed;
 		l_cartridge.m_LocalAmmoType = m_ammoType;
 		m_magazine.push_back(l_cartridge);
-//		m_fCurrentCartirdgeDisp = l_cartridge.m_kDisp;
 	}
 
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
 	//выкинуть коробку патронов, если она пустая
-	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
+	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr) 
 		m_pCurrentAmmo->SetDropManual(TRUE);
 
 	return cnt;

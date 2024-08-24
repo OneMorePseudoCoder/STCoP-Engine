@@ -6,12 +6,10 @@
 //	Description : Inventory item
 ////////////////////////////////////////////////////////////////////////////
 
-//#include "stdafx.h"
 #include "pch_script.h"
 #include "inventory_item.h"
 #include "inventory_item_impl.h"
 #include "inventory.h"
-//#include "Physics.h"
 #include "physicsshellholder.h"
 #include "entity_alive.h"
 #include "Level.h"
@@ -22,7 +20,6 @@
 #include "ai_object_location.h"
 #include "object_broker.h"
 #include "../xrEngine/igame_persistent.h"
-
 
 #ifdef DEBUG
 #	include "debug_renderer.h"
@@ -258,7 +255,6 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 			state.position = p;
 			state.previous_position = p;
 			pSyncObj->set_State(state);
-
 		}break;
 	}
 }
@@ -268,13 +264,11 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 //объекте, поэтому функция должна быть переопределена
 bool CInventoryItem::Detach(const char* item_section_name, bool b_spawn_item) 
 {
-	if (OnClient()) return true;
 	if(b_spawn_item)
 	{
 		CSE_Abstract*		D	= F_entity_Create(item_section_name);
 		R_ASSERT		   (D);
-		CSE_ALifeDynamicObject	*l_tpALifeDynamicObject = 
-								smart_cast<CSE_ALifeDynamicObject*>(D);
+		CSE_ALifeDynamicObject	*l_tpALifeDynamicObject = smart_cast<CSE_ALifeDynamicObject*>(D);
 		R_ASSERT			(l_tpALifeDynamicObject);
 		
 		l_tpALifeDynamicObject->m_tNodeID = (g_dedicated_server)?u32(-1):object().ai_location().level_vertex_id();
@@ -307,13 +301,11 @@ BOOL CInventoryItem::net_Spawn			(CSE_Abstract* DC)
 
 	m_flags.set						(FInInterpolation, FALSE);
 	m_flags.set						(FInInterpolate,	FALSE);
-//	m_bInInterpolation				= false;
-//	m_bInterpolate					= false;
-
 	m_flags.set						(Fuseful_for_NPC, TRUE);
 	CSE_Abstract					*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeObject					*alife_object = smart_cast<CSE_ALifeObject*>(e);
-	if (alife_object)	{
+	if (alife_object)	
+	{
 		m_flags.set(Fuseful_for_NPC, alife_object->m_flags.test(CSE_ALifeObject::flUsefulForAI));
 	}
 
@@ -537,33 +529,7 @@ void CInventoryItem::PH_A_CrPr()
 };
 
 void CInventoryItem::Interpolate()
-{
-	net_updateInvData* p = NetSync();
-	CPHSynchronize* pSyncObj = object().PHGetSyncItem(0);
-
-	//simple linear interpolation...
-	if (!object().H_Parent() && object().getVisible() && object().m_pPhysicsShell && !OnServer() && p->NET_IItem.size())
-	{
-		SPHNetState newState = p->NET_IItem.front().State;
-		if (p->NET_IItem.size() >= 2)
-		{
-			float ret_interpolate = interpolate_states(p->NET_IItem.front(), p->NET_IItem.back(), newState);
-			if (ret_interpolate >= 1.f)
-			{
-				p->NET_IItem.pop_front();
-				if (m_activated)
-				{
-#ifdef DEBUG
-					Msg("Deactivating object [%d] after interpolation finish", object().ID());
-#endif // #ifdef DEBUG
-					object().processing_deactivate();
-					m_activated = false;
-				}
-			}
-		}
-		pSyncObj->set_State(newState);
-	}
-}
+{}
 
 float CInventoryItem::interpolate_states(net_update_IItem const & first, net_update_IItem const & last, SPHNetState & current)
 {

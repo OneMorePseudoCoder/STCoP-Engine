@@ -13,6 +13,7 @@ class CUIXml;
 class CUIFrameWindow;
 class UIHint;
 class CUITaskWnd;
+class CUIFactionWarWnd;
 class CUIRankingWnd;
 class CUILogsWnd;
 class CUIAnimatedStatic;
@@ -41,6 +42,7 @@ protected:
 
 public:
 	CUITaskWnd*				pUITaskWnd;
+    CUIFactionWarWnd*		pUIFactionWarWnd;
 	CUIRankingWnd*			pUIRankingWnd;
 	CUILogsWnd*				pUILogsWnd;
 

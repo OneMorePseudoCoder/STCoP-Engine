@@ -16,8 +16,6 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 	shared_str			s_name;
 	P.r_stringZ			(s_name);
 
-	//Msg("Spawn object %s [%d]b", s_name.c_str(), P.B.count);
-
 	// Create DC (xrSE)
 	CSE_Abstract*	E	= F_entity_Create	(*s_name);
 	R_ASSERT2(E, *s_name);
@@ -32,22 +30,13 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 		F_entity_Destroy(E);
 		return;
 	}
-//-------------------------------------------------
-//.	Msg ("M_SPAWN - %s[%d][%x] - %d %d", *s_name,  E->ID, E,E->ID_Parent, Device.dwFrame);
-//-------------------------------------------------
-	//force object to be local for server client
-	if (OnServer())		{
-		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
-	};
 
-	/*
-	game_spawn_queue.push_back(E);
-	if (g_bDebugEvents)		ProcessGameSpawns();
-	/*/
+	//force object to be local for server client
+	E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
+
 	g_sv_Spawn					(E);
 
 	F_entity_Destroy			(E);
-	//*/
 };
 
 void CLevel::g_cl_Spawn		(LPCSTR name, u8 rp, u16 flags, Fvector pos)

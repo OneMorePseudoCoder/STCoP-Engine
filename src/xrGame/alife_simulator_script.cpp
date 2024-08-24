@@ -46,7 +46,6 @@ bool valid_object_id						(const CALifeSimulator *self, ALife::_OBJECT_ID object
 	return			(object_id != 0xffff);
 }
 
-#ifdef DEBUG
 CSE_ALifeDynamicObject *alife_object		(const CALifeSimulator *self, LPCSTR name)
 {
 	VERIFY			(self);
@@ -59,7 +58,6 @@ CSE_ALifeDynamicObject *alife_object		(const CALifeSimulator *self, LPCSTR name)
 	
 	return			(0);
 }
-#endif // #ifdef DEBUG
 
 CSE_ALifeDynamicObject *alife_object		(const CALifeSimulator *self, ALife::_OBJECT_ID id, bool no_assert)
 {
@@ -199,8 +197,6 @@ CSE_Abstract *CALifeSimulator__spawn_item2		(CALifeSimulator *self, LPCSTR secti
 
 CSE_Abstract *CALifeSimulator__spawn_ammo		(CALifeSimulator *self, LPCSTR section, const Fvector &position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent, int ammo_to_spawn)
 {
-//	if (id_parent == ALife::_OBJECT_ID(-1))
-//		return							(self->spawn_item(section,position,level_vertex_id,game_vertex_id,id_parent));
 	CSE_ALifeDynamicObject				*object = 0;
 	if (id_parent != ALife::_OBJECT_ID(-1)) {
 		object							= ai().alife().objects().object(id_parent,true);
@@ -210,7 +206,8 @@ CSE_Abstract *CALifeSimulator__spawn_ammo		(CALifeSimulator *self, LPCSTR sectio
 		}
 	}
 
-	if (!object || !object->m_bOnline) {
+	if (!object || !object->m_bOnline) 
+	{
 		CSE_Abstract					*item = self->spawn_item(section,position,level_vertex_id,game_vertex_id,id_parent);
 
 		CSE_ALifeItemAmmo				*ammo = smart_cast<CSE_ALifeItemAmmo*>(item);
@@ -253,14 +250,16 @@ ALife::_SPAWN_ID CALifeSimulator__spawn_id		(CALifeSimulator *self, ALife::_SPAW
 void CALifeSimulator__release					(CALifeSimulator *self, CSE_Abstract *object, bool)
 {
 	VERIFY								(self);
-//	self->release						(object,true);
 
 	THROW								(object);
-	if (!object) return;
+	if (!object) 
+		return;
 	CSE_ALifeObject						*alife_object = smart_cast<CSE_ALifeObject*>(object);
 	THROW								(alife_object);
-	if (!alife_object) return;
-	if (!alife_object->m_bOnline) {
+	if (!alife_object) 
+		return;
+	if (!alife_object->m_bOnline) 
+	{
 		self->release					(object,true);
 		return;
 	}
@@ -311,16 +310,6 @@ bool dont_has_info								(const CALifeSimulator *self, const ALife::_OBJECT_ID 
 	return								(!has_info(self,id,info_id));
 }
 
-//void disable_info_portion						(const CALifeSimulator *self, const ALife::_OBJECT_ID &id)
-//{
-//	THROW								(self);
-//}
-
-//void give_info_portion							(const CALifeSimulator *self, const ALife::_OBJECT_ID &id)
-//{
-//	THROW								(self);
-//}
-
 #pragma optimize("s",on)
 void CALifeSimulator::script_register			(lua_State *L)
 {
@@ -332,6 +321,7 @@ void CALifeSimulator::script_register			(lua_State *L)
 			.def("level_name",				&get_level_name)
 			.def("object",					(CSE_ALifeDynamicObject *(*) (const CALifeSimulator *,ALife::_OBJECT_ID))(alife_object))
 			.def("object",					(CSE_ALifeDynamicObject *(*) (const CALifeSimulator *,ALife::_OBJECT_ID, bool))(alife_object))
+	        .def("object",					(CSE_ALifeDynamicObject *(*) (const CALifeSimulator *,LPCSTR))(alife_object))
 			.def("story_object",			(CSE_ALifeDynamicObject *(*) (const CALifeSimulator *,ALife::_STORY_ID))(alife_story_object))
 			.def("set_switch_online",		(void (CALifeSimulator::*) (ALife::_OBJECT_ID,bool))(&CALifeSimulator::set_switch_online))
 			.def("set_switch_offline",		(void (CALifeSimulator::*) (ALife::_OBJECT_ID,bool))(&CALifeSimulator::set_switch_offline))

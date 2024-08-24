@@ -56,17 +56,14 @@ void CHudItem::renderable_Render()
 	UpdateXForm					();
 	BOOL _hud_render			= ::Render->get_HUD() && GetHUDmode();
 	
-	if(_hud_render  && !IsHidden())
-	{ 
-	}
-	else 
+	if(_hud_render && IsHidden())
 	{
 		if (!object().H_Parent() || (!_hud_render && !IsHidden()))
 		{
 			on_renderable_Render		();
 			debug_draw_firedeps			();
-		}else
-		if (object().H_Parent()) 
+		}
+		else if (object().H_Parent()) 
 		{
 			CInventoryOwner	*owner = smart_cast<CInventoryOwner*>(object().H_Parent());
 			VERIFY			(owner);
@@ -79,9 +76,6 @@ void CHudItem::renderable_Render()
 
 void CHudItem::SwitchState(u32 S)
 {
-	if (OnClient()) 
-		return;
-
 	SetNextState( S );
 
 	if (object().Local() && !object().getDestroy())	

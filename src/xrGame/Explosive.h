@@ -12,6 +12,7 @@
 #include "../xrphysics/DamageSource.h"
 #include "wallmark_manager.h"
 #include "ParticlesObject.h"
+
 class IRender_Light;
 DEFINE_VECTOR(CPhysicsShellHolder*,BLASTED_OBJECTS_V,BLASTED_OBJECTS_I);
 class CExplosive : 

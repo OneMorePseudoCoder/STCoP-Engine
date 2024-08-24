@@ -668,17 +668,14 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, bool to
 
 void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, Fvector &vector3d, bool torso_look = false)
 {
-	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
-	if (!stalker)
-		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
-	else {
-		if ( (sight_type == SightManager::eSightTypeDirection) && (_abs(vector3d.magnitude() - 1.f) > .01f) ) {
-			VERIFY2				( false, make_string("non-normalized direction passed [%f][%f][%f]", VPUSH(vector3d)) );
-			vector3d.normalize	( );
-		}
+	//morrey 
+	CAI_Stalker *stalker = smart_cast<CAI_Stalker*>(&object());
 
-		stalker->sight().setup	(sight_type,vector3d,torso_look);
-	}
+	if (!stalker)
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError, "CSightManager : cannot access class member set_sight!");
+	else
+		stalker->sight().setup(sight_type, vector3d, torso_look);
+	//morrey 
 }
 
 void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, Fvector *vector3d)

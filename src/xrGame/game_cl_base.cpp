@@ -355,15 +355,6 @@ void game_cl_GameState::u_EventSend(NET_Packet& P)
 
 void				game_cl_GameState::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 {
-	switch (old_phase)
-	{
-	case GAME_PHASE_INPROGRESS:
-		{
-		}break;
-	default:
-		{
-		}break;
-	};
 }
 
 void game_cl_GameState::SendPickUpEvent(u16 ID_who, u16 ID_what)
@@ -381,11 +372,6 @@ void game_cl_GameState::set_type_name(LPCSTR s)
 { 
 	EGameIDs gid =			eGameIDSingle;
 	m_game_type_name		= "single";
-	if(OnClient())
-	{
-		xr_strcpy					(g_pGamePersistent->m_game_params.m_game_type, m_game_type_name.c_str());
-		g_pGamePersistent->OnGameStart();
-	}
 };
 
 void game_cl_GameState::OnConnected()

@@ -50,17 +50,15 @@ void CArtefact::Load(LPCSTR section)
 {
 	inherited::Load			(section);
 
-
 	if (pSettings->line_exist(section, "particles"))
 		m_sParticlesName	= pSettings->r_string(section, "particles");
 
 	m_bLightsEnabled		= !!pSettings->r_bool(section, "lights_enabled");
-	if(m_bLightsEnabled){
-		sscanf(pSettings->r_string(section,"trail_light_color"), "%f,%f,%f", 
-			&m_TrailLightColor.r, &m_TrailLightColor.g, &m_TrailLightColor.b);
+	if(m_bLightsEnabled)
+	{
+		sscanf(pSettings->r_string(section,"trail_light_color"), "%f,%f,%f", &m_TrailLightColor.r, &m_TrailLightColor.g, &m_TrailLightColor.b);
 		m_fTrailLightRange	= pSettings->r_float(section,"trail_light_range");
 	}
-
 
 	m_fHealthRestoreSpeed    = pSettings->r_float	(section,"health_restore_speed"		);
 	m_fRadiationRestoreSpeed = pSettings->r_float	(section,"radiation_restore_speed"	);
@@ -103,7 +101,7 @@ void CArtefact::net_Destroy()
 	inherited::net_Destroy			();
 
 	StopLights						();
-	if(m_pTrailLight)
+	if (m_pTrailLight)
 		m_pTrailLight.destroy		();
 
 	CPHUpdateObject::Deactivate		();
@@ -118,7 +116,7 @@ void CArtefact::OnH_A_Chield()
 	StopLights();
 	SwitchAfParticles(false);
 
-	if(m_detectorObj)
+	if (m_detectorObj)
 	{
 		m_detectorObj->m_currPatrolPath = NULL;
 		m_detectorObj->m_currPatrolVertex = NULL;
@@ -136,17 +134,18 @@ void CArtefact::OnH_B_Independent(bool just_before_destroy)
 
 void CArtefact::SwitchAfParticles(bool bOn)
 {
-	if(m_sParticlesName.size()==0)
+	if (m_sParticlesName.size()==0)
 		return;
 
-	if(bOn)
+	if (bOn)
 	{
-			Fvector dir;
-			dir.set(0,1,0);
-			CParticlesPlayer::StartParticles(m_sParticlesName,dir,ID(),-1, false);
-	}else
+		Fvector dir;
+		dir.set(0,1,0);
+		CParticlesPlayer::StartParticles(m_sParticlesName,dir,ID(),-1, false);
+	}
+	else
 	{
-			CParticlesPlayer::StopParticles(m_sParticlesName, BI_NONE, true);
+		CParticlesPlayer::StopParticles(m_sParticlesName, BI_NONE, true);
 	}
 }
 
@@ -162,25 +161,11 @@ void CArtefact::UpdateCL		()
 
 void CArtefact::Interpolate()
 {
-	if (OnServer())
-		return;
-	
-	net_updateInvData* p = NetSync();
-	while (p->NET_IItem.size() > 1)	//in real no interpolation, just get latest state
-	{
-		p->NET_IItem.pop_front();
-	}
-	inherited::Interpolate();
-	
-	if (p->NET_IItem.size())	
-	{
-		p->NET_IItem.clear(); //same as p->NET_IItem.pop_front();
-	}
+	return;
 }
 
 void CArtefact::UpdateWorkload		(u32 dt) 
 {
-
 	VERIFY(!physics_world()->Processing());
 	// particles - velocity
 	Fvector vel = {0, 0, 0};

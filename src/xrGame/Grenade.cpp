@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "grenade.h"
 #include "../xrphysics/PhysicsShell.h"
-//.#include "WeaponHUD.h"
 #include "entity.h"
 #include "ParticlesObject.h"
 #include "actor.h"
@@ -199,14 +198,9 @@ void CGrenade::Destroy()
 	CExplosive::GenExplodeEvent	(Position(), normal);
 }
 
-
-
 bool CGrenade::Useful() const
 {
-
-	bool res = (/* !m_throw && */ m_dwDestroyTime == 0xffffffff && CExplosive::Useful() && TestServerFlag(CSE_ALifeObject::flCanSave));
-
-	return res;
+	return m_dwDestroyTime == 0xffffffff && CExplosive::Useful() && TestServerFlag(CSE_ALifeObject::flCanSave);
 }
 
 void CGrenade::OnEvent(NET_Packet& P, u16 type) 
@@ -217,8 +211,6 @@ void CGrenade::OnEvent(NET_Packet& P, u16 type)
 
 void CGrenade::PutNextToSlot()
 {
-	if (OnClient()) return;
-
 	VERIFY									(!getDestroy());
 	//выкинуть гранату из инвентаря
 	NET_Packet						P;

@@ -32,10 +32,10 @@ SArtefactActivation::SArtefactActivation(CArtefact* af,u32 owner_id)
 	m_owner_id		= owner_id;
 	m_in_process	= false;
 }
+
 SArtefactActivation::~SArtefactActivation()
 {
 	m_light.destroy();
-
 }
 
 void SArtefactActivation::Load()
@@ -45,12 +45,10 @@ void SArtefactActivation::Load()
 
 	LPCSTR activation_seq = pSettings->r_string(*m_af->cNameSect(),"artefact_activation_seq");
 
-
 	m_activation_states[(int)eStarting].Load(activation_seq,	"starting");
 	m_activation_states[(int)eFlying].Load(activation_seq,		"flying");
 	m_activation_states[(int)eBeforeSpawn].Load(activation_seq,	"idle_before_spawning");
 	m_activation_states[(int)eSpawnZone].Load(activation_seq,	"spawning");
-
 }
 
 void SArtefactActivation::Start()
@@ -65,8 +63,7 @@ void SArtefactActivation::Start()
 	NET_Packet						P;
 	CGameObject::u_EventGen			(P,GE_OWNERSHIP_REJECT, m_af->H_Parent()->ID());
 	P.w_u16							(m_af->ID());
-	if (OnServer())
-		CGameObject::u_EventSend		(P);
+	CGameObject::u_EventSend		(P);
 	m_light->set_active				(true);
 	ChangeEffects					();
 	m_in_process					= true;
@@ -88,10 +85,12 @@ void SArtefactActivation::UpdateActivation()
 
 	VERIFY(!physics_world()->Processing());
 	m_cur_state_time				+=	Device.fTimeDelta;
-	if(m_cur_state_time				>=	m_activation_states[int(m_cur_activation_state)].m_time){
+	if (m_cur_state_time				>=	m_activation_states[int(m_cur_activation_state)].m_time)
+	{
 		m_cur_activation_state		=	(EActivationStates)(int)(m_cur_activation_state+1);
 		
-		if(m_cur_activation_state == eMax){
+		if(m_cur_activation_state == eMax)
+		{
 			m_cur_activation_state = eNone;
 
 			m_af->processing_deactivate			();
@@ -102,10 +101,8 @@ void SArtefactActivation::UpdateActivation()
 		m_cur_state_time	= 0.0f;
 		ChangeEffects				();
 
-
-	if(m_cur_activation_state==eSpawnZone && OnServer())
-		SpawnAnomaly	();
-
+		if (m_cur_activation_state==eSpawnZone)
+			SpawnAnomaly	();
 	}
 	UpdateEffects				();
 }
@@ -117,15 +114,17 @@ void SArtefactActivation::PhDataUpdate(float step)
 	if (!m_af->m_pPhysicsShell)
 		return;
 	
-	if (m_cur_activation_state==eFlying) {
+	if (m_cur_activation_state==eFlying) 
+	{
 		Fvector dir	= {0, -1.f, 0};
-		if(Level().ObjectSpace.RayTest(m_af->Position(), dir, 1.0f, collide::rqtBoth,NULL,m_af) ){
+		if(Level().ObjectSpace.RayTest(m_af->Position(), dir, 1.0f, collide::rqtBoth,NULL,m_af) )
+		{
 			dir.y = physics_world()->Gravity()*1.1f; 
 			m_af->m_pPhysicsShell->applyGravityAccel(dir);
 		}
 	}
-
 }
+
 void SArtefactActivation::ChangeEffects()
 {
 	VERIFY(!physics_world()->Processing());
@@ -134,30 +133,28 @@ void SArtefactActivation::ChangeEffects()
 	if(m_snd._feedback())
 		m_snd.stop();
 	
-	if(state_def.m_snd.size()){
+	if(state_def.m_snd.size())
+	{
 		m_snd.create			(*state_def.m_snd,st_Effect,sg_SourceType);
 		m_snd.play_at_pos		(m_af,	m_af->Position());
 	};
 
-	m_light->set_range		(	state_def.m_light_range);
-	m_light->set_color		(	state_def.m_light_color.r,
-								state_def.m_light_color.g,
-								state_def.m_light_color.b);
+	m_light->set_range(state_def.m_light_range);
+	m_light->set_color(state_def.m_light_color.r, state_def.m_light_color.g, state_def.m_light_color.b);
 	
-	if(state_def.m_particle.size()){
+	if (state_def.m_particle.size())
+	{
 		Fvector dir;
 		dir.set(0,1,0);
 
-		m_af->CParticlesPlayer::StartParticles(	state_def.m_particle,
-												dir,
-												m_af->ID(),
-												iFloor(state_def.m_time*1000) );
+		m_af->CParticlesPlayer::StartParticles(state_def.m_particle, dir, m_af->ID(), iFloor(state_def.m_time*1000) );
 	};
-	if(state_def.m_animation.size()){
+
+	if(state_def.m_animation.size())
+	{
 		IKinematicsAnimated	*K=smart_cast<IKinematicsAnimated*>(m_af->Visual());
 		if(K)K->PlayCycle(*state_def.m_animation);
 	}
-
 }
 
 void SArtefactActivation::UpdateEffects()
@@ -201,10 +198,9 @@ void SArtefactActivation::SpawnAnomaly()
 		object->Spawn_Write			(P,TRUE);
 		Level().Send				(P,net_flags(TRUE));
 		F_entity_Destroy			(object);
-//. #ifdef DEBUG
 		Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
-//. #endif
 }
+
 shared_str clear_brackets(LPCSTR src)
 {
 	if	(0==src)					return	shared_str(0);

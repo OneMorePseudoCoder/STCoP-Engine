@@ -235,9 +235,6 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	//CSE_ALifeCreatureAbstract
 	float health;
 	P.r_float			(health);
-	//----------- for E3 -----------------------------
-	if (OnClient())SetfHealth(health);
-	//------------------------------------------------
 	P.r_u32				(N.dwTimeStamp	);
 	//---------------------------------------------
 	
@@ -262,33 +259,13 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	P.r_sdir			(N.p_velocity	);
 	float				fRRadiation;
 	P.r_float			(fRRadiation);
-	//----------- for E3 -----------------------------
-	if (OnClient())		
-	{
-//		fArmor = fRArmor;
-		SetfRadiation(fRRadiation);
-	};
 	//------------------------------------------------
 
 	u8					ActiveSlot;
 	P.r_u8				(ActiveSlot);
 	
-	//----------- for E3 -----------------------------
-	if (OnClient())
-	//------------------------------------------------
-	{
-		if (ActiveSlot == NO_ACTIVE_SLOT) inventory().SetActiveSlot(NO_ACTIVE_SLOT);
-		else 
-		{
-			if (inventory().GetActiveSlot() != u16(ActiveSlot))
-				inventory().Activate(ActiveSlot);
-		};
-	}
-
-	//----------- for E3 -----------------------------
-	if (Local() && OnClient()) return;
-	//-------------------------------------------------
-	if (!NET.empty() && N.dwTimeStamp < NET.back().dwTimeStamp) return;
+	if (!NET.empty() && N.dwTimeStamp < NET.back().dwTimeStamp) 
+		return;
 
 	if (!NET.empty() && N.dwTimeStamp == NET.back().dwTimeStamp)
 	{
@@ -377,11 +354,12 @@ void		CActor::net_Import_Physic			( NET_Packet& P)
 		N_A.State.previous_position	= N_A.State.position;
 		N_A.State.previous_quaternion = N_A.State.quaternion;
 		//----------- for E3 -----------------------------
-		if (Local() && OnClient() || !g_Alive()) 
+		if (!g_Alive()) 
 			return;
 		{
 			//-----------------------------------------------
-			if (!NET_A.empty() && N_A.dwTimeStamp < NET_A.back().dwTimeStamp) return;
+			if (!NET_A.empty() && N_A.dwTimeStamp < NET_A.back().dwTimeStamp) 
+				return;
 			if (!NET_A.empty() && N_A.dwTimeStamp == NET_A.back().dwTimeStamp)
 			{
 				NET_A.back() = N_A;
@@ -390,10 +368,12 @@ void		CActor::net_Import_Physic			( NET_Packet& P)
 			{
 				VERIFY(valid_pos(N_A.State.position,ph_boundaries()));
 				NET_A.push_back			(N_A);
-				if (NET_A.size()>5) NET_A.pop_front();
+				if (NET_A.size()>5) 
+					NET_A.pop_front();
 			};
 
-			if (!NET_A.empty()) m_bInterpolate = true;
+			if (!NET_A.empty()) 
+				m_bInterpolate = true;
 		};
 	}
 	//-----------------------------------------------
@@ -423,10 +403,7 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	//force actor to be local on server client
 	CSE_Abstract			*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeCreatureActor	*E	= smart_cast<CSE_ALifeCreatureActor*>(e);	
-	if (OnServer())
-	{
-		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
-	}
+	E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
 	
 	if(	TRUE == E->s_flags.test(M_SPAWN_OBJECT_LOCAL) && TRUE == E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER))
 		g_actor = this;
@@ -638,14 +615,7 @@ void CActor::net_Relcase	(CObject* O)
 
 BOOL	CActor::net_Relevant		()				// relevant for export to server
 { 
-	if (OnServer())
-	{
-		return getSVU() | getLocal(); 
-	}
-	else
-	{
-		return Local() & g_Alive();
-	};
+	return getSVU() | getLocal(); 
 };
 
 void	CActor::SetCallbacks()
@@ -725,7 +695,8 @@ void	CActor::OnChangeVisual()
 
 void	CActor::ChangeVisual			( shared_str NewVisual )
 {
-	if (!NewVisual.size()) return;
+	if (!NewVisual.size()) 
+		return;
 	if (cNameVisual().size() )
 	{
 		if (cNameVisual() == NewVisual) return;
@@ -748,9 +719,11 @@ InterpData				IEndT;
 void CActor::PH_B_CrPr		()	// actions & operations before physic correction-prediction steps
 {
 	//just set last update data for now
-//	if (!m_bHasUpdate) return;	
-	if (CrPr_IsActivated()) return;
-	if (CrPr_GetActivationStep() > physics_world()->StepsNum()) return;
+	if (CrPr_IsActivated()) 
+		return;
+
+	if (CrPr_GetActivationStep() > physics_world()->StepsNum()) 
+		return;
 
 	if (g_Alive())
 	{
@@ -770,39 +743,29 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 		///////////////////////////////////////////////
 		CPHSynchronize* pSyncObj = NULL;
 		pSyncObj = PHGetSyncItem(0);
-		if (!pSyncObj) return;
+		if (!pSyncObj) 
+			return;
 		pSyncObj->get_State(LastState);
 		///////////////////////////////////////////////
 
-		//----------- for E3 -----------------------------
-		if (Local() && OnClient())
-			//------------------------------------------------
-		{
-			PHUnFreeze();
+		net_update_A N_A = NET_A.back();
+		net_update N = NET.back();
 
-			pSyncObj->set_State(NET_A.back().State);			
+		NET_Last = N;
+		///////////////////////////////////////////////
+		cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0); // set's camera orientation
+		if (!N_A.State.enabled) 
+		{
+			pSyncObj->set_State(N_A.State);
 		}
 		else
 		{
-			net_update_A N_A = NET_A.back();
-			net_update N = NET.back();
-
-			NET_Last = N;
-			///////////////////////////////////////////////
-			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);		// set's camera orientation
-			if (!N_A.State.enabled) 
-			{
-				pSyncObj->set_State(N_A.State);
-			}
-			else
-			{
-				PHUnFreeze();
+			PHUnFreeze();
 				
-				pSyncObj->set_State(N_A.State);
+			pSyncObj->set_State(N_A.State);
 				
-				g_Physics(N.p_accel, 0.0f, 0.0f);				
-				Position().set(IStart.Pos);
-			};
+			g_Physics(N.p_accel, 0.0f, 0.0f);				
+			Position().set(IStart.Pos);
 		};
 	}
 	else
@@ -834,7 +797,6 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 void CActor::PH_I_CrPr		()		// actions & operations between two phisic prediction steps
 {
 	//store recalculated data, then we able to restore it after small future prediction
-//	if (!m_bHasUpdate) return;
 	if (!CrPr_IsActivated()) return;
 	if (g_Alive())
 	{
@@ -851,8 +813,6 @@ void CActor::PH_I_CrPr		()		// actions & operations between two phisic predictio
 void CActor::PH_A_CrPr		()
 {
 	//restore recalculated data and get data for interpolation	
-//	if (!m_bHasUpdate) return;
-//	m_bHasUpdate = false;
 	if (!CrPr_IsActivated()) return;
 	if (!g_Alive()) return;
 	////////////////////////////////////
@@ -880,16 +840,6 @@ void	CActor::CalculateInterpolationParams()
 	InterpData* pIStart = &IStart;
 	InterpData* pIRec = &IRec;
 	InterpData* pIEnd = &IEnd;
-
-	///////////////////////////////////////////////
-	/*
-	pIStart->Pos				= Position();
-	pIStart->Vel				= m_PhysicMovementControl->GetVelocity();
-	pIStart->o_model			= r_model_yaw;
-	pIStart->o_torso.yaw		= unaffected_r_torso.yaw;
-	pIStart->o_torso.pitch		= unaffected_r_torso.pitch;
-	pIStart->o_torso.roll		= unaffected_r_torso.roll;
-	*/
 	/////////////////////////////////////////////////////////////////////
 	pIRec->Pos				= RecalculatedState.position;
 	pIRec->Vel				= RecalculatedState.linear_vel;
@@ -902,8 +852,6 @@ void	CActor::CalculateInterpolationParams()
 	pIEnd->o_torso.yaw		= pIRec->o_torso.yaw	;
 	pIEnd->o_torso.pitch	= pIRec->o_torso.pitch	;	
 	pIEnd->o_torso.roll		= pIRec->o_torso.roll	;	
-	/////////////////////////////////////////////////////////////////////
-//	Msg("from %f, to %f", IStart.o_torso.yaw/PI*180.0f, IEnd.o_torso.yaw/PI*180.0f);
 	/////////////////////////////////////////////////////////////////////
 	Fvector SP0, SP1, SP2, SP3;
 	Fvector HP0, HP1, HP2, HP3;
@@ -1018,7 +966,6 @@ int		actInterpType = 0;
 void CActor::make_Interpolation	()
 {
 	m_dwILastUpdateTime = Level().timeServer();
-			
 	if(g_Alive() && m_bInInterpolation) 
 	{
 		u32 CurTime = m_dwILastUpdateTime;
@@ -1032,8 +979,8 @@ void CActor::make_Interpolation	()
 			CPHSynchronize* pSyncObj = NULL;
 			pSyncObj = PHGetSyncItem(0);
 			if (!pSyncObj) return;
-			pSyncObj->set_State(PredictedState);//, PredictedState.enabled);
-			VERIFY2								(_valid(renderable.xform),*cName());			
+			pSyncObj->set_State(PredictedState);
+			VERIFY2(_valid(renderable.xform),*cName());			
 		}
 		else
 		{			
@@ -1045,7 +992,7 @@ void CActor::make_Interpolation	()
 			Fvector NewPos;
 			NewPos.lerp(IStart.Pos, IEnd.Pos, factor);
 			
-			VERIFY2								(_valid(renderable.xform),*cName());
+			VERIFY2(_valid(renderable.xform),*cName());
 
 			unaffected_r_torso.yaw		= angle_lerp	(IStart.o_torso.yaw,IEnd.o_torso.yaw,factor);
 			unaffected_r_torso.pitch	= angle_lerp	(IStart.o_torso.pitch,IEnd.o_torso.pitch,factor);
@@ -1061,7 +1008,7 @@ void CActor::make_Interpolation	()
 			Fvector SpeedVector, ResPosition;
 			character_physics_support()->movement()->SetPosition	(ResPosition);
 			character_physics_support()->movement()->SetVelocity	(SpeedVector);
-			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);
+			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);
 		};
 	}
 	else
@@ -1154,7 +1101,6 @@ void dbg_draw_piramid (Fvector pos, Fvector dir, float size, float xdir, u32 col
 
 void	CActor::OnRender_Network()
 {
-	//RCache.OnFrameEnd();
 	DRender->OnFrameEnd();
 
 	//-----------------------------------------------------------------------------------------------------

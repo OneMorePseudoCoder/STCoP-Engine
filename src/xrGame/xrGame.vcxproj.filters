@@ -839,7 +839,6 @@
     <ClCompile Include="ui\UIBtnHint.cpp" />
     <ClCompile Include="ui\UIButton.cpp" />
     <ClCompile Include="ui\UIButton_script.cpp" />
-    <ClCompile Include="ui\UICarPanel.cpp" />
     <ClCompile Include="ui\UICellCustomItems.cpp" />
     <ClCompile Include="ui\UICellItem.cpp" />
     <ClCompile Include="ui\UICellItemFactory.cpp" />
@@ -1029,6 +1028,10 @@
     <ClCompile Include="ZoneVisual.cpp" />
     <ClCompile Include="zone_effector.cpp" />
     <ClCompile Include="ZudaArtifact.cpp" />
+    <ClCompile Include="ui\FactionState.cpp" />
+    <ClCompile Include="ui\FractionState.cpp" />
+    <ClCompile Include="ui\UIFactionWarWnd.cpp" />
+    <ClCompile Include="ui\UIWarState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\xrServerEntities\ai_sounds.h" />
@@ -2319,7 +2322,6 @@
     <ClInclude Include="ui\UIBoosterInfo.h" />
     <ClInclude Include="ui\UIBtnHint.h" />
     <ClInclude Include="ui\UIButton.h" />
-    <ClInclude Include="ui\UICarPanel.h" />
     <ClInclude Include="ui\UICellCustomItems.h" />
     <ClInclude Include="ui\UICellItem.h" />
     <ClInclude Include="ui\UICellItemFactory.h" />
@@ -2475,6 +2477,12 @@
     <ClInclude Include="ZoneVisual.h" />
     <ClInclude Include="zone_effector.h" />
     <ClInclude Include="ZudaArtifact.h" />
+    <ClInclude Include="ui\FactionState.h" />
+    <ClInclude Include="ui\FactionState_inline.h" />
+    <ClInclude Include="ui\FractionState.h" />
+    <ClInclude Include="ui\FractionState_inline.h" />
+    <ClInclude Include="ui\UIFactionWarWnd.h" />
+    <ClInclude Include="ui\UIWarState.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h" />

@@ -23,7 +23,6 @@
 #include "script_process.h"
 #include "xrServer_Objects.h"
 #include "ui/UIMainIngameWnd.h"
-//#include "../xrphysics/PhysicsGamePars.h"
 #include "../xrphysics/iphworld.h"
 #include "string_table.h"
 #include "autosave_manager.h"
@@ -39,7 +38,6 @@
 #include "MainMenu.h"
 #include "saved_game_wrapper.h"
 #include "level_graph.h"
-//#include "../xrEngine/resourcemanager.h"
 #include "../xrEngine/doug_lea_memory_allocator.h"
 #include "cameralook.h"
 #include "character_hit_animations_params.h"
@@ -260,10 +258,8 @@ public:
 		sscanf(args ,"%f",&id1);
 		if (id1 < EPS_L)
 			Msg("Invalid time factor! (%.4f)",id1);
-		else {
-			if (!OnServer())
-				return;
-
+		else 
+		{
 			Level().SetGameTimeFactor(id1);
 		}
 	}
@@ -279,13 +275,11 @@ public:
 	}
 	virtual void	Info	(TInfo& I)
 	{	
-		if (!OnServer())	return;
 		float v = Level().GetGameTimeFactor();
 		xr_sprintf(I,sizeof(I)," value = %3.5f", v);
 	}
 	virtual void	fill_tips(vecTips& tips, u32 mode)
 	{
-		if (!OnServer())	return;
 		float v = Level().GetGameTimeFactor();
 
 		TStatus  str;

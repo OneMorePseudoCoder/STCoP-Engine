@@ -36,7 +36,7 @@ bool CLevel::IsChecksumsEqual(u32 check_sum) const
 
 bool CLevel::synchronize_map_data()
 {
-	if (!OnClient() && !IsDemoSave())
+	if (!IsDemoSave())
 	{
 		deny_m_spawn		= FALSE;
 		map_data.m_map_sync_received	= true;
@@ -109,7 +109,7 @@ bool	CLevel::synchronize_client()
 		ClientReceive();
 		Server->Update();
 	}	// if OnClient ClientReceive method called in upper invokation
-	//Sleep(5); 
+
 	return !!game_configured;
 }
 

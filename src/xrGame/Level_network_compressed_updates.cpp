@@ -48,9 +48,9 @@ void CLevel::ProcessCompressedUpdate(NET_Packet& P, u8 const compress_type)
 		Objects.net_Import(&uncompressed_packet);
 		P.r_u16(next_size);
 	}
+
 	Device.Statistic->netClientCompressor.End();
 
-	if (OnClient()) UpdateDeltaUpd(timeServer());
 	IClientStatistic pStat = Level().GetStatistic();
 	u32 dTime = 0;
 	

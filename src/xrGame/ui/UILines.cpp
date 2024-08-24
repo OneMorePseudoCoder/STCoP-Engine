@@ -85,6 +85,7 @@ void CUILines::SetText(const char* text){
 		Reset();
 	}
 }
+
 void CUILines::SetTextST(LPCSTR str_id)
 {
 	SetText	(*CStringTable().translate(str_id));

@@ -329,7 +329,7 @@ void CWeaponMagazinedWGrenade::LaunchGrenade()
 		pGrenade->SetInitiator			(H_Parent()->ID());
 
 		
-		if (Local() && OnServer())
+		if (Local())
 		{
 			VERIFY				(m_magazine.size());
 			m_magazine.pop_back	();
@@ -454,8 +454,7 @@ bool CWeaponMagazinedWGrenade::Attach(PIItem pIItem, bool b_send_event)
  		//уничтожить подствольник из инвентаря
 		if (b_send_event)
 		{
-			if (OnServer()) 
-				pIItem->object().DestroyObject();
+			pIItem->object().DestroyObject();
 		}
 	
 		InitAddons();
@@ -475,15 +474,19 @@ bool CWeaponMagazinedWGrenade::Detach(LPCSTR item_section_name, bool b_spawn_ite
 	if (ALife::eAddonAttachable == m_eGrenadeLauncherStatus &&  0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) && !xr_strcmp(*m_sGrenadeLauncherName, item_section_name))
 	{
 		m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher;
-		if (m_bGrenadeMode)
+
+		// Now we need to unload GL's magazine
+		if (!m_bGrenadeMode)
 		{
-			UnloadMagazine();
 			PerformSwitchGL();
 		}
 
+		UnloadMagazine();
+		PerformSwitchGL();
+
 		UpdateAddonsVisibility();
 
-		if (GetState()==eIdle)
+		if (GetState() == eIdle)
 			PlayAnimIdle();
 
 		return CInventoryItemObject::Detach(item_section_name, b_spawn_item);

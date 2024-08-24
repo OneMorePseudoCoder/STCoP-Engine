@@ -28,6 +28,7 @@ CPHDestroyable::CPHDestroyable()
 	m_flags.set(fl_released,TRUE);
 	m_depended_objects=0;
 }
+
 /////////spawn object representing destroyed item//////////////////////////////////////////////////////////////////////////////////
 void CPHDestroyable::GenSpawnReplace(u16 ref_id,LPCSTR section,shared_str visual_name)
 {
@@ -39,21 +40,18 @@ void CPHDestroyable::GenSpawnReplace(u16 ref_id,LPCSTR section,shared_str visual
 	CSE_PHSkeleton				*l_tpPHSkeleton = smart_cast<CSE_PHSkeleton*>(D);
 	VERIFY						(l_tpPHSkeleton);
 	l_tpPHSkeleton->source_id	= ref_id;
-	//init
 
 	// Send
-	D->s_name			= section;//*cNameSect()
+	D->s_name			= section;
 	D->ID_Parent		= u16(-1);
 	InitServerObject	(D);
-	if (OnServer())
-	{
-		NET_Packet			P;
-		D->Spawn_Write		(P,TRUE);
-		Level().Send		(P,net_flags(TRUE));
-		// Destroy
-		F_entity_Destroy	(D);
-		m_depended_objects++;
-	};
+
+	NET_Packet			P;
+	D->Spawn_Write		(P,TRUE);
+	Level().Send		(P,net_flags(TRUE));
+	// Destroy
+	F_entity_Destroy	(D);
+	m_depended_objects++;
 };
 
 void CPHDestroyable::InitServerObject(CSE_Abstract* D)
@@ -62,13 +60,9 @@ void CPHDestroyable::InitServerObject(CSE_Abstract* D)
 	CSE_ALifeDynamicObjectVisual	*l_tpALifeDynamicObject = smart_cast<CSE_ALifeDynamicObjectVisual*>(D);
 	VERIFY							(l_tpALifeDynamicObject);
 	
-
 	l_tpALifeDynamicObject->m_tGraphID	=obj->ai_location().game_vertex_id();
 	l_tpALifeDynamicObject->m_tNodeID	= obj->ai_location().level_vertex_id();
 
-
-	//	l_tpALifePhysicObject->startup_animation=m_startup_anim;
-	
 	D->set_name_replace	("");
 //.	D->s_gameid			=	u8(GameID());
 	D->s_RP				=	0xff;

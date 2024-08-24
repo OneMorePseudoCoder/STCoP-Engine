@@ -1,7 +1,6 @@
 #include "pch_script.h"
 #include "physicobject.h"
 #include "../xrphysics/PhysicsShell.h"
-//#include "Physics.h"
 #include "xrserver_objects_alife.h"
 #include "Level.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -10,13 +9,13 @@
 #include "../xrEngine/cf_dynamic_mesh.h"
 #include "PHSynchronize.h"
 #include "game_object_space.h"
-//#include "../xrphysics/PhysicsShellAnimator.h"
 #include "moving_bones_snd_player.h"
 #include "../xrphysics/extendedgeom.h"
 #ifdef	DEBUG
 #include "phdebug.h"
 #include "../xrengine/objectdump.h"
 #endif
+
 BOOL dbg_draw_doors = false;
 CPhysicObject::CPhysicObject(void): 
 m_anim_blend( 0 ),
@@ -48,7 +47,6 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 
 	create_collision_model  ( );
 
-
 	CPHSkeleton::Spawn(e);
 	setVisible(TRUE);
 	setEnabled(TRUE);
@@ -56,10 +54,6 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 	if (!PPhysicsShell()->isBreakable()&&!CScriptBinder::object()&&!CPHSkeleton::IsRemoving())
 		SheduleUnregister();
 
-	//if (PPhysicsShell()->Animated())
-	//{
-	//	processing_activate();
-	//}
 	bones_snd_player = create_moving_bones_snd_player( *this );
 	if( bones_snd_player )
 						play_bones_sound();
@@ -77,7 +71,6 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 			net_Import			(temp);
 		}
 	}
-	//processing_activate();
 #ifdef	DEBUG
 if(dbg_draw_doors)
 {
@@ -106,19 +99,8 @@ void CPhysicObject::create_collision_model			( )
 	}
 
 	collidable.model = xr_new<CCF_Skeleton>(this);
-
-	/*
-	switch(m_type) {
-		case epotBox:			
-		case epotFixedChain:
-		case epotFreeChain :
-		case epotSkeleton  :	collidable.model = xr_new<CCF_Skeleton>(this);	break;
-
-		default: NODEFAULT; 
-		
-	}
-	*/
 }
+
 void		CPhysicObject::play_bones_sound()
 {
 	if(!bones_snd_player)
@@ -134,10 +116,8 @@ void		CPhysicObject::play_bones_sound()
 
 void		CPhysicObject::stop_bones_sound()
 {
-
 	if( !is_active( bones_snd_player ) )
 		return;
-	//processing_deactivate();
 	bones_snd_player->stop();
 }
 
@@ -158,6 +138,7 @@ static CPhysicsShellHolder* retrive_collide_object( bool bo1, dContact& c )
 	return collide_obj;
 
 }
+
 static void  door_ignore( bool& do_collide, bool bo1, dContact& c, SGameMtl * /*material_1*/, SGameMtl * /*material_2*/)
 {
 	
@@ -177,19 +158,15 @@ static void  door_ignore( bool& do_collide, bool bo1, dContact& c, SGameMtl * /*
 		return;
 
 	do_collide = false;
-
-	
 }
-
-
 
 void	CPhysicObject::set_door_ignore_dynamics		( )
 {
 	R_ASSERT(PPhysicsShell());
 	PPhysicsShell()->remove_ObjectContactCallback( door_ignore );
 	PPhysicsShell()->add_ObjectContactCallback( door_ignore );
-	//PPhysicsShell()->
 }
+
 void	CPhysicObject::unset_door_ignore_dynamics		( )
 {
 	R_ASSERT(PPhysicsShell());
@@ -202,8 +179,6 @@ void	CPhysicObject::SpawnInitPhysics	(CSE_Abstract* D)
 	RunStartupAnim(D);
 
 }
-
-
 
 void CPhysicObject::RunStartupAnim(CSE_Abstract *D)
 {
@@ -234,6 +209,7 @@ IC	bool check_blend(CBlend * b, LPCSTR name, LPCSTR sect, LPCSTR visual)
 #endif
 	return !!b;
 }
+
 void	CPhysicObject::	run_anim_forward				()
 {
 	if( !check_blend( m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str() ) )
@@ -242,8 +218,8 @@ void	CPhysicObject::	run_anim_forward				()
 	m_anim_blend->stop_at_end_callback = TRUE;
 	if(m_anim_blend->speed < 0.f)
 		m_anim_blend->speed = -m_anim_blend->speed;	
-
 }
+
 void	CPhysicObject::	run_anim_back					()
 {
 	if( !check_blend( m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str() ) )
@@ -253,6 +229,7 @@ void	CPhysicObject::	run_anim_back					()
 	if(m_anim_blend->speed > 0.f)
 		m_anim_blend->speed = -m_anim_blend->speed;
 }
+
 void	CPhysicObject::	stop_anim						()
 {
 	if( !check_blend( m_anim_blend, cName().c_str(), cNameSect().c_str(), cNameVisual().c_str() ) )
@@ -287,12 +264,6 @@ void	CPhysicObject::		anim_time_set					( float time )
 
 void CPhysicObject::net_Destroy()
 {
-
-	//if (PPhysicsShell()->Animated())
-	//{
-	//	processing_deactivate();
-	//}
-
 	inherited::net_Destroy	();
 	CPHSkeleton::RespawnInit();
 	xr_delete( bones_snd_player );
@@ -303,6 +274,7 @@ void CPhysicObject::net_Save(NET_Packet& P)
 	inherited::net_Save(P);
 	CPHSkeleton::SaveNetState(P);
 }
+
 void CPhysicObject::CreatePhysicsShell(CSE_Abstract* e)
 {
 	CSE_ALifeObjectPhysic	*po	= smart_cast<CSE_ALifeObjectPhysic*>(e);
@@ -426,7 +398,6 @@ void CPhysicObject::AddElement(CPhysicsElement* root_e, int id)
 	}
 }
 
-
 void CPhysicObject::CreateBody(CSE_ALifeObjectPhysic* po) {
 
 	if(m_pPhysicsShell) return;
@@ -446,7 +417,6 @@ void CPhysicObject::CreateBody(CSE_ALifeObjectPhysic* po) {
 
 		case   epotSkeleton: 
 			{
-				//pKinematics->LL_SetBoneRoot(0);
 				CreateSkeleton(po);
 			}break;
 
@@ -464,28 +434,17 @@ void CPhysicObject::CreateBody(CSE_ALifeObjectPhysic* po) {
 		disable_params.Load(pKinematics->LL_UserData());
 		m_pPhysicsShell->set_DisableParams(disable_params);
 	}
-	//m_pPhysicsShell->SetAirResistance(0.002f, 0.3f);
-
-
 }
-
-
-
-
-
 
 BOOL CPhysicObject::net_SaveRelevant()
 {
-	return TRUE;//!m_flags.test(CSE_ALifeObjectPhysic::flSpawnCopy);
+	return TRUE;
 }
-
 
 BOOL CPhysicObject::UsedAI_Locations()
 {
 	return					(FALSE);
 }
-
-
 
 void CPhysicObject::InitServerObject(CSE_Abstract * D)
 {
@@ -494,39 +453,18 @@ void CPhysicObject::InitServerObject(CSE_Abstract * D)
 	if(!l_tpALifePhysicObject)return;
 	l_tpALifePhysicObject->type			= u32(m_type);
 }
+
 ICollisionHitCallback*	CPhysicObject::	get_collision_hit_callback ()	
 {
 	return m_collision_hit_callback;
 }
+
 void	CPhysicObject::	set_collision_hit_callback	(ICollisionHitCallback *cc)	
 {
 	xr_delete( m_collision_hit_callback );
 	m_collision_hit_callback = cc;
 }
 
-//////////////////////////////////////////////////////////////////////////
-/*
-DEFINE_MAP_PRED	(LPCSTR,	CPhysicsJoint*,	JOINT_P_MAP,	JOINT_P_PAIR_IT,	pred_str);
-
-JOINT_P_MAP			*l_tpJointMap = xr_new<JOINT_P_MAP>();
-
-l_tpJointMap->insert(std::make_pair(bone_name,joint*));
-JOINT_P_PAIR_IT		I = l_tpJointMap->find(bone_name);
-if (l_tpJointMap->end()!=I){
-//bone_name is found and is an pair_iterator
-(*I).second
-}
-
-JOINT_P_PAIR_IT		I = l_tpJointMap->begin();
-JOINT_P_PAIR_IT		E = l_tpJointMap->end();
-for ( ; I != E; ++I) {
-(*I).second->joint_method();
-Msg("%s",(*I).first);
-}
-
-*/
-
-//////////////////////////////////////////////////////////////////////////
 bool CPhysicObject::is_ai_obstacle		() const
 {
 	return							!!( READ_IF_EXISTS(pSettings, r_bool, cNameSect(), "is_ai_obstacle", true ) );
@@ -598,9 +536,7 @@ void CPhysicObject::net_Import			(NET_Packet& P)
 	N.dwTimeStamp				= Device.dwTimeGlobal;
 
 	net_Import_PH_Params(P,N,num_items);
-	////////////////////////////////////////////
 	P.r_u8();	// freezed or not..
-
 
 	if (this->cast_game_object()->Local())
 	{
@@ -629,26 +565,16 @@ void CPhysicObject::net_Import			(NET_Packet& P)
 
 void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mask_num_items& num_items)
 {
-	
-	//N.State.force.set			(0.f,0.f,0.f);
-	//N.State.torque.set			(0.f,0.f,0.f);
-	//UI().Font().pFontStat->OutSet(100.0f,100.0f);
 	P.r_vec3					(N.State.force);
-	//Msg("Import N.State.force.y:%4.6f",N.State.force.y);
 	P.r_vec3					(N.State.torque);
-
 	P.r_vec3					(N.State.position);
-	//Msg("Import N.State.position.y:%4.6f",N.State.position.y);
 
 	P.r_float(N.State.quaternion.x);
 	P.r_float(N.State.quaternion.y);
 	P.r_float(N.State.quaternion.z);
 	P.r_float(N.State.quaternion.w);
 
-
-
 	N.State.enabled				= num_items.mask & CSE_ALifeObjectPhysic::inventory_item_state_enabled;
-	//UI().Font().pFontStat->OutNext("Import N.State.enabled:%i",int(N.State.enabled));
 	if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_angular_null)) {
 		N.State.angular_vel.x	= P.r_float();
 		N.State.angular_vel.y	= P.r_float();
@@ -664,22 +590,20 @@ void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mas
 	}
 	else
 		N.State.linear_vel.set	(0.f,0.f,0.f);
-	//Msg("Import N.State.linear_vel.y:%4.6f",N.State.linear_vel.y);
 	
 	N.State.previous_position	= N.State.position;
 	N.State.previous_quaternion	= N.State.quaternion;
 }
 
 
-//-----------
-
-
 void CPhysicObject::PH_B_CrPr		()
 {
 };
+
 void CPhysicObject::PH_I_CrPr		()		// actions & operations between two phisic prediction steps
 {
 }; 
+
 void CPhysicObject::PH_A_CrPr		()
 {
 	if (m_just_after_spawn)
@@ -691,28 +615,16 @@ void CPhysicObject::PH_A_CrPr		()
 		{
 			return;
 		}
+	
 		if(!PPhysicsShell()->isFullActive())
 		{
 			K->CalculateBones_Invalidate();
 			K->CalculateBones(TRUE);
 		}
+	
 		PPhysicsShell()->GetGlobalTransformDynamic(&XFORM());
 		K->CalculateBones_Invalidate();
 		K->CalculateBones(TRUE);
-#if	0
-		Fbox bb= BoundingBox	();
-		DBG_OpenCashedDraw		();
-		Fvector c,r,p;
-		bb.get_CD(c,r );
-		XFORM().transform_tiny(p,c);
-		DBG_DrawAABB( p, r,D3DCOLOR_XRGB(255, 0, 0));
-		//PPhysicsShell()->XFORM().transform_tiny(c);
-		Fmatrix mm;
-		PPhysicsShell()->GetGlobalTransformDynamic(&mm);
-		mm.transform_tiny(p,c);
-		DBG_DrawAABB( p, r,D3DCOLOR_XRGB(0, 255, 0));
-		DBG_ClosedCashedDraw	(50000);
-#endif
 		spatial_move();
 		m_just_after_spawn = false;
 		
@@ -720,10 +632,7 @@ void CPhysicObject::PH_A_CrPr		()
 		
 		PPhysicsShell()->get_ElementByStoreOrder(0)->Fix();
 		PPhysicsShell()->SetIgnoreStatic	();	
-		//PPhysicsShell()->SetIgnoreDynamic	();
-		//PPhysicsShell()->DisableCollision();
 	}
-	//CalculateInterpolationParams()
 };
 
 void CPhysicObject::CalculateInterpolationParams()
@@ -733,39 +642,7 @@ void CPhysicObject::CalculateInterpolationParams()
 };
 
 void CPhysicObject::Interpolate()
-{
-	net_updatePhData* p = NetSync();
-	CPHSynchronize* pSyncObj = this->PHGetSyncItem(0);
-
-	//simple linear interpolation...
-	if (!this->H_Parent() &&
-		this->getVisible() &&
-		this->m_pPhysicsShell &&
-		!OnServer() &&
-		p->NET_IItem.size())
-	{
-		SPHNetState newState = p->NET_IItem.front().State;
-				
-		if (p->NET_IItem.size() >= 2)
-		{
-
-			float ret_interpolate = interpolate_states(p->NET_IItem.front(), p->NET_IItem.back(), newState);
-			//Msg("Interpolation factor is %0.4f", ret_interpolate);
-			//Msg("Current position is: x = %3.3f, y = %3.3f, z = %3.3f", newState.position.x, newState.position.y, newState.position.z);
-			if (ret_interpolate >= 1.f)
-			{
-				p->NET_IItem.pop_front();
-				if (m_activated)
-				{
-					Msg("Deactivating object [%d] after interpolation finish", ID());
-					processing_deactivate();
-					m_activated = false;
-				}
-			}
-		}
-		pSyncObj->set_State(newState);
-	}
-}
+{}
 
 float CPhysicObject::interpolate_states(net_update_PItem const & first, net_update_PItem const & last, SPHNetState & current)
 {
@@ -781,7 +658,8 @@ float CPhysicObject::interpolate_states(net_update_PItem const & first, net_upda
 	if (factor > 1.f)
 	{
 		factor = 1.f;
-	} else if (factor < 0.f)
+	} 
+	else if (factor < 0.f)
 	{
 		factor = 0.f;
 	}
@@ -824,8 +702,6 @@ bool	CPhysicObject::get_door_vectors	( Fvector& closed, Fvector& open ) const
 
 	Fvector door_dir;  start_pos.transform_dir(door_dir, box.m_rotate.i );
 	Fvector door_dir_local =  box.m_rotate.i ;
-	//Fvector door_dir_bone; start_bone_pos.transform_dir(door_dir_bone, box.m_rotate.i );
-
 	
 	const Fvector det_vector = Fvector().sub( center_pos, start_pos.c  );
 	
@@ -833,7 +709,6 @@ bool	CPhysicObject::get_door_vectors	( Fvector& closed, Fvector& open ) const
 	{
 		door_dir.invert();
 		door_dir_local.invert();
-		//door_dir_bone.invert();
 	}
 
 	const SJointIKData &joint = bd.IK_data;
@@ -841,9 +716,6 @@ bool	CPhysicObject::get_door_vectors	( Fvector& closed, Fvector& open ) const
 	if( joint.type != jtJoint )
 		return false;
 	const Fvector2& limits = joint.limits[1].limit;
-
-	//if( limits.y < EPS ) //limits.y - limits.x < EPS
-	//	return false;
 
 	if( M_PI - limits.y < EPS && M_PI + limits.x < EPS )
 		return false;
@@ -856,8 +728,6 @@ bool	CPhysicObject::get_door_vectors	( Fvector& closed, Fvector& open ) const
 
 	start_pos.transform_dir(open);
 	start_pos.transform_dir(closed);
-
-	//DBG_OpenCashedDraw( );
 
 #ifdef	DEBUG
 if(dbg_draw_doors)
@@ -877,7 +747,6 @@ if(dbg_draw_doors)
 	DBG_DrawLine( pos1, Fvector( ).add( pos1, det_vector ), D3DCOLOR_XRGB( 255, 255, 0 ) );
 }
 #endif
-	//DBG_ClosedCashedDraw( 50000000 );
 
 	return true;
 }

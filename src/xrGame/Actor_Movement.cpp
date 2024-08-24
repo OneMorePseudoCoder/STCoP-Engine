@@ -28,12 +28,10 @@ static const float	s_fJumpGroundTime	= 0.1f;	// для снятия флажка
 
 IC static void generate_orthonormal_basis1(const Fvector& dir,Fvector& updir, Fvector& right)
 {
-
 	right.crossproduct(dir,updir); //. <->
 	right.normalize();
 	updir.crossproduct(right,dir);
 }
-
 
 void CActor::g_cl_ValidateMState(float dt, u32 mstate_wf)
 {
@@ -408,28 +406,9 @@ bool CActor::g_LadderOrient()
 	M.j.set(0.f,1.f,0.f);
 	generate_orthonormal_basis1(M.k,M.j,M.i);
 	M.i.invert();
-	//M.j.invert();
 
-
-	//Fquaternion q1,q2,q3;
-	//q1.set(XFORM());
-	//q2.set(M);
-	//q3.slerp(q1,q2,dt);
-	//Fvector angles1,angles2,angles3;
-	//XFORM().getHPB(angles1.x,angles1.y,angles1.z);
-	//M.getHPB(angles2.x,angles2.y,angles2.z);
-	////angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-	////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-	////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-
-	//angles3.lerp(angles1,angles2,dt);
-	////angle_lerp(angles3.y,angles1.y,angles2.y,dt);
-	////angle_lerp(angles3.z,angles1.z,angles2.z,dt);
-	//angle_lerp(angles3.x,angles1.x,angles2.x,dt);
-	//XFORM().setHPB(angles3.x,angles3.y,angles3.z);
 	Fvector position;
 	position.set(Position());
-	//XFORM().rotation(q3);
 	VERIFY2(_valid(M),"Invalide matrix in g_LadderOrient");
 	XFORM().set(M);
 	VERIFY2(_valid(position),"Invalide position in g_LadderOrient");
@@ -615,6 +594,7 @@ float CActor::MaxWalkWeight() const
 	max_w      += get_additional_weight();
 	return max_w;
 }
+
 #include "artefact.h"
 float CActor::get_additional_weight() const
 {

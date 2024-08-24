@@ -88,7 +88,6 @@ void CTorch::Load(LPCSTR section)
 
 void CTorch::SwitchNightVision()
 {
-	if (OnClient()) return;
 	SwitchNightVision(!m_bNightVisionOn);	
 }
 
@@ -164,7 +163,6 @@ void CTorch::SwitchNightVision(bool vision_on, bool use_sounds)
 
 void CTorch::Switch()
 {
-	if (OnClient())			return;
 	bool bActive			= !m_switched_on;
 	Switch					(bActive);
 }
@@ -191,6 +189,7 @@ void CTorch::Switch(bool light_on)
 		pVisual->CalculateBones				(TRUE);
 	}
 }
+
 bool CTorch::torch_active					() const
 {
 	return (m_switched_on);

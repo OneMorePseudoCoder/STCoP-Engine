@@ -137,8 +137,7 @@ void CWeaponRPG7::switch2_Fire()
 		Fmatrix								launch_matrix;
 		launch_matrix.identity				();
 		launch_matrix.k.set					(d);
-		Fvector::generate_orthonormal_basis(launch_matrix.k,
-											launch_matrix.j, launch_matrix.i);
+		Fvector::generate_orthonormal_basis(launch_matrix.k, launch_matrix.j, launch_matrix.i);
 		launch_matrix.c.set					(p);
 
 		d.normalize							();
@@ -150,13 +149,10 @@ void CWeaponRPG7::switch2_Fire()
 		VERIFY								(pGrenade);
 		pGrenade->SetInitiator				(H_Parent()->ID());
 
-		if (OnServer())
-		{
-			NET_Packet						P;
-			u_EventGen						(P,GE_LAUNCH_ROCKET,ID());
-			P.w_u16							(u16(getCurrentRocket()->ID()));
-			u_EventSend						(P);
-		}
+		NET_Packet						P;
+		u_EventGen						(P,GE_LAUNCH_ROCKET,ID());
+		P.w_u16							(u16(getCurrentRocket()->ID()));
+		u_EventSend						(P);
 	}
 }
 

@@ -24,6 +24,7 @@
 #include "UIHint.h"
 #include "UIBtnHint.h"
 #include "UITaskWnd.h"
+#include "UIFactionWarWnd.h"
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
 
@@ -36,6 +37,7 @@ void RearrangeTabButtons(CUITabControl* pTab);
 CUIPdaWnd::CUIPdaWnd()
 {
 	pUITaskWnd       = NULL;
+    pUIFactionWarWnd = NULL;
 	pUIRankingWnd    = NULL;
 	pUILogsWnd       = NULL;
 	m_hint_wnd       = NULL;
@@ -45,6 +47,7 @@ CUIPdaWnd::CUIPdaWnd()
 CUIPdaWnd::~CUIPdaWnd()
 {
 	delete_data( pUITaskWnd );
+    delete_data( pUIFactionWarWnd );
 	delete_data( pUIRankingWnd );
 	delete_data( pUILogsWnd );
 	delete_data( m_hint_wnd );
@@ -74,10 +77,13 @@ void CUIPdaWnd::Init()
 	m_btn_close				= UIHelper::Create3tButton( uiXml, "close_button", this );
 	m_hint_wnd				= UIHelper::CreateHint( uiXml, "hint_wnd" );
 
-
 	pUITaskWnd					= xr_new<CUITaskWnd>();
 	pUITaskWnd->hint_wnd		= m_hint_wnd;
 	pUITaskWnd->Init			();
+
+	pUIFactionWarWnd			= xr_new<CUIFactionWarWnd>();
+	pUIFactionWarWnd->hint_wnd	= m_hint_wnd;
+	pUIFactionWarWnd->Init		();
 
 	pUIRankingWnd					= xr_new<CUIRankingWnd>();
 	pUIRankingWnd->Init				();
@@ -169,6 +175,10 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	{
 		m_pActiveDialog = pUITaskWnd;
 	}
+    else if ( section == "eptFractionWar" )
+    {
+   		m_pActiveDialog = pUIFactionWarWnd;
+    }
 	else if ( section == "eptRanking" )
 	{
 		m_pActiveDialog = pUIRankingWnd;
@@ -229,7 +239,6 @@ void CUIPdaWnd::Show_MapLegendWnd( bool status )
 void CUIPdaWnd::Draw()
 {
 	inherited::Draw();
-//.	DrawUpdatedSections();
 	DrawHint();
 	UINoice->Draw(); // over all
 }
@@ -240,6 +249,10 @@ void CUIPdaWnd::DrawHint()
 	{
 		pUITaskWnd->DrawHint();
 	}
+    else if ( m_pActiveDialog == pUIFactionWarWnd )
+    {
+		pUIFactionWarWnd->Draw();
+    }
 	else if ( m_pActiveDialog == pUIRankingWnd )
 	{
 		pUIRankingWnd->DrawHint();
@@ -268,11 +281,19 @@ void CUIPdaWnd::UpdateRankingWnd()
 
 void CUIPdaWnd::Reset()
 {
-	inherited::ResetAll		();
+	inherited::ResetAll();
 
-	if ( pUITaskWnd )		pUITaskWnd->ResetAll();
-	if ( pUIRankingWnd )	pUIRankingWnd->ResetAll();
-	if ( pUILogsWnd )		pUILogsWnd->ResetAll();
+	if (pUITaskWnd)		
+		pUITaskWnd->ResetAll();
+
+    if (pUIFactionWarWnd)	
+		pUIFactionWarWnd->ResetAll();
+
+	if (pUIRankingWnd)	
+		pUIRankingWnd->ResetAll();
+
+	if (pUILogsWnd)		
+		pUILogsWnd->ResetAll();
 }
 
 void CUIPdaWnd::SetCaption( LPCSTR text )

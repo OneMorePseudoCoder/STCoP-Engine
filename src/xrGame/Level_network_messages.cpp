@@ -91,7 +91,6 @@ void CLevel::ClientReceive()
 			{
 				Objects.net_Import		(P);
 
-				if (OnClient()) UpdateDeltaUpd(timeServer());
 				IClientStatistic pStat = Level().GetStatistic();
 				u32 dTime = 0;
 				
@@ -112,7 +111,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_CL_UPDATE:
 			{
-				if (OnClient()) break;
 				P->r_u16		(ID);
 				u32 Ping = P->r_u32();
 				CGameObject*	O	= smart_cast<CGameObject*>(Objects.net_Find		(ID));
@@ -264,38 +262,29 @@ void CLevel::ClientReceive()
 			{
 				Msg("- M_CHANGE_LEVEL_GAME Received");
 
-				if (OnClient())
+				const char* m_SO = m_caServerOptions.c_str();
+
+				m_SO = strchr(m_SO, '/'); if (m_SO) m_SO++;
+				m_SO = strchr(m_SO, '/'); 
+
+				shared_str LevelName;
+				shared_str LevelVersion;
+				shared_str GameType;
+
+				P->r_stringZ(LevelName);
+				P->r_stringZ(LevelVersion);
+				P->r_stringZ(GameType);
+
+				string4096 NewServerOptions = "";
+				xr_sprintf(NewServerOptions, "%s/%s/%s%s", LevelName.c_str(), GameType.c_str(), map_ver_string, LevelVersion.c_str());
+
+				if (m_SO)
 				{
-					MakeReconnect();
+					string4096 additional_options;
+					xr_strcat(NewServerOptions, sizeof(NewServerOptions), remove_version_option(m_SO, additional_options, sizeof(additional_options)));
 				}
-				else
-				{
-					const char* m_SO = m_caServerOptions.c_str();
-
-					m_SO = strchr(m_SO, '/'); if (m_SO) m_SO++;
-					m_SO = strchr(m_SO, '/'); 
-
-					shared_str LevelName;
-					shared_str LevelVersion;
-					shared_str GameType;
-
-					P->r_stringZ(LevelName);
-					P->r_stringZ(LevelVersion);
-					P->r_stringZ(GameType);
-
-					string4096 NewServerOptions = "";
-					xr_sprintf(NewServerOptions, "%s/%s/%s%s", LevelName.c_str(), GameType.c_str(), map_ver_string, LevelVersion.c_str());
-
-					if (m_SO)
-					{
-						string4096 additional_options;
-						xr_strcat(NewServerOptions, sizeof(NewServerOptions),
-							remove_version_option(m_SO, additional_options, sizeof(additional_options))
-						);
-					}
-					m_caServerOptions = NewServerOptions;
-					MakeReconnect();
-				};
+				m_caServerOptions = NewServerOptions;
+				MakeReconnect();
 			}break;
 		case M_CHANGE_SELF_NAME:
 			{

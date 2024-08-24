@@ -27,17 +27,17 @@ void CWeaponShotgun::Load	(LPCSTR section)
 {
 	inherited::Load		(section);
 
-	if(pSettings->line_exist(section, "tri_state_reload")){
+	if (pSettings->line_exist(section, "tri_state_reload"))
+	{
 		m_bTriStateReload = !!pSettings->r_bool(section, "tri_state_reload");
 	};
-	if(m_bTriStateReload){
+
+	if (m_bTriStateReload)
+	{
 		m_sounds.LoadSound(section, "snd_open_weapon", "sndOpen", false, m_eSoundOpen);
-
 		m_sounds.LoadSound(section, "snd_add_cartridge", "sndAddCartridge", false, m_eSoundAddCartridge);
-
 		m_sounds.LoadSound(section, "snd_close_weapon", "sndClose_2", false, m_eSoundClose_2);
 	};
-
 }
 
 void CWeaponShotgun::switch2_Fire	()
@@ -46,19 +46,18 @@ void CWeaponShotgun::switch2_Fire	()
 	bWorking = false;
 }
 
-
 bool CWeaponShotgun::Action			(u16 cmd, u32 flags) 
 {
-	if(inherited::Action(cmd, flags)) return true;
+	if (inherited::Action(cmd, flags))
+		return true;
 
-	if(	m_bTriStateReload && GetState()==eReload &&
-		cmd==kWPN_FIRE && flags&CMD_START &&
-		m_sub_state==eSubstateReloadInProcess		)//остановить перезагрузку
+	if (m_bTriStateReload && GetState()==eReload && cmd==kWPN_FIRE && flags&CMD_START && m_sub_state==eSubstateReloadInProcess)//остановить перезагрузку
 	{
 		AddCartridge(1);
 		m_sub_state = eSubstateReloadEnd;
 		return true;
 	}
+
 	return false;
 }
 
@@ -211,7 +210,6 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 	m_pCurrentAmmo = smart_cast<CWeaponAmmo*>(m_pInventory->GetAny( m_ammoTypes[m_ammoType].c_str() ));
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
-
 	if (m_DefaultCartridge.m_LocalAmmoType != m_ammoType)
 		m_DefaultCartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
 
@@ -226,13 +224,12 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 		++iAmmoElapsed;
 		l_cartridge.m_LocalAmmoType = m_ammoType;
 		m_magazine.push_back(l_cartridge);
-//		m_fCurrentCartirdgeDisp = l_cartridge.m_kDisp;
 	}
 
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
 	//выкинуть коробку патронов, если она пустая
-	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
+	if (m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr) 
 		m_pCurrentAmmo->SetDropManual(TRUE);
 
 	return cnt;

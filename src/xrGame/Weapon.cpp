@@ -952,7 +952,6 @@ void CWeapon::OnEvent(NET_Packet& P, u16 type)
 		else
 			m_set_next_ammoType_on_reload = NextAmmo;
 
-		if (OnClient()) SetAmmoElapsed(int(AmmoElapsed));
 		OnStateSwitch(u32(state));
 	}
 	break;
@@ -1275,7 +1274,7 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 
 bool CWeapon::SwitchAmmoType(u32 flags)
 {
-	if (IsPending() || OnClient())
+	if (IsPending())
 		return false;
 
 	if (!(flags & CMD_START))
@@ -1288,23 +1287,23 @@ bool CWeapon::SwitchAmmoType(u32 flags)
 		l_newType = u8((u32(l_newType + 1)) % m_ammoTypes.size());
 		b1 = (l_newType != m_ammoType);
 		b2 = unlimited_ammo() ? false : (!m_pInventory->GetAny(m_ammoTypes[l_newType].c_str()));
-	} while (b1 && b2);
+	} 
+	while (b1 && b2);
 
 	if (l_newType != m_ammoType)
 	{
 		m_set_next_ammoType_on_reload = l_newType;
-		if (OnServer())
-		{
-			Reload();
-		}
+		Reload();
 	}
+
 	return true;
 }
 
 void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
 {
-	if (!m_ammoTypes.size())			return;
-	if (OnClient())					return;
+	if (!m_ammoTypes.size())			
+		return;
+
 	m_bAmmoWasSpawned = true;
 
 	int l_type = 0;
@@ -1787,8 +1786,6 @@ CUIWindow* CWeapon::ZoomTexture()
 
 void CWeapon::SwitchState(u32 S)
 {
-	if (OnClient()) return;
-
 #ifndef MASTER_GOLD
 	if (bDebug)
 	{
@@ -1797,7 +1794,7 @@ void CWeapon::SwitchState(u32 S)
 #endif // #ifndef MASTER_GOLD
 
 	SetNextState(S);
-	if (CHudItem::object().Local() && !CHudItem::object().getDestroy() && m_pInventory && OnServer())
+	if (CHudItem::object().Local() && !CHudItem::object().getDestroy() && m_pInventory)
 	{
 		// !!! Just single entry for given state !!!
 		NET_Packet		P;

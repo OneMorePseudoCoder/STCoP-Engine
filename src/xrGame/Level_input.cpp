@@ -134,24 +134,25 @@ void CLevel::IR_OnKeyboardPress	(int key)
 	case kSCREENSHOT:
 		Render->Screenshot();
 		return;
-		break;
 
 	case kCONSOLE:
 		Console->Show				();
 		return;
-		break;
 
 	case kQUIT: 
 		{
-			if(b_ui_exist && CurrentGameUI()->TopInputReceiver() )
+			if(b_ui_exist && CurrentGameUI()->TopInputReceiver() && !Device.Paused())
 			{
-					if(CurrentGameUI()->IR_UIOnKeyboardPress(key))	return;//special case for mp and main_menu
+				if(CurrentGameUI()->IR_UIOnKeyboardPress(key))	return;//special case for mp and main_menu
 					CurrentGameUI()->TopInputReceiver()->HideDialog();
-			}else
+			}
+			else
 			{
 				Console->Execute("main_menu");
-			}return;
-		}break;
+			}
+			return;
+		}
+		break;
 	};
 
 	if ( !bReady || !b_ui_exist )			return;

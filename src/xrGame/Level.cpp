@@ -419,9 +419,12 @@ void CLevel::OnFrame()
         ClientReceive();
         Device.Statistic->netClient1.End();
     }
+	
     ProcessGameEvents();
-    if (m_bNeed_CrPr)
+    
+	if (m_bNeed_CrPr)
         make_NetCorrectionPrediction();
+
     if (!g_dedicated_server)
     {
         if (g_mt_config.test(mtMap))
@@ -433,92 +436,15 @@ void CLevel::OnFrame()
             GameTaskManager().UpdateTasks();
         }
     }
+
     // Inherited update
     inherited::OnFrame();
-    // Draw client/server stats
-    if (!g_dedicated_server && psDeviceFlags.test(rsStatistic))
-    {
-        CGameFont* F = UI().Font().pFontDI;
-        if (!psNET_direct_connect)
-        {
-            if (IsServer())
-            {
-                const IServerStatistic* S = Server->GetStatistic();
-                F->SetHeightI(0.015f);
-                F->OutSetI(0.0f, 0.5f);
-                F->SetColor(D3DCOLOR_XRGB(0, 255, 0));
-                F->OutNext("IN:  %4d/%4d (%2.1f%%)", S->bytes_in_real, S->bytes_in,
-                    100.f*float(S->bytes_in_real) / float(S->bytes_in));
-                F->OutNext("OUT: %4d/%4d (%2.1f%%)", S->bytes_out_real, S->bytes_out,
-                    100.f*float(S->bytes_out_real) / float(S->bytes_out));
-                F->OutNext("client_2_sever ping: %d", net_Statistic.getPing());
-                F->OutNext("SPS/Sended : %4d/%4d", S->dwBytesPerSec, S->dwBytesSended);
-                F->SetColor(D3DCOLOR_XRGB(255, 255, 255));
-                struct net_stats_functor
-                {
-                    xrServer* m_server;
-                    CGameFont* F;
-                    void operator()(IClient* C)
-                    {
-                        m_server->UpdateClientStatistic(C);
-                        F->OutNext("0x%08x: P(%d), BPS(%2.1fK), MRR(%2d), MSR(%2d), Retried(%2d), Blocked(%2d)",
-                            //Server->game->get_option_s(*C->Name,"name",*C->Name),
-                            C->ID.value(),
-                            C->stats.getPing(),
-                            float(C->stats.getBPS()),// /1024,
-                            C->stats.getMPS_Receive(),
-                            C->stats.getMPS_Send(),
-                            C->stats.getRetriedCount(),
-                            C->stats.dwTimesBlocked);
-                    }
-                };
-                net_stats_functor tmp_functor;
-                tmp_functor.m_server = Server;
-                tmp_functor.F = F;
-                Server->ForEachClientDo(tmp_functor);
-            }
-            if (IsClient())
-            {
-                IPureClient::UpdateStatistic();
-                F->SetHeightI(0.015f);
-                F->OutSetI(0.0f, 0.5f);
-                F->SetColor(D3DCOLOR_XRGB(0, 255, 0));
-                F->OutNext("client_2_sever ping: %d", net_Statistic.getPing());
-                F->SetColor(D3DCOLOR_XRGB(255, 255, 255));
-                F->OutNext("BReceivedPs(%2d), BSendedPs(%2d), Retried(%2d), Blocked(%2d)",
-                    net_Statistic.getReceivedPerSec(),
-                    net_Statistic.getSendedPerSec(),
-                    net_Statistic.getRetriedCount(),
-                    net_Statistic.dwTimesBlocked);
-#ifdef DEBUG
-                if (!pStatGraphR)
-                {
-                    pStatGraphR = xr_new<CStatGraph>();
-                    pStatGraphR->SetRect(50, 700, 300, 68, 0xff000000, 0xff000000);
-                    //m_stat_graph->SetGrid(0, 0.0f, 10, 1.0f, 0xff808080, 0xffffffff);
-                    pStatGraphR->SetMinMax(0.0f, 65536.0f, 1000);
-                    pStatGraphR->SetStyle(CStatGraph::stBarLine);
-                    pStatGraphR->AppendSubGraph(CStatGraph::stBarLine);
-                }
-                pStatGraphR->AppendItem(float(net_Statistic.getBPS()), 0xff00ff00, 0);
-                F->OutSet(20.f, 700.f);
-                F->OutNext("64 KBS");
-#endif
-            }
-        }
-    }
-    else
-    {
-#ifdef DEBUG
-        if (pStatGraphR)
-            xr_delete(pStatGraphR);
-#endif
-    }
+
 #ifdef DEBUG
     g_pGamePersistent->Environment().m_paused = m_bEnvPaused;
 #endif
-    g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(),
-        game->GetEnvironmentGameTimeFactor());
+
+    g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
     if (!g_dedicated_server)
         ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
     m_ph_commander->update();
@@ -531,8 +457,7 @@ void CLevel::OnFrame()
     {
         if (g_mt_config.test(mtLevelSounds))
         {
-            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(
-                m_level_sound_manager, &CLevelSoundManager::Update));
+            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
         }
         else
             m_level_sound_manager->Update();
@@ -673,7 +598,6 @@ void CLevel::OnRender()
         }
     }
 
-
     if (psAI_Flags.test(aiDrawVisibilityRays))
     {
         for (u32 I = 0; I < Level().Objects.o_count(); I++)
@@ -692,12 +616,10 @@ void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/)
 {
     if (E == eEntitySpawn)
     {
-        char	Name[128];	Name[0] = 0;
+        char Name[128];
+		Name[0] = 0;
         sscanf(LPCSTR(P1), "%s", Name);
         Level().g_cl_Spawn(Name, 0xff, M_SPAWN_OBJECT_LOCAL, Fvector().set(0, 0, 0));
-    }
-    else if (E == eChangeRP && P1)
-    {
     }
     else if (E == eDemoPlay && P1)
     {
@@ -706,17 +628,6 @@ void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/)
         xr_strcpy(RealName, name);
         xr_strcat(RealName, ".xrdemo");
         Cameras().AddCamEffector(xr_new<CDemoPlay>(RealName, 1.3f, 0));
-    }
-    else if (E == eChangeTrack && P1)
-    {
-        // int id = atoi((char*)P1);
-        // Environment->Music_Play(id);
-    }
-    else if (E == eEnvironment)
-    {
-        // int id=0; float s=1;
-        // sscanf((char*)P1,"%d,%f",&id,&s);
-        // Environment->set_EnvMode(id,s);
     }
 }
 
@@ -913,20 +824,6 @@ void CLevel::SetEnvironmentGameTimeFactor(u64 const& GameTime, float const& fTim
     game->SetEnvironmentGameTimeFactor(GameTime, fTimeFactor);
 }
 
-bool CLevel::IsServer()
-{
-    if (!Server)
-        return false;
-    return true;
-}
-
-bool CLevel::IsClient()
-{
-    if (Server)
-        return false;
-    return true;
-}
-
 void CLevel::OnAlifeSimulatorUnLoaded()
 {
     MapManager().ResetStorage();
@@ -946,14 +843,8 @@ void CLevel::ApplyCamera()
 {
 	inherited::ApplyCamera();
 
-	/*if (g_actor)
-	{
-		Actor()->Cameras().ApplyDevice(VIEWPORT_NEAR);		
-	}*/
-
 	if (lastApplyCameraVPNear > -1.f)
 		lastApplyCamera(lastApplyCameraVPNear);
-
 }
 
 u32	GameID()
