@@ -287,7 +287,7 @@ void CConsole::OnRender()
 
     float fMaxY;
     float dwMaxY = (float)Device.dwHeight;
-    // float dwMaxX=float(Device.dwWidth/2);
+
     if (bGame)
     {
         fMaxY = 0.0f;

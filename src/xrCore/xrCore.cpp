@@ -22,10 +22,6 @@ extern void Detect();
 
 static u32 init_counter = 0;
 
-//extern char g_application_path[256];
-
-//. extern xr_vector<shared_str>* LogFile;
-
 void xrCore::_initialize(LPCSTR _ApplicationName, LogCallback cb, BOOL init_fs, LPCSTR fs_fname)
 {
     xr_strcpy(ApplicationName, _ApplicationName);
@@ -51,9 +47,6 @@ void xrCore::_initialize(LPCSTR _ApplicationName, LogCallback cb, BOOL init_fs, 
         GetModuleFileName(GetModuleHandle(MODULE_NAME), fn, sizeof(fn));
         _splitpath(fn, dr, di, 0, 0);
         strconcat(sizeof(ApplicationPath), ApplicationPath, dr, di);
-#ifndef _EDITOR
-        //xr_strcpy(g_application_path, sizeof(g_application_path), ApplicationPath);
-#endif
 
 #ifdef _EDITOR
         // working path
@@ -84,23 +77,25 @@ void xrCore::_initialize(LPCSTR _ApplicationName, LogCallback cb, BOOL init_fs, 
         InitLog();
         _initialize_cpu();
 
-        // Debug._initialize ();
-
         rtc_initialize();
 
         xr_FS = xr_new<CLocatorAPI>();
-
         xr_EFS = xr_new<EFS_Utils>();
-        //. R_ASSERT (co_res==S_OK);
     }
+
     if (init_fs)
     {
         u32 flags = 0;
-        if (0 != strstr(Params, "-build")) flags |= CLocatorAPI::flBuildCopy;
-        if (0 != strstr(Params, "-ebuild")) flags |= CLocatorAPI::flBuildCopy | CLocatorAPI::flEBuildCopy;
+        if (0 != strstr(Params, "-build")) 
+			flags |= CLocatorAPI::flBuildCopy;
+
+        if (0 != strstr(Params, "-ebuild")) 
+			flags |= CLocatorAPI::flBuildCopy | CLocatorAPI::flEBuildCopy;
 #ifdef DEBUG
-        if (strstr(Params, "-cache")) flags |= CLocatorAPI::flCacheFiles;
-        else flags &= ~CLocatorAPI::flCacheFiles;
+        if (strstr(Params, "-cache")) 
+			flags |= CLocatorAPI::flCacheFiles;
+        else 
+			flags &= ~CLocatorAPI::flCacheFiles;
 #endif // DEBUG
 #ifdef _EDITOR // for EDITORS - no cache
         flags &= ~CLocatorAPI::flCacheFiles;
@@ -109,12 +104,13 @@ void xrCore::_initialize(LPCSTR _ApplicationName, LogCallback cb, BOOL init_fs, 
 
 #ifndef _EDITOR
 #ifndef ELocatorAPIH
-        if (0 != strstr(Params, "-file_activity")) flags |= CLocatorAPI::flDumpFileActivity;
+        if (0 != strstr(Params, "-file_activity")) 
+			flags |= CLocatorAPI::flDumpFileActivity;
 #endif
 #endif
         FS._initialize(flags, 0, fs_fname);
 		Msg("Build: %d\nBuild date: %s\n", build_id, build_date);
-		Msg("Engine Discord: https://discord.gg/MVu2FzyJV5");
+
         EFS._initialize();
 #ifdef DEBUG
 #ifndef _EDITOR
@@ -171,7 +167,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvRese
         _controlfp(_RC_NEAR, _MCW_RC);
         _control87(_MCW_EM, MCW_EM);
     }
-        //. LogFile.reserve (256);
     break;
     case DLL_THREAD_ATTACH:
         if (!strstr(GetCommandLine(), "-editor"))

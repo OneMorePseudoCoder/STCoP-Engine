@@ -30,8 +30,6 @@ class CLevelDebug;
 class CLevelSoundManager;
 class CGameTaskManager;
 class CZoneList;
-class message_filter;
-class demo_info;
 
 class CDebugRenderer;
 
@@ -141,7 +139,6 @@ private:
     xr_string m_sConnectResult;
 
 public:
-    void OnGameSpyChallenge(NET_Packet* P);
     void OnBuildVersionChallenge();
     void OnConnectResult(NET_Packet* P);
     // Static particles

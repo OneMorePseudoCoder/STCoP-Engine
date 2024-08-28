@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "xr_effgamma.h"
-//#include "device.h"
 
 #if defined(USE_DX10) || defined(USE_DX11)
 
@@ -19,6 +18,7 @@ void CGammaControl::Update()
 			GenLUT( GC, G );
 			pOutput->SetGammaControl(&G);
 		}
+		_RELEASE(pOutput);
 	}
 }
 
@@ -37,10 +37,7 @@ void CGammaControl::GenLUT( const DXGI_GAMMA_CONTROL_CAPABILITIES &GC, DXGI_GAMM
 
 	for (u32 i=0; i<GC.NumGammaControlPoints; i++) 
 	{
-		float	c = (C+.5f)*powf( GC.ControlPointPositions[i], og )
-					+ (B-0.5f)*0.5f 
-					- C*0.5f
-					+ 0.25f;
+		float c = (C + .5f) * powf(GC.ControlPointPositions[i], og) + (B - 0.5f) * 0.5f - C * 0.5f + 0.25f;
 
 		c = GC.MinConvertedValue + c*DeltaCV;
 

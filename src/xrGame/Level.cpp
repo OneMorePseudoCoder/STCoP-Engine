@@ -40,8 +40,6 @@
 #include "actor.h"
 #include "player_hud.h"
 #include "UI/UIGameTutorial.h"
-#include "file_transfer.h"
-#include "message_filter.h"
 #include "CustomDetector.h"
 #include "xrPhysics/IPHWorld.h"
 #include "xrPhysics/console_vars.h"
@@ -164,7 +162,6 @@ CLevel::~CLevel()
         g_tutorial->m_pStoredInputReceiver = nullptr;
     if (g_tutorial2 && g_tutorial2->m_pStoredInputReceiver == this)
         g_tutorial2->m_pStoredInputReceiver = nullptr;
-    xr_delete(m_msg_filter);
     if (IsDemoSave())
     {
         StopSaveDemo();
@@ -332,8 +329,6 @@ void CLevel::ProcessGameEvents()
             }
             case M_FILE_TRANSFER:
             {
-                if (m_file_transfer) // in case of net_Stop
-                    m_file_transfer->on_message(&P);
                 break;
             }
             case M_GAMEMESSAGE:

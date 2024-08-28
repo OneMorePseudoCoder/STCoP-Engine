@@ -5,7 +5,6 @@
 #include "script_export_space.h"
 #include "../xrCore/client_id.h"
 #include "game_sv_event_queue.h"
-#include "game_sv_item_respawner.h"
 #include "../xrNetServer/NET_Server.h"
 
 #define MAX_PLAYERS_COUNT 32
@@ -21,45 +20,17 @@ class GameEventQueue;
 class	game_sv_GameState	: public game_GameState
 {
 	typedef game_GameState inherited;
+public:
+	BOOL							sv_force_sync;
+
 protected:
 	xrServer*						m_server;
 	
 	GameEventQueue*					m_event_queue;
-	item_respawn_manager			m_item_respawner;
 		
 	//Events
 	virtual		void				OnEvent					(NET_Packet &tNetPacket, u16 type, u32 time, ClientID sender );
 
-	virtual		void				ReadOptions				(shared_str &options);
-	virtual		void				ConsoleCommands_Create	();
-	virtual		void				ConsoleCommands_Clear	();
-
-	struct SMapRot{
-		shared_str	map_name;
-		shared_str	map_ver;
-	};
-	DEF_DEQUE(MAP_ROTATION_LIST,	SMapRot);
-	bool							m_bMapRotation;
-	bool							m_bMapNeedRotation;
-	bool							m_bMapSwitched;
-	bool							m_bFastRestart;
-	MAP_ROTATION_LIST				m_pMapRotation_List;
-
-public:
-#define		TEAM_COUNT 4
-
-	BOOL							sv_force_sync;
-	float							rpoints_MinDist [TEAM_COUNT];
-	xr_vector<RPoint>				rpoints	[TEAM_COUNT];
-	DEF_VECTOR(RPRef, RPoint*);
-	RPRef							rpointsBlocked;
-	
-	virtual		void				SaveMapList				();
-	virtual		bool				HasMapRotation			() {return m_bMapRotation; };
-
-				bool				FindPlayerName			(char const * name, IClient const * to_exclude);
-				void				GenerateNewName			(char const * old_name, char * dest, u32 const dest_size);
-				void				CheckPlayerName			(xrClientData* CL);
 public:
 	virtual		void				OnPlayerConnect			(ClientID id_who);
 	virtual		void				OnPlayerDisconnect		(ClientID id_who, LPSTR Name, u16 GameID);
@@ -69,13 +40,7 @@ public:
 	virtual		void				OnPlayerFire			(ClientID id_who, NET_Packet &P) {};
 	virtual		void				OnPlayer_Sell_Item		(ClientID id_who, NET_Packet &P) {};
 				void				GenerateGameMessage		(NET_Packet &P);
-	
-				void				MapRotation_AddMap		(LPCSTR MapName, LPCSTR MapVer);
-				void				MapRotation_ListMaps	();
-	virtual		bool				OnNextMap				()									{return false;}
-	virtual		void				OnPrevMap				()									{}
-	virtual		bool				SwitchToNextMap			()	{ return m_bMapNeedRotation; };
-	
+
 public:
 									game_sv_GameState		();
 	virtual							~game_sv_GameState		();
@@ -89,13 +54,9 @@ public:
 	virtual		u16					get_id_2_eid			(ClientID id);
 	virtual		u32					get_players_count		();
 				CSE_Abstract*		get_entity_from_eid		(u16 id);
-				RPoint				getRP					(u16 team_idx, u32 rp_idx);
-				u32					getRPcount				(u16 team_idx);
+
 	// Signals
-	virtual		void				signal_Syncronize		();
-	virtual		void				assign_RP				(CSE_Abstract* E, game_PlayerState* ps_who);
-	virtual		bool				IsPointFreezed			(RPoint* rp);
-	virtual		void				SetPointFreezed			(RPoint* rp);
+				virtual		void				signal_Syncronize();
 
 #ifdef DEBUG
 	virtual		void				OnRender				();
@@ -163,6 +124,4 @@ public:
 	virtual		void				on_death				(CSE_Abstract *e_dest, CSE_Abstract *e_src);
 
 	virtual		void				DumpOnlineStatistic		(){};
-				
-				bool				CheckNewPlayer			(xrClientData* CL);
 };

@@ -16,7 +16,6 @@
 
 #include "ActorEffector.h"
 #include "actor.h"
-#include "spectator.h"
 
 #include "UI/UItextureMaster.h"
 

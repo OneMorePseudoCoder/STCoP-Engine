@@ -145,6 +145,7 @@
 #	include "space_restrictor.h"
 #	include "physicobject.h"
 #	include "smart_cover_object.h"
+#	include "ui/FactionState.h"
 #	include "actor.h"
 
 #endif

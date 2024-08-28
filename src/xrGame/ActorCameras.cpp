@@ -16,7 +16,6 @@
 #include "level.h"
 #include "../xrEngine/cl_intersect.h"
 
-//#include "elevatorstate.h"
 #include "CharacterPhysicsSupport.h"
 #include "EffectorShot.h"
 
@@ -305,8 +304,16 @@ void CActor::cam_Update(float dt, float fFOV)
 		camUpdateLadder(dt);
 	on_weapon_shot_update();
 
-	Fvector point		= {0,CameraHeight(),0}; 
-	Fvector dangle		= {0,0,0};
+	// Alex ADD: smooth crouch fix
+	constexpr const float HeightInterpolationSpeed = 4.f;
+
+    if (CurrentHeight < 0.0f)
+        CurrentHeight = CameraHeight();
+
+	if (CurrentHeight != CameraHeight())
+		CurrentHeight = (CurrentHeight * (1.0f - HeightInterpolationSpeed * dt)) + (CameraHeight() * HeightInterpolationSpeed * dt);
+
+	Fvector point = { 0, CurrentHeight, 0 }, dangle = { 0, 0, 0 };
 	Fmatrix				xform;
 	xform.setXYZ		(0,r_torso.yaw,0);
 	xform.translate_over(XFORM().c);

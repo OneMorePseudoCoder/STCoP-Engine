@@ -27,7 +27,6 @@
 
 // breakpoints
 #include "../xrEngine/xr_input.h"
-//
 #include "Actor.h"
 #include "ActorAnimation.h"
 #include "actor_anim_defs.h"
@@ -197,6 +196,9 @@ CActor::CActor() : CEntityAlive()
 
 	m_disabled_hitmarks		= false;
 	m_inventory_disabled	= false;
+	
+	// Alex ADD: for smooth crouch fix
+    CurrentHeight = -1.f;
 }
 
 CActor::~CActor()
@@ -380,7 +382,7 @@ void CActor::Load	(LPCSTR section )
 
 	invincibility_fire_shield_1st	= READ_IF_EXISTS(pSettings,r_string,section,"Invincibility_Shield_1st",0);
 	invincibility_fire_shield_3rd	= READ_IF_EXISTS(pSettings,r_string,section,"Invincibility_Shield_3rd",0);
-//-----------------------------------------
+	//-----------------------------------------
 	m_AutoPickUp_AABB				= READ_IF_EXISTS(pSettings,r_fvector3,section,"AutoPickUp_AABB",Fvector().set(0.02f, 0.02f, 0.02f));
 	m_AutoPickUp_AABB_Offset		= READ_IF_EXISTS(pSettings,r_fvector3,section,"AutoPickUp_AABB_offs",Fvector().set(0, 0, 0));
 

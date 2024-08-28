@@ -1,11 +1,9 @@
 #include "stdafx.h"
 #include "Level.h"
 #include "xrServer.h"
-#include "spectator.h"
 #include "actor.h"
 #include "game_cl_base.h"
 #include "../xrCore/stream_reader.h"
-#include "Message_Filter.h"
 #include "../xrEngine/CameraManager.h"
 
 void CLevel::PrepareToSaveDemo		()
@@ -65,17 +63,6 @@ void CLevel::StartPlayDemo()
 	m_starting_spawns_dtime	= 0;
 	Msg("! ------------- Demo Started ------------");
 	CatchStartingSpawns	();
-
-	//if using some filter ...
-#ifdef MP_LOGGING
-	message_filter* tmp_msg_filter = GetMessageFilter();
-	if (tmp_msg_filter)
-	{
-		string_path demo_msg_path;
-		FS.update_path(demo_msg_path, "$logs$", "dbg_msg.log");
-		tmp_msg_filter->dbg_set_message_log_file(demo_msg_path);
-	}
-#endif //#ifdef MP_LOGGING
 }
 
 void CLevel::StopPlayDemo()
@@ -170,8 +157,6 @@ void CLevel::SimulateServerUpdate()
 	NET_Packet tmp_packet;
 	while (LoadPacket(tmp_packet, tdelta))
 	{
-		if (m_msg_filter)
-			m_msg_filter->check_new_data(tmp_packet);
 		IPureClient::OnMessage(tmp_packet.B.data, tmp_packet.B.count);
 	}
 }
@@ -184,49 +169,22 @@ void CLevel::SpawnDemoSpectator()
 
 void CLevel::SetDemoSpectator(CObject* spectator)
 {
-	R_ASSERT2	(smart_cast<CSpectator*>(spectator),
-		"tried to set not an spectator object to demo spectator");
 	m_current_spectator = spectator;
 }
 
 float CLevel::GetDemoPlayPos() const
 {
-	//if (!m_reader)
-	//	return 1.f;
 	if (m_reader->eof())
 		return 1.f;
 	
 	return ( float(m_reader->tell()) / float(m_reader->length()) );
 }
 
-message_filter*	 CLevel::GetMessageFilter()
-{
-	if (m_msg_filter)
-		return m_msg_filter;
-	m_msg_filter = xr_new<message_filter>();
-	return m_msg_filter;
-}
-
 void CLevel::CatchStartingSpawns()
-{
-	message_filter::msg_type_subtype_func_t spawns_catcher =
-		fastdelegate::MakeDelegate(this, &CLevel::MSpawnsCatchCallback);
-	message_filter* tmp_msg_filter = GetMessageFilter();
-	R_ASSERT(tmp_msg_filter);
-	u32 fake_sub_msg = 0;
-	tmp_msg_filter->filter(M_SPAWN, fake_sub_msg, spawns_catcher);
-}
+{}
 
 void __stdcall CLevel::MSpawnsCatchCallback(u32 message, u32 subtype, NET_Packet & packet)
-{
-	//see SimulateServerUpdate and using of message_filter
-	m_starting_spawns_pos	= m_prev_packet_pos; 
-	m_starting_spawns_dtime	= m_prev_packet_dtime;
-	u32 fake_sub_msg = 0;
-	message_filter* tmp_msg_filter = GetMessageFilter();
-	R_ASSERT(tmp_msg_filter);
-	tmp_msg_filter->remove_filter(M_SPAWN, fake_sub_msg);
-}
+{}
 
 CObject* CLevel::GetDemoSpectator()	
 { 

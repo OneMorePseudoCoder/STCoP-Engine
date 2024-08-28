@@ -13,6 +13,7 @@ CRT::CRT			()
 	dwHeight		= 0;
 	fmt				= D3DFMT_UNKNOWN;
 }
+
 CRT::~CRT			()
 {
 	destroy			();
@@ -26,7 +27,7 @@ void CRT::create	(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
 	if (pSurface)	return;
 
 	R_ASSERT	(HW.pDevice && Name && Name[0] && w && h);
-	_order		= CPU::GetCLK()	;	//RDEVICE.GetTimerGlobal()->GetElapsed_clk();
+	_order		= CPU::GetCLK()	;
 
 	HRESULT		_hr;
 

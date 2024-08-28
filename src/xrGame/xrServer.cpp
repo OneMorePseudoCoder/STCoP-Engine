@@ -15,8 +15,6 @@
 
 #include "../xrEngine/XR_IOConsole.h"
 #include "ui/UIInventoryUtilities.h"
-#include "file_transfer.h"
-#include "xrServer_info.h"
 #include <functional>
 
 using namespace std::placeholders;
@@ -55,10 +53,7 @@ xrClientData::~xrClientData()
 
 xrServer::xrServer() : IPureServer(Device.GetTimerGlobal(), g_dedicated_server)
 {
-	m_file_transfers	= NULL;
 	m_aDelayedPackets.clear();
-	m_server_logo		= NULL;
-	m_server_rules		= NULL;
 	m_last_updates_size	= 0;
 	m_last_update_time	= 0;
 }
@@ -80,9 +75,6 @@ xrServer::~xrServer()
 	}
 	m_aDelayedPackets.clear();
 	entities.clear();
-	delete_data(m_info_uploaders);
-	xr_delete(m_server_logo);
-	xr_delete(m_server_rules);
 }
 
 //--------------------------------------------------------------------
@@ -101,15 +93,14 @@ IClient*	xrServer::client_Create		()
 {
 	return xr_new<xrClientData> ();
 }
+
 void		xrServer::client_Replicate	()
-{
-}
+{}
 
 IClient*	xrServer::client_Find_Get	(ClientID ID)
 {
 	DWORD dwPort			= 0;
 	ip_address tmp_ip_address;
-
 
 	if ( !psNET_direct_connect )
 		GetClientAddress(ID, tmp_ip_address, &dwPort );
@@ -136,47 +127,34 @@ IClient*	xrServer::client_Find_Get	(ClientID ID)
 void		xrServer::client_Destroy	(IClient* C)
 {
 	// Delete assosiated entity
-	// xrClientData*	D = (xrClientData*)C;
-	// CSE_Abstract* E = D->owner;
-	IClient* alife_client = net_players.FindAndEraseClient(
-		std::bind(std::equal_to<IClient*>(), C, _1)
-	);
-	//VERIFY(alife_client);
+	IClient* alife_client = net_players.FindAndEraseClient(std::bind(std::equal_to<IClient*>(), C, _1));
+
 	if (alife_client)
 	{
-		CSE_Abstract* pOwner	= static_cast<xrClientData*>(alife_client)->owner;
-		CSE_Spectator* pS		= smart_cast<CSE_Spectator*>(pOwner);
-		if (pS)
-		{
-			NET_Packet			P;
-			P.w_begin			(M_EVENT);
-			P.w_u32				(Level().timeServer());//Device.TimerAsync());
-			P.w_u16				(GE_DESTROY);
-			P.w_u16				(pS->ID);
-			SendBroadcast		(C->ID,P,net_flags(TRUE,TRUE));
-		};
-
 		DelayedPacket pp;
 		pp.SenderID = alife_client->ID;
 		xr_deque<DelayedPacket>::iterator it;
-		do{
+		do
+		{
 			it						=std::find(m_aDelayedPackets.begin(),m_aDelayedPackets.end(),pp);
 			if(it!=m_aDelayedPackets.end())
 			{
 				m_aDelayedPackets.erase	(it);
 				Msg("removing packet from delayed event storage");
-			}else
+			}
+			else
 				break;
-		}while(true);
+		}
+		while(true);
 		
+		CSE_Abstract* pOwner	= static_cast<xrClientData*>(alife_client)->owner;
 		if (pOwner)
 		{
 			game->CleanDelayedEventFor(pOwner->ID);
 		}
 		
-//.		if (!alife_client->flags.bVerified)
 		xrClientData*	xr_client = static_cast<xrClientData*>(alife_client);
-		m_disconnected_clients.Add(xr_client); //xr_delete(alife_client);				
+		m_disconnected_clients.Add(xr_client);				
 	}
 }
 
@@ -204,8 +182,6 @@ INT g_sv_SendUpdate = 0;
 
 void xrServer::Update	()
 {
-	NET_Packet		Packet;
-
 	VERIFY						(verify_entities());
 
 	ProceedDelayedPackets();
@@ -213,41 +189,14 @@ void xrServer::Update	()
 	game->ProcessDelayedEvent();
 	game->Update						();
 
-	// spawn queue
-	u32 svT								= Device.TimerAsync();
-	while (!(q_respawn.empty() || (svT<q_respawn.begin()->timestamp)))
-	{
-		// get
-		svs_respawn	R					= *q_respawn.begin();
-		q_respawn.erase					(q_respawn.begin());
-
-		// 
-		CSE_Abstract* E					= ID_to_entity(R.phantom);
-		E->Spawn_Write		(Packet,FALSE);
-		u16								ID;
-		Packet.r_begin		(ID);
-		R_ASSERT(M_SPAWN==ID);
-		ClientID						clientID; 
-		clientID.set(0xffff);
-		Process_spawn		(Packet,clientID);
-	}
-
-
 	SendUpdatesToAll();
-
 
 	if (game->sv_force_sync)	Perform_game_export();
 
 	VERIFY						(verify_entities());
 	//-----------------------------------------------------
 	
-	PerformCheckClientsForMaxPing	();
 	Flush_Clients_Buffers			();
-	
-	if( 0==(Device.dwFrame%100) )//once per 100 frames
-	{
-		UpdateBannedList();
-	}
 }
 
 void _stdcall xrServer::SendGameUpdateTo(IClient* client)
@@ -343,60 +292,26 @@ u32 xrServer::OnDelayedMessage	(NET_Packet& P, ClientID sender)			// Non-Zero me
 	u16						type;
 	P.r_begin				(type);
 
-	//csPlayers.Enter			();
-
 	VERIFY							(verify_entities());
 	xrClientData* CL				= ID_to_client(sender);
-	//R_ASSERT2						(CL, make_string("packet type [%d]",type).c_str());
 
 	switch (type)
 	{
 		case M_CLIENT_REQUEST_CONNECTION_DATA:
 		{
-			IClient* tmp_client = net_players.GetFoundClient(
-				ClientIdSearchPredicate(sender));
+			IClient* tmp_client = net_players.GetFoundClient(ClientIdSearchPredicate(sender));
 			VERIFY(tmp_client);
 			OnCL_Connected(tmp_client);
-			//OnCL_Connected				(CL);
 		}break;
 		case M_REMOTE_CONTROL_CMD:
 		{
-			if(CL->m_admin_rights.m_has_admin_rights)
-			{
-				string1024			buff;
-				P.r_stringZ			(buff);
-				SetLogCB			(console_log_cb);
-				_tmp_log.clear		();
-				LPSTR		result_command;
-				string64	tmp_number_str;
-				xr_sprintf(tmp_number_str, " raid:%u", CL->ID.value());
-				STRCONCAT(result_command, buff, tmp_number_str);
-				Console->Execute	(result_command);
-				SetLogCB			(NULL);
-
-				NET_Packet			P_answ;			
-				for(u32 i=0; i<_tmp_log.size(); ++i)
-				{
-					P_answ.w_begin		(M_REMOTE_CONTROL_CMD);
-					P_answ.w_stringZ	(_tmp_log[i]);
-					SendTo				(sender,P_answ,net_flags(TRUE,TRUE));
-				}
-			}else
-			{
-				NET_Packet			P_answ;			
-				P_answ.w_begin		(M_REMOTE_CONTROL_CMD);
-				P_answ.w_stringZ	("you dont have admin rights");
-				SendTo				(sender,P_answ,net_flags(TRUE,TRUE));
-			}
 		}break;
 		case M_FILE_TRANSFER:
 		{
-			m_file_transfers->on_message(&P, sender);
 		}break;
 	}
 	VERIFY							(verify_entities());
 
-	//csPlayers.Leave					();
 	return 0;
 }
 
@@ -564,46 +479,10 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 		}break;
 	case M_PLAYER_FIRE:
 		{
-			if (game)
-				game->OnPlayerFire(sender, P);
 		}break;
 	case M_REMOTE_CONTROL_AUTH:
 		{
-			string512				reason;
-			shared_str				user;
-			shared_str				pass;
-			P.r_stringZ				(user);
-			if(0==stricmp(user.c_str(),"logoff"))
-			{
-				CL->m_admin_rights.m_has_admin_rights	= FALSE;
-				if (CL->ps)
-				{
-					CL->ps->resetFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
-				}
-				xr_strcpy				(reason,"logged off");
-				Msg("# Remote administrator logged off.");
-			}else
-			{
-				P.r_stringZ				(pass);
-				bool res = CheckAdminRights(user, pass, reason);
-				if(res){
-					CL->m_admin_rights.m_has_admin_rights	= TRUE;
-					CL->m_admin_rights.m_dwLoginTime		= Device.dwTimeGlobal;
-					if (CL->ps)
-					{
-						CL->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
-					}
-					Msg("# User [%s] logged as remote administrator.", user.c_str());
-				}else
-					Msg("# User [%s] tried to login as remote administrator. Access denied.", user.c_str());
-
-			}
-			NET_Packet			P_answ;			
-			P_answ.w_begin		(M_REMOTE_CONTROL_AUTH);
-			P_answ.w_stringZ	(reason);
-			SendTo				(CL->ID,P_answ,net_flags(TRUE,TRUE));
 		}break;
-
 	case M_REMOTE_CONTROL_CMD:
 		{
 			AddDelayedPacket(P, sender);
@@ -786,43 +665,7 @@ CSE_Abstract*	xrServer::GetEntity			(u32 Num)
 };
 
 void		xrServer::OnChatMessage(NET_Packet* P, xrClientData* CL)
-{
-	if (!CL->net_Ready)
-		return;
-
-	struct MessageSenderController
-	{
-		xrServer*			m_owner;
-		s16					m_team;
-		game_PlayerState*	m_sender_ps;
-		NET_Packet*			m_packet;
-		MessageSenderController(xrServer* owner) :
-			m_owner(owner)
-		{}
-		void operator()(IClient* client)
-		{
-			xrClientData* xr_client = static_cast<xrClientData*>(client);
-			game_PlayerState* ps = xr_client->ps;
-			if (!ps)
-				return;
-			if (!xr_client->net_Ready)
-				return;
-			if (m_team != -1 && ps->team != m_team)
-				return;
-			if (m_sender_ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) &&
-				!ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
-			{
-				return;
-			}
-			m_owner->SendTo(client->ID, *m_packet);
-		}
-	};
-	MessageSenderController	mesenger(this);
-	mesenger.m_team			= P->r_s16();
-	mesenger.m_sender_ps	= CL->ps;
-	mesenger.m_packet		= P;
-	ForEachClientDoSender(mesenger);
-};
+{};
 
 #ifdef DEBUG
 
@@ -966,46 +809,15 @@ void xrServer::GetServerInfo( CServerInfo* si )
 }
 
 void xrServer::AddCheater			(shared_str const & reason, ClientID const & cheaterID)
-{
-	CheaterToKick new_cheater;
-	new_cheater.reason = reason;
-	new_cheater.cheater_id = cheaterID;
-	m_cheaters.push_back(new_cheater);
-}
+{}
 
 void xrServer::KickCheaters			()
-{
-	for (cheaters_t::iterator i = m_cheaters.begin(),
-		ie = m_cheaters.end(); i != ie; ++i)
-	{
-		IClient* tmp_client = GetClientByID(i->cheater_id);
-		if (!tmp_client)
-		{
-			Msg("! ERROR: KickCheaters: client [%u] not found", i->cheater_id);
-			continue;
-		}
-		ClientID tmp_client_id = tmp_client->ID;
-		DisconnectClient(tmp_client, i->reason.c_str());
-		
-		NET_Packet		P;
-		P.w_begin		( M_GAMEMESSAGE ); 
-		P.w_u32			( GAME_EVENT_SERVER_STRING_MESSAGE );
-		P.w_stringZ		( i->reason.c_str() + 2 );
-		Level().Server->SendBroadcast( tmp_client_id, P );
-	}
-	m_cheaters.clear();
-}
+{}
 
 void xrServer::MakeScreenshot(ClientID const & admin_id, ClientID const & cheater_id)
 {}
 
 void xrServer::MakeConfigDump(ClientID const & admin_id, ClientID const & cheater_id)
-{}
-
-void xrServer::initialize_screenshot_proxies()
-{}
-
-void xrServer::deinitialize_screenshot_proxies()
 {}
 
 struct PlayerInfoWriter

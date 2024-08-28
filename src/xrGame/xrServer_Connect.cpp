@@ -5,7 +5,6 @@
 #include "game_cl_single.h"
 #include "MainMenu.h"
 #include "../xrEngine/x_ray.h"
-#include "file_transfer.h"
 #include "../xrNetServer/NET_AuthCheck.h"
 #pragma warning(push)
 #pragma warning(disable:4995)
@@ -102,18 +101,14 @@ void xrServer::AttachNewClient			(IClient* CL)
         SV_Client			= CL;
 		CL->flags.bLocal	= 1;
 		SendTo_LL( SV_Client->ID, &msgConfig, sizeof(msgConfig), net_flags(TRUE,TRUE,TRUE,TRUE) );
-	} else
+	} 
+	else
 	{
 		SendTo_LL				(CL->ID,&msgConfig,sizeof(msgConfig), net_flags(TRUE, TRUE, TRUE, TRUE));
 		Server_Client_Check		(CL); 
 	}
 
-	// gen message
-	if (!NeedToCheckClient_GameSpy_CDKey(CL))
-	{
-		//-------------------------------------------------------------
-		Check_GameSpy_CDKey_Success(CL);
-	}
+	RequestClientDigest(CL);
 
 	CL->m_guid[0]=0;
 }
@@ -134,7 +129,6 @@ void xrServer::RequestClientDigest(IClient* CL)
 	SendTo						(CL->ID, P);
 }
 
-#define NET_BANNED_STR	"Player banned by server!"
 void xrServer::ProcessClientDigest(xrClientData* xrCL, NET_Packet* P)
 {
 	R_ASSERT(xrCL);

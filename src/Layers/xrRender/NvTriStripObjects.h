@@ -45,11 +45,12 @@ public:
 // nice and dumb edge class that points knows its
 // indices, the two faces, and the next edge using
 // the lesser of the indices
-class NvEdgeInfo {
+class NvEdgeInfo 
+{
 public:
-	
 	// constructor puts 1 ref on us
-	NvEdgeInfo (int v0, int v1){
+	NvEdgeInfo (int v0, int v1)
+	{
 		m_v0       = v0;
 		m_v1       = v1;
 		m_face0    = NULL;
@@ -64,10 +65,11 @@ public:
 	}
 	
 	// ref and unref
-	void Unref ()	{ 
+	void Unref ()	
+	{ 
 		if (--m_refCount == 0) 
 		{
-			Memory.mem_free	(this);
+			delete this;
 		}
 	}
 	
@@ -83,9 +85,11 @@ public:
 // to begin a triangle strip.  Some operations may
 // want to create lists of such items, so they were
 // pulled out into a class
-class NvStripStartInfo {
+class NvStripStartInfo 
+{
 public:
-	NvStripStartInfo(NvFaceInfo *startFace, NvEdgeInfo *startEdge, bool toV1){
+	NvStripStartInfo(NvFaceInfo *startFace, NvEdgeInfo *startEdge, bool toV1)
+	{
 		m_startFace    = startFace;
 		m_startEdge    = startEdge;
 		m_toV1         = toV1;

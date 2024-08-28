@@ -15,8 +15,8 @@ namespace PAPI{
         void*				owner;
         u32					param;
         
-        public:
-					ParticleEffect	(int mp)
+    public:
+		ParticleEffect	(int mp)
 		{
         	owner					= 0;
             param 					= 0;
@@ -26,12 +26,13 @@ namespace PAPI{
 			max_particles			= mp;
 			particles_allocated		= max_particles;
 			particles = xr_alloc<Particle>(max_particles);
-			//Msg( "Allocated %u bytes (%u particles) with base address 0x%p" , max_particles * sizeof( Particle ) , max_particles , particles );
 		}
-					~ParticleEffect	()
+		
+		~ParticleEffect	()
 		{
 			xr_free					(particles);
 		}
+		
 		IC int		Resize			(u32 max_count)
 		{
 			// Reducing max.
@@ -71,7 +72,6 @@ namespace PAPI{
 			Particle& m				= particles[i];
             if (d_cb)				d_cb(owner,param,m,i);
             m 						= particles[--p_count]; // не менять правило удаления !!! (dependence ParticleGroup)
-			// Msg( "pDel() : %u" , p_count );
 		}
 
 		IC BOOL		Add				(const pVector &pos, const pVector &posB,
@@ -92,7 +92,6 @@ namespace PAPI{
 				P.flags.assign(flags); 
 	            if (b_cb)	b_cb(owner,param,P,p_count);
 				p_count++;
-				// Msg( "pAdd() : %u" , p_count );
 				return TRUE;
 			}
 		}

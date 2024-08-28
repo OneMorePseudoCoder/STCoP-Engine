@@ -1,6 +1,4 @@
 #include "stdafx.h"
-//#include "PHdynamicdata.h"
-//#include "Physics.h"
 #include "level.h"
 #include "../xrEngine/x_ray.h"
 #include "../xrEngine/igame_persistent.h"
@@ -8,7 +6,6 @@
 #include "ai_space.h"
 #include "game_cl_base.h"
 #include "NET_Queue.h"
-#include "file_transfer.h"
 #include "hudmanager.h"
 
 #include "../xrphysics/iphworld.h"
@@ -28,20 +25,12 @@ bool	CLevel::net_start_client1				()
 	pApp->LoadBegin	();
 	// name_of_server
 	string64					name_of_server = "";
-//	xr_strcpy						(name_of_server,*m_caClientOptions);
+
 	if (strchr(*m_caClientOptions, '/'))
 		strncpy_s(name_of_server,*m_caClientOptions, strchr(*m_caClientOptions, '/')-*m_caClientOptions);
 
 	if (strchr(name_of_server,'/'))	*strchr(name_of_server,'/') = 0;
 
-	// Startup client
-/*
-	string256					temp;
-	xr_sprintf						(temp,"%s %s",
-								CStringTable().translate("st_client_connecting_to").c_str(), name_of_server);
-
-	g_pGamePersistent->LoadTitle				(temp);
-*/
 	g_pGamePersistent->LoadTitle();
 	return true;
 }
@@ -209,9 +198,7 @@ bool	CLevel::net_start_client5				()
 		{
 //			g_pGamePersistent->LoadTitle		("st_loading_textures");
 			g_pGamePersistent->LoadTitle		();
-			//Device.Resources->DeferredLoad	(FALSE);
 			Device.m_pRender->DeferredLoad		(FALSE);
-			//Device.Resources->DeferredUpload	();
 			Device.m_pRender->ResourcesDeferredUpload();
 			LL_CheckTextures					();
 		}

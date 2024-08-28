@@ -534,9 +534,6 @@ public:
     }
 };
 
-
-
-
 enum EBoneCallbackType
 {
     bctDummy = u32(0), // 0 - required!!!
@@ -545,15 +542,17 @@ enum EBoneCallbackType
     bctForceU32 = u32(-1),
 };
 
-
 IC void CBoneInstance::construct()
 {
-    ZeroMemory(this, sizeof(*this));
     mTransform.identity();
 
     mRenderTransform.identity();
-    Callback_overwrite = FALSE;
-}
+    Callback = nullptr;
+    Callback_Param = nullptr;
+    Callback_overwrite = false;
+    Callback_type = 0;
 
+    ZeroMemory(&param, sizeof(param));
+}
 
 #endif

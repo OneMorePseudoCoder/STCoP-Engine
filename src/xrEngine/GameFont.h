@@ -90,8 +90,7 @@ public:
     void OutSetI(float x, float y);
     void OutSet(float x, float y);
 
-    void MasterOut(BOOL bCheckDevice, BOOL bUseCoords, BOOL bScaleCoords, BOOL bUseSkip,
-        float _x, float _y, float _skip, LPCSTR fmt, va_list p);
+    void MasterOut(BOOL bCheckDevice, BOOL bUseCoords, BOOL bScaleCoords, BOOL bUseSkip, float _x, float _y, float _skip, LPCSTR fmt, va_list p);
 
     u32 smart_strlen(const char* S);
     BOOL IsMultibyte() { return (uFlags & fsMultibyte); };

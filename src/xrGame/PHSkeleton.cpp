@@ -8,8 +8,6 @@
 #include "PHSynchronize.h"
 #include "../xrphysics/MathUtils.h"
 #include "../Include/xrRender/Kinematics.h"
-//#include "PHObject.h"
-//#include "../xrphysics/PHCollideValidator.h"
 #include "ai_object_location.h"
 #include "ai_space.h"
 #include "game_graph.h"

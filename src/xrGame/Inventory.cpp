@@ -63,9 +63,6 @@ CInventory::CInventory()
 	m_dwModifyFrame								= 0;
 	m_drop_last_frame							= false;
 	
-	InitPriorityGroupsForQSwitch				();
-	m_next_item_iteration_time					= 0;
-
 	for (u16 i = 0; i < LAST_SLOT+1; ++i)
 	{
 		m_blocked_slots[i] = 0;
@@ -309,8 +306,6 @@ bool CInventory::Slot(u16 slot_id, PIItem pIItem, bool bNotActivate, bool strict
 
 	if (ItemFromSlot(slot_id) && pIItem->CurrPlace() == eItemPlaceSlot && pIItem->CurrSlot() == slot_id)
 		return false;
-
-	//Msg("To Slot %s[%d]", *pIItem->object().cName(), pIItem->object().ID());
 
 	if(!strict_placement && !CanPutInSlot(pIItem,slot_id)) 
 	{

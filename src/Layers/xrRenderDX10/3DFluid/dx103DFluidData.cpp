@@ -167,16 +167,15 @@ void dx103DFluidData::ParseProfile(const xr_string &Profile)
 	if (ini.line_exist("volume", "GravityBuoyancy"))
 		m_Settings.m_fGravityBuoyancy = ini.r_float("volume", "GravityBuoyancy");
 	
-
 	u32 iEmittersNum = ini.r_u32("volume", "EmittersNum");
 
+    m_Emitters.clear();
 	m_Emitters.resize(iEmittersNum);
 
 	for ( u32 i=0; i<iEmittersNum; ++i )
 	{
 		string32	EmitterSectionName;
 		CEmitter	&Emitter = m_Emitters[i];
-		ZeroMemory(&Emitter, sizeof(Emitter));
 		xr_sprintf(EmitterSectionName, "emitter%02d", i);
 
 		Emitter.m_eType = (dx103DFluidEmitters::EmitterType)ini.r_token( EmitterSectionName, "Type", emitter_type_token);

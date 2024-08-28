@@ -121,15 +121,6 @@ struct	game_TeamState
 	game_TeamState();
 };
 
-// [15.11.07] Alexander Maniluk: added next enumeratuion to solve problem with team identifiers
-enum ETeam
-{
-	etGreenTeam			=	0x00,
-	etBlueTeam			=	0X01,
-	etSpectatorsTeam	=	0x02
-};
-//--------------
-
 #pragma pack(pop)
 
 class	game_GameState : public DLL_Pure

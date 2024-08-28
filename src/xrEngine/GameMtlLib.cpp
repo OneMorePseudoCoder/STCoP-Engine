@@ -3,10 +3,9 @@
 #pragma hdrstop
 
 #include "GameMtlLib.h"
-//#include "../include/xrapi/xrapi.h"
 
 CGameMtlLibrary GMLib;
-//CSound_manager_interface* Sound = NULL;
+
 #ifdef _EDITOR
 CGameMtlLibrary* PGMLib = NULL;
 #endif
@@ -133,21 +132,13 @@ void CGameMtlLibrary::Load()
     }
 #endif
 
-    /*
-     for (GameMtlPairIt p_it=material_pairs.begin(); material_pairs.end() != p_it; ++p_it){
-     SGameMtlPair* S = *p_it;
-     for (int k=0; k<S->StepSounds.size(); k++){
-     Msg("%40s - 0x%x", S->StepSounds[k].handle->file_name(), S->StepSounds[k].g_type);
-     }
-     }
-     */
     FS.r_close (F);
 }
 
 #ifdef GM_NON_GAME
 SGameMtlPair::~SGameMtlPair ()
-{
-}
+{}
+
 void SGameMtlPair::Load(IReader& fs)
 {
     shared_str buf;
@@ -158,8 +149,10 @@ void SGameMtlPair::Load(IReader& fs)
     ID = fs.r_u32();
     ID_parent = fs.r_u32();
     u32 own_mask = fs.r_u32();
-    if (GAMEMTL_NONE_ID==ID_parent) OwnProps.one ();
-    else OwnProps.assign (own_mask);
+    if (GAMEMTL_NONE_ID==ID_parent) 
+		OwnProps.one ();
+    else 
+		OwnProps.assign (own_mask);
 
     R_ASSERT(fs.find_chunk(GAMEMTLPAIR_CHUNK_BREAKING));
     fs.r_stringZ (buf);
