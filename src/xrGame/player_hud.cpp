@@ -564,7 +564,6 @@ void player_hud::render_hud()
 		m_attached_items[1]->render();
 }
 
-
 #include "../xrEngine/motion.h"
 
 u32 player_hud::motion_length(const shared_str& anim_name, const shared_str& hud_name, const CMotionDef*& md)
@@ -574,9 +573,7 @@ u32 player_hud::motion_length(const shared_str& anim_name, const shared_str& hud
 	player_hud_motion*	pm			= pi->m_hand_motions.find_motion(anim_name);
 	if (!pm || !pm->m_animations.size())
 		return						100; // ms TEMPORARY
-	R_ASSERT2						(pm, 
-		make_string	("hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str() ).c_str() 
-		);
+	R_ASSERT2						(pm, make_string("hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str() ).c_str());
 	return motion_length			(pm->m_animations[0].mid, md, speed);
 }
 
@@ -591,6 +588,7 @@ u32 player_hud::motion_length(const MotionID& M, const CMotionDef*& md, float sp
 	}
 	return					0;
 }
+
 const Fvector& player_hud::attach_rot() const
 {
 	if(m_attached_items[0])
@@ -625,8 +623,8 @@ void player_hud::update(const Fmatrix& cam_trans)
 	m_attach_offset.setHPB			(ypr.x,ypr.y,ypr.z);
 	m_attach_offset.translate_over	(attach_pos());
 	m_transform.mul					(trans, m_attach_offset);
-	// insert inertion here
 
+	// insert inertion here
 	m_model->UpdateTracks				();
 	m_model->dcast_PKinematics()->CalculateBones_Invalidate	();
 	m_model->dcast_PKinematics()->CalculateBones				(TRUE);
@@ -636,12 +634,10 @@ void player_hud::update(const Fmatrix& cam_trans)
 
 	if(m_attached_items[1])
 		m_attached_items[1]->update(true);
-
 }
 
 u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotionDef*& md, float speed)
 {
-
 	u16 part_id							= u16(-1);
 	if(attached_item(0) && attached_item(1))
 		part_id = m_model->partitions().part_id((part==0)?"right_hand":"left_hand");
@@ -916,7 +912,8 @@ void player_hud::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
 			if(m_attached_items[1]->m_parent_hud_item->GetState()==CHUDState::eIdle)
 				m_attached_items[1]->m_parent_hud_item->PlayAnimIdle();
 		}
-	}else
+	}
+	else
 	{
 		if(m_attached_items[0])
 			m_attached_items[0]->m_parent_hud_item->OnMovementChanged(cmd);

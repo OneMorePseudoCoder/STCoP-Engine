@@ -1,10 +1,7 @@
 #include "stdafx.h"
 
-//#include "resourcemanager.h"
 #include "../Include/xrRender/DrawUtils.h"
-//#include "xr_effgamma.h"
 #include "render.h"
-#include "dedicated_server_only.h"
 #include "../xrcdb/xrxrc.h"
 
 extern XRCDB_API BOOL* cdb_bDebug;
@@ -19,12 +16,20 @@ void SetupGPU(IRenderDeviceRender* pRender)
     BOOL bForceGPU_NonPure;
     BOOL bForceGPU_REF;
 
-    if (strstr(lpCmdLine, "-gpu_sw") != NULL) bForceGPU_SW = TRUE;
-    else bForceGPU_SW = FALSE;
-    if (strstr(lpCmdLine, "-gpu_nopure") != NULL) bForceGPU_NonPure = TRUE;
-    else bForceGPU_NonPure = FALSE;
-    if (strstr(lpCmdLine, "-gpu_ref") != NULL) bForceGPU_REF = TRUE;
-    else bForceGPU_REF = FALSE;
+    if (strstr(lpCmdLine, "-gpu_sw") != NULL) 
+		bForceGPU_SW = TRUE;
+    else 
+		bForceGPU_SW = FALSE;
+
+    if (strstr(lpCmdLine, "-gpu_nopure") != NULL) 
+		bForceGPU_NonPure = TRUE;
+    else 
+		bForceGPU_NonPure = FALSE;
+
+    if (strstr(lpCmdLine, "-gpu_ref") != NULL) 
+		bForceGPU_REF = TRUE;
+    else 
+		bForceGPU_REF = FALSE;
 
     pRender->SetupGPU(bForceGPU_SW, bForceGPU_NonPure, bForceGPU_REF);
 }
@@ -62,9 +67,11 @@ void CRenderDevice::ConnectToRender()
         m_pRender = RenderFactory->CreateRenderDeviceRender();
 }
 
-PROTECT_API void CRenderDevice::Create()
+void CRenderDevice::Create()
 {
-    if (b_is_Ready) return; // prevent double call
+    if (b_is_Ready) 
+        return; // prevent double call
+
     Statistic = xr_new<CStats>();
 
 #ifdef DEBUG
@@ -76,6 +83,7 @@ PROTECT_API void CRenderDevice::Create()
 
     if (!m_pRender)
         m_pRender = RenderFactory->CreateRenderDeviceRender();
+
     SetupGPU(m_pRender);
     Log("Starting RENDER device...");
     fFOV = 90.f;

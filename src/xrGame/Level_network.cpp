@@ -20,7 +20,6 @@
 #include "../xrNetServer/NET_AuthCheck.h"
 
 #include "../xrphysics/physicscommon.h"
-ENGINE_API bool g_dedicated_server;
 
 const int max_objects_size			= 2*1024;
 const int max_objects_size_in_save	= 8*1024;
@@ -61,21 +60,18 @@ void CLevel::remove_objects	()
 			--loop;
 			Msg						("Objects removal next loop. Active objects count=%d", Objects.o_count());
 		}
-
 	}
 
 	BulletManager().Clear		();
 	ph_commander().clear		();
 	ph_commander_scripts().clear();
 
-	if(!g_dedicated_server)
-		space_restriction_manager().clear	();
+	space_restriction_manager().clear	();
 
 	psDeviceFlags.set			(rsDisableObjectsAsCrows, b_stored);
 	g_b_ClearGameCaptions		= true;
 
-	if (!g_dedicated_server)
-		ai().script_engine().collect_all_garbage	();
+	ai().script_engine().collect_all_garbage	();
 
 	stalker_animation_data_storage().clear		();
 	
@@ -85,17 +81,15 @@ void CLevel::remove_objects	()
 	Render->clear_static_wallmarks				();
 
 #ifdef DEBUG
-	if(!g_dedicated_server)
-		if (!client_spawn_manager().registry().empty())
-			client_spawn_manager().dump				();
+	if (!client_spawn_manager().registry().empty())
+		client_spawn_manager().dump				();
 #endif // DEBUG
-	if(!g_dedicated_server)
-	{
-		VERIFY										(client_spawn_manager().registry().empty());
-		client_spawn_manager().clear			();
-	}
 
-	g_pGamePersistent->destroy_particles		(false);
+	VERIFY										(client_spawn_manager().registry().empty());
+	client_spawn_manager().clear			();
+
+	g_pGamePersistent->destroy_particles(false);
+	::Sound->stop_emitters();
 }
 
 #ifdef DEBUG
@@ -138,8 +132,7 @@ void CLevel::net_Stop		()
 		xr_delete				(Server);
 	}
 
-	if (!g_dedicated_server)
-		ai().script_engine().collect_all_garbage	();
+	ai().script_engine().collect_all_garbage	();
 
 #ifdef DEBUG
 	show_animation_stats		();
@@ -192,9 +185,9 @@ u32	CLevel::Objects_net_Save	(NET_Packet* _Packet, u32 start, u32 max_object_siz
 			P->net_Save				(Packet);
 #ifdef DEBUG
 			u32 size				= u32		(Packet.w_tell()-position)-sizeof(u16);
-			if				(size>=65536)			{
-				Debug.fatal	(DEBUG_INFO,"Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d",
-					*P->cName(), P->ID(), size, Packet.w_tell(), position);
+			if				(size>=65536)			
+			{
+				Debug.fatal	(DEBUG_INFO,"Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d", *P->cName(), P->ID(), size, Packet.w_tell(), position);
 			}
 #endif
 			Packet.w_chunk_close16	(position);
@@ -210,7 +203,8 @@ void CLevel::ClientSave	()
 	NET_Packet		P;
 	u32				start	= 0;
 
-	for (;;) {
+	for (;;) 
+	{
 		P.w_begin	(M_SAVE_PACKET);
 		
 		start		= Objects_net_Save(&P, start, max_objects_size_in_save);
@@ -264,7 +258,8 @@ struct _NetworkProcessor	: public pureFrame
 {
 	virtual void	_BCL OnFrame	( )
 	{
-		if (g_pGameLevel && !Device.Paused() )	g_pGameLevel->net_Update();
+		if (g_pGameLevel && !Device.Paused() )	
+			g_pGameLevel->net_Update();
 	}
 }	NET_processor;
 
@@ -286,11 +281,15 @@ bool			CLevel::Connect2Server				(const char* options)
 		FS.auth_generate		(tmp_ignore, tmp_check);
 	}
 
-	if (!Connect(options))		return	FALSE;
+	if (!Connect(options))		
+		return	FALSE;
 	//---------------------------------------------------------------------------
-	if(psNET_direct_connect) m_bConnectResultReceived = true;
+	if (psNET_direct_connect) 
+		m_bConnectResultReceived = true;
+
 	u32 EndTime = GetTickCount() + ConnectionTimeOut;
-	while	(!m_bConnectResultReceived)		{ 
+	while	(!m_bConnectResultReceived)		
+	{ 
 		ClientReceive	();
 		Sleep			(5); 
 		if(Server)
@@ -330,13 +329,13 @@ bool			CLevel::Connect2Server				(const char* options)
 		return FALSE		;
 	};
 
-	
-	if(psNET_direct_connect)
+	if (psNET_direct_connect)
 		net_Syncronised = TRUE;
 	else
 		net_Syncronize	();
 
-	while (!net_IsSyncronised()) {
+	while (!net_IsSyncronised()) 
+	{
 		Sleep(1);
 		if (net_Disconnected)
 		{
@@ -346,25 +345,16 @@ bool			CLevel::Connect2Server				(const char* options)
 		}
 	};
 
-	//---------------------------------------------------------------------------
-	//P.w_begin	(M_CLIENT_REQUEST_CONNECTION_DATA);
-	//Send		(P, net_flags(TRUE, TRUE, TRUE, TRUE));
-	//---------------------------------------------------------------------------
 	return TRUE;
 };
 
 void			CLevel::OnBuildVersionChallenge		()
 {
 	NET_Packet P;
-	P.w_begin				(M_CL_AUTH);
-#ifdef USE_DEBUG_AUTH
-	u64 auth = MP_DEBUG_AUTH;
-	Msg("* Sending auth value ...");
-#else
+	P.w_begin(M_CL_AUTH);
 	u64 auth = FS.auth_get();
-#endif //#ifdef DEBUG
-	P.w_u64					(auth);
-	SecureSend				(P, net_flags(TRUE, TRUE, TRUE, TRUE));
+	P.w_u64(auth);
+	SecureSend(P, net_flags(TRUE, TRUE, TRUE, TRUE));
 };
 
 void CLevel::OnConnectResult(NET_Packet* P)
@@ -472,14 +462,12 @@ void				CLevel::OnSessionFull			()
 void				CLevel::OnConnectRejected		()
 {
 	IPureClient::OnConnectRejected();
-
-//	if (MainMenu()->GetErrorDialogType() != CMainMenu::ErrNoError)
-//		MainMenu()->SetErrorDialog(CMainMenu::ErrServerReject);
 };
 
 void				CLevel::net_OnChangeSelfName			(NET_Packet* P)
 {
-	if (!P) return;
+	if (!P) 
+		return;
 	string64 NewName			;
 	P->r_stringZ(NewName)		;
 	if (!strstr(*m_caClientOptions, "/name="))

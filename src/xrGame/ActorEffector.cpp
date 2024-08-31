@@ -136,13 +136,11 @@ void AddEffector(CActor* A, int type, const shared_str& sect_name, float factor)
 	}
 };
 
-
 void RemoveEffector		(CActor* A, int type)
 {
 	A->Cameras().RemoveCamEffector	((ECamEffectorType)type);
 	A->Cameras().RemovePPEffector		((EEffectorPPType)type);
 }
-
 
 CEffectorController::~CEffectorController()
 {
@@ -183,24 +181,27 @@ BOOL CAnimatorCamEffector::ProcessCam(SCamEffectorInfo& info)
 	const Fmatrix& m			= m_objectAnimator->XFORM();
 	m_objectAnimator->Update	(Device.fTimeDelta);
 
-	if(!m_bAbsolutePositioning){
+	if(!m_bAbsolutePositioning)
+	{
 		Fmatrix Mdef;
 		Mdef.identity				();
 		Mdef.j						= info.n;
 		Mdef.k						= info.d;
 		Mdef.i.crossproduct			(info.n, info.d);
 		Mdef.c						= info.p;
-//		Msg("fr[%d] %2.3f,%2.3f,%2.3f", Device.dwFrame,m.c.x,m.c.y,m.c.z);
 		Fmatrix mr;
 		mr.mul						(Mdef,m);
 		info.d						= mr.k;
 		info.n						= mr.j;
 		info.p						= mr.c;
-	}else{
+	}
+	else
+	{
 		info.d						= m.k;
 		info.n						= m.j;
 		info.p						= m.c;
 	};
+
 	if(m_fov>0.0f)
 		info.fFov				= m_fov;
 
@@ -209,7 +210,8 @@ BOOL CAnimatorCamEffector::ProcessCam(SCamEffectorInfo& info)
 
 BOOL CAnimatorCamLerpEffector::ProcessCam(SCamEffectorInfo& info)
 {
-	if (!CEffectorCam::ProcessCam(info)) return FALSE;
+	if (!CEffectorCam::ProcessCam(info)) 
+		return FALSE;
 
 	const Fmatrix& m			= m_objectAnimator->XFORM();
 	m_objectAnimator->Update	(Device.fTimeDelta);
@@ -249,13 +251,11 @@ BOOL CAnimatorCamLerpEffector::ProcessCam(SCamEffectorInfo& info)
 	return TRUE;
 }
 
-
 CAnimatorCamLerpEffectorConst::CAnimatorCamLerpEffectorConst()
 :m_factor(0.0f)
 {
 	SetFactorFunc		(GET_KOEFF_FUNC(this, &CAnimatorCamLerpEffectorConst::GetFactor));
 }
-
 
 CCameraEffectorControlled::CCameraEffectorControlled(CEffectorController* c)
 :m_controller(c)
@@ -322,7 +322,6 @@ void SndShockEffector::Start(CActor* A, float snd_length, float power)
 	if( m_stored_volume<0.0f )
 		m_stored_volume = psSoundVFactor;
 	
-
 	m_cur_length		= 0;
 	psSoundVFactor		= m_stored_volume*SND_MIN_VOLUME_FACTOR;
 	
@@ -339,13 +338,11 @@ void SndShockEffector::Update()
 	m_cur_length		+= Device.dwTimeDelta;
 	float x				= float(m_cur_length)/m_snd_length;
 	float y				= 2.f*x-1;
-	if (y>0.f){
+	if (y>0.f)
+	{
 		psSoundVFactor	= y*(m_stored_volume-m_stored_volume*SND_MIN_VOLUME_FACTOR)+m_stored_volume*SND_MIN_VOLUME_FACTOR;
 	}
 }
-
-
-//////////////////////////////////////////////////////////////////////////
 
 #define DELTA_ANGLE_X	0.5f * PI / 180
 #define DELTA_ANGLE_Y	0.5f * PI / 180

@@ -23,10 +23,9 @@ CHARACTER_COMMUNITY::CHARACTER_COMMUNITY	()
 {
 	m_current_index = NO_COMMUNITY_INDEX;
 }
-CHARACTER_COMMUNITY::~CHARACTER_COMMUNITY	()
-{
-}
 
+CHARACTER_COMMUNITY::~CHARACTER_COMMUNITY	()
+{}
 
 void  CHARACTER_COMMUNITY::set	(CHARACTER_COMMUNITY_ID id)
 {
@@ -44,7 +43,6 @@ u8							 CHARACTER_COMMUNITY::team			() const
 	return (*m_pItemDataVector)[m_current_index].team;
 }
 
-
 void CHARACTER_COMMUNITY::InitIdToIndex	()
 {
 	section_name = "game_relations";
@@ -53,7 +51,6 @@ void CHARACTER_COMMUNITY::InitIdToIndex	()
 	m_relation_table.set_table_params("communities_relations");
 	m_sympathy_table.set_table_params("communities_sympathy", 1);
 }
-
 
 CHARACTER_GOODWILL CHARACTER_COMMUNITY::relation		(CHARACTER_COMMUNITY_INDEX to)
 {

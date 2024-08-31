@@ -21,6 +21,7 @@ public:
     {
         return Name;
     }
+
     u32 RefCount()
     {
         return dwRefCount;
@@ -36,12 +37,14 @@ public:
         if (std::find(Handlers.begin(), Handlers.end(), H) == Handlers.end())
             Handlers.push_back(H);
     }
+
     void Detach(IEventReceiver* H)
     {
         xr_vector<IEventReceiver*>::iterator I = std::find(Handlers.begin(), Handlers.end(), H);
         if (I != Handlers.end())
             Handlers.erase(I);
     }
+
     void Signal(u64 P1, u64 P2)
     {
         for (u32 I = 0; I < Handlers.size(); I++)
@@ -55,6 +58,7 @@ CEvent::CEvent(const char* S)
     _strupr(Name);
     dwRefCount = 1;
 }
+
 CEvent::~CEvent()
 {
     xr_free(Name);
@@ -93,6 +97,7 @@ EVENT CEventAPI::Create(const char* N)
     CS.Leave();
     return X;
 }
+
 void CEventAPI::Destroy(EVENT& E)
 {
     CS.Enter();
@@ -118,18 +123,21 @@ EVENT CEventAPI::Handler_Attach(const char* N, IEventReceiver* H)
 
 void CEventAPI::Handler_Detach(EVENT& E, IEventReceiver* H)
 {
-    if (0 == E) return;
+    if (0 == E) 
+        return;
     CS.Enter();
     E->Detach(H);
     Destroy(E);
     CS.Leave();
 }
+
 void CEventAPI::Signal(EVENT E, u64 P1, u64 P2)
 {
     CS.Enter();
     E->Signal(P1, P2);
     CS.Leave();
 }
+
 void CEventAPI::Signal(LPCSTR N, u64 P1, u64 P2)
 {
     CS.Enter();
@@ -138,6 +146,7 @@ void CEventAPI::Signal(LPCSTR N, u64 P1, u64 P2)
     Destroy(E);
     CS.Leave();
 }
+
 void CEventAPI::Defer(EVENT E, u64 P1, u64 P2)
 {
     CS.Enter();
@@ -210,6 +219,9 @@ BOOL CEventAPI::Peek(LPCSTR EName)
 void CEventAPI::_destroy()
 {
     Dump();
-    if (Events.empty()) Events.clear();
-    if (Events_Deferred.empty()) Events_Deferred.clear();
+    if (Events.empty()) 
+        Events.clear();
+
+    if (Events_Deferred.empty())
+        Events_Deferred.clear();
 }

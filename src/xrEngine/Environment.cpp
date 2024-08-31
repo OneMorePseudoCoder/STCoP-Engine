@@ -31,8 +31,6 @@
 ENGINE_API float psVisDistance = 1.f;
 static const float MAX_NOISE_FREQ = 0.03f;
 
-//#define WEATHER_LOGGING
-
 // real WEATHER->WFX transition time
 #define WFX_TRANS_TIME 5.f
 
@@ -40,9 +38,7 @@ const float MAX_DIST_FACTOR = 0.95f;
 
 //////////////////////////////////////////////////////////////////////////
 // environment
-CEnvironment::CEnvironment() :
-CurrentEnv(0),
-m_ambients_config(0)
+CEnvironment::CEnvironment() : CurrentEnv(0), m_ambients_config(0)
 {
     bNeed_re_create_env = FALSE;
     bWFX = false;
@@ -211,9 +207,12 @@ void CEnvironment::SetGameTime(float game_time, float time_factor)
 
 float CEnvironment::NormalizeTime(float tm)
 {
-    if (tm < 0.f) return tm + DAY_LENGTH;
-    else if (tm > DAY_LENGTH) return tm - DAY_LENGTH;
-    else return tm;
+    if (tm < 0.f) 
+		return tm + DAY_LENGTH;
+    else if (tm > DAY_LENGTH) 
+		return tm - DAY_LENGTH;
+    else 
+		return tm;
 }
 
 void CEnvironment::SetWeather(shared_str name, bool forced)
@@ -226,18 +225,25 @@ void CEnvironment::SetWeather(shared_str name, bool forced)
             Msg("! Invalid weather name: %s", name.c_str());
             return;
         }
+
         R_ASSERT3(it != WeatherCycles.end(), "Invalid weather name.", *name);
         CurrentCycleName = it->first;
-        if (forced) { Invalidate(); }
+
+        if (forced) 
+		{ 
+			Invalidate(); 
+		}
+
         if (!bWFX)
         {
             CurrentWeather = &it->second;
             CurrentWeatherName = it->first;
         }
-        if (forced) { SelectEnvs(fGameTime); }
-#ifdef WEATHER_LOGGING
-        Msg("Starting Cycle: %s [%s]", *name, forced ? "forced" : "deferred");
-#endif
+
+        if (forced) 
+		{ 
+			SelectEnvs(fGameTime); 
+		}
     }
     else
     {
@@ -301,9 +307,6 @@ bool CEnvironment::SetWeatherFX(shared_str name)
 
         Current[0] = C0;
         Current[1] = C1;
-#ifdef WEATHER_LOGGING
-        Msg("Starting WFX: '%s' - %3.2f sec", *name, wfx_time);
-#endif
     }
     else
     {
@@ -331,11 +334,14 @@ void CEnvironment::StopWFX()
     VERIFY(CurrentCycleName.size());
     bWFX = false;
     SetWeather(CurrentCycleName, false);
+    Current[0]->on_device_destroy();
+    Current[1]->on_device_destroy();
+
     Current[0] = WFX_end_desc[0];
     Current[1] = WFX_end_desc[1];
-#ifdef WEATHER_LOGGING
-    Msg("WFX - end. Weather: '%s' Desc: '%s'/'%s' GameTime: %3.2f", CurrentWeatherName.c_str(), Current[0]->m_identifier.c_str(), Current[1]->m_identifier.c_str(), fGameTime);
-#endif
+
+    Current[0]->on_device_create();
+    Current[1]->on_device_create();
 }
 
 IC bool lb_env_pred(const CEnvDescriptor* x, float val)
@@ -380,6 +386,8 @@ void CEnvironment::SelectEnvs(float gt)
         VERIFY(!bWFX);
         // first or forced start
         SelectEnvs(CurrentWeather, Current[0], Current[1], gt);
+        Current[0]->on_device_create();
+        Current[1]->on_device_create();
     }
     else
     {
@@ -393,13 +401,13 @@ void CEnvironment::SelectEnvs(float gt)
         {
             bSelect = (gt > Current[1]->exec_time);
         }
+
         if (bSelect)
         {
+            Current[0]->on_device_destroy();
             Current[0] = Current[1];
             SelectEnv(CurrentWeather, Current[1], gt);
-#ifdef WEATHER_LOGGING
-            Msg("Weather: '%s' Desc: '%s' Time: %3.2f/%3.2f", CurrentWeatherName.c_str(), Current[1]->m_identifier.c_str(), Current[1]->exec_time, fGameTime);
-#endif
+            Current[1]->on_device_create();
         }
     }
 }

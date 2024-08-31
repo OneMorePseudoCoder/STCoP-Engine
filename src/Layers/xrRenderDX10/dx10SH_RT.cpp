@@ -15,8 +15,6 @@ CRT::CRT			()
 #ifdef USE_DX11
 	pUAView			= NULL;
 #endif
-	//dwWidth		= 0;
-	//dwHeight		= 0;
 	rtWidth			= 0;
 	rtHeight		= 0;
 	fmt				= D3DFMT_UNKNOWN;
@@ -44,7 +42,7 @@ void CRT::create	(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
 	rtName = Name;
 
 	R_ASSERT(HW.pDevice && Name && Name[0]);
-	_order		= CPU::GetCLK()	;	//Device.GetTimerGlobal()->GetElapsed_clk();
+	_order		= CPU::GetCLK()	;
 
 	creationParams = vp_params; // for device reset
 
@@ -74,11 +72,6 @@ void CRT::create	(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
 
 	bool	bUseAsDepth = (usage == D3DUSAGE_RENDERTARGET)?false:true;
 
-
-	//DEV->Evict				();
-
-
-
 	D3D_TEXTURE2D_DESC desc;
 	ZeroMemory( &desc, sizeof(desc) );
 	desc.Width = 0; // dwWidth;
@@ -104,13 +97,6 @@ void CRT::create	(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
 		desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 #endif
 
-	//CHK_DX( HW.pDevice->CreateTexture2D( &desc, NULL, &pSurface ) );
-	//HW.stats_manager.increment_stats_rtarget( pSurface );
-	// OK
-#ifdef DEBUG
-	//Msg			("* created RT(%s), %dx%d, format = %d samples = %d",Name,w,h, dx10FMT, SampleCount );
-#endif // DEBUG
-	//R_CHK		(pSurface->GetSurfaceLevel	(0,&pRT));
 
 	D3D_DEPTH_STENCIL_VIEW_DESC	ViewDesc;
 
@@ -213,10 +199,6 @@ void CRT::create	(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
 	rtWidth = it->second.rtWidth;
 	rtHeight = it->second.rtHeight;
 	pTexture->SurfaceSetRT(it->second.textureSurface, it->second.shaderResView);
-
-
-	//pTexture	= DEV->_CreateTexture	(Name);
-	//pTexture->surface_set(pSurface);
 }
 
 void CRT::destroy		()
@@ -241,10 +223,12 @@ void CRT::destroy		()
 		_RELEASE(it->second.shaderResView);
 	}
 }
+
 void CRT::reset_begin	()
 {
 	destroy		();
 }
+
 void CRT::reset_end		()
 {
 	create(*cName, creationParams, fmt);
@@ -279,11 +263,9 @@ void CRT::SwitchViewPortResources(ViewPort vp)
 
 	R_ASSERT2(pRT || pZRT, make_string("%s", rtName.c_str()));
 	R_ASSERT2(pSurface, make_string("%s", rtName.c_str()));
-	//R_ASSERT2(value.shaderResView, make_string("%s", rtName.c_str()));
 
 	if (pTexture->Description().SampleDesc.Count <= 1 || pTexture->Description().Format != DXGI_FORMAT_R24G8_TYPELESS)
 		R_ASSERT2(value.shaderResView, make_string("%s", rtName.c_str()));
-
 
 	pTexture->SurfaceSetRT(value.textureSurface, value.shaderResView);
 }

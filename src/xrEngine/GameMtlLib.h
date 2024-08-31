@@ -237,9 +237,8 @@ class MTL_EXPORT_API CGameMtlLibrary
 {
     int material_index;
     int material_pair_index;
-    BENCH_SEC_SCRAMBLEMEMBER1
 
-        GameMtlVec materials;
+    GameMtlVec materials;
     GameMtlPairVec material_pairs;
 
 #ifndef _EDITOR
@@ -249,14 +248,8 @@ class MTL_EXPORT_API CGameMtlLibrary
 #endif
 public:
     CGameMtlLibrary();
-    ~CGameMtlLibrary()
-    {
-        /*
-        R_ASSERT (0==material_pairs_rt.size());
-        R_ASSERT (0==material_pairs.size());
-        R_ASSERT (0==materials.size());
-        */
-    }
+    ~CGameMtlLibrary() {}
+
     IC void Unload()
     {
 #ifndef _EDITOR

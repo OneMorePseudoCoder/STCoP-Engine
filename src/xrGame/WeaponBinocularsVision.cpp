@@ -140,8 +140,6 @@ void SBinocVisibleObj::Update()
 			CActor* pActor = Actor();
 			if (pActor) 
 			{
-				//-----------------------------------------------------
-
 				CInventoryOwner* our_inv_owner = smart_cast<CInventoryOwner*>(pActor);
 				CInventoryOwner* others_inv_owner = smart_cast<CInventoryOwner*>(m_object);
 				CBaseMonster *monster = smart_cast<CBaseMonster*>(m_object);
@@ -187,8 +185,6 @@ CBinocularsVision::~CBinocularsVision()
 
 void CBinocularsVision::Update()
 {
-	if (g_dedicated_server)
-		return;
 	//-----------------------------------------------------
 	const CActor* pActor = Actor();
 	if (!pActor) 

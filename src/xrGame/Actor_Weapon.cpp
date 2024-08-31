@@ -187,9 +187,8 @@ void	CActor::HitSector(CObject* who, CObject* weapon)
 
 void CActor::on_weapon_shot_start		(CWeapon *weapon)
 {	
-	//CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (weapon);
 	CameraRecoil const& camera_recoil = ( IsZoomAimingMode() )? weapon->zoom_cam_recoil : weapon->cam_recoil;
-		
+
 	CCameraShotEffector* effector = smart_cast<CCameraShotEffector*>( Cameras().GetCamEffector(eCEShot) );
 	if ( !effector )
 	{

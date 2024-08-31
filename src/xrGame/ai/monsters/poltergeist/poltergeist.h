@@ -69,6 +69,7 @@ public:
 			bool	get_actor_ignore	() const { return m_actor_ignore; }
 
 	virtual void	Die					(CObject* who);
+			void 	OnDie();
 
 	virtual CMovementManager *create_movement_manager();
 	

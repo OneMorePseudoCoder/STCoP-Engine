@@ -14,24 +14,6 @@
 #include "xr_object.h"
 #endif
 
-// Warning: duplicated in dxRainRender
-static const int max_desired_items = 2500;
-static const float source_radius = 12.5f;
-static const float source_offset = 40.f;
-static const float max_distance = source_offset*1.25f;
-static const float sink_offset = -(max_distance - source_offset);
-static const float drop_length = 5.f;
-static const float drop_width = 0.30f;
-static const float drop_angle = 3.0f;
-static const float drop_max_angle = deg2rad(10.f);
-static const float drop_max_wind_vel = 20.0f;
-static const float drop_speed_min = 40.f;
-static const float drop_speed_max = 80.f;
-
-const int max_particles = 1000;
-const int particles_cache = 400;
-const float particles_time = .3f;
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -87,7 +69,8 @@ BOOL CEffect_Rain::RayPick(const Fvector& s, const Fvector& d, float& range, col
     collide::rq_result RQ;
     CObject* E = g_pGameLevel->CurrentViewEntity();
     bRes = g_pGameLevel->ObjectSpace.RayPick(s, d, range, tgt, RQ, E);
-    if (bRes) range = RQ.range;
+    if (bRes) 
+		range = RQ.range;
 #endif
     return bRes;
 }
@@ -112,11 +95,8 @@ void CEffect_Rain::RenewItem(Item& dest, float height, BOOL bHit)
 void CEffect_Rain::OnFrame()
 {
 #ifndef _EDITOR
-    if (!g_pGameLevel) return;
-#endif
-
-#ifdef DEDICATED_SERVER
-    return;
+    if (!g_pGameLevel) 
+		return;
 #endif
 
     // Parse states
@@ -124,16 +104,14 @@ void CEffect_Rain::OnFrame()
     static float hemi_factor = 0.f;
 #ifndef _EDITOR
     CObject* E = g_pGameLevel->CurrentViewEntity();
-    if (E&&E->renderable_ROS())
+    if (E && E->renderable_ROS())
     {
-        // hemi_factor = 1.f-2.0f*(0.3f-_min(_min(1.f,E->renderable_ROS()->get_luminocity_hemi()),0.3f));
         float* hemi_cube = E->renderable_ROS()->get_luminocity_hemi_cube();
         float hemi_val = _max(hemi_cube[0], hemi_cube[1]);
         hemi_val = _max(hemi_val, hemi_cube[2]);
         hemi_val = _max(hemi_val, hemi_cube[3]);
         hemi_val = _max(hemi_val, hemi_cube[5]);
 
-        // float f = 0.9f*hemi_factor + 0.1f*hemi_val;
         float f = hemi_val;
         float t = Device.fTimeDelta;
         clamp(t, 0.001f, 1.0f);
@@ -171,7 +149,8 @@ void CEffect_Rain::OnFrame()
 void CEffect_Rain::Render()
 {
 #ifndef _EDITOR
-    if (!g_pGameLevel) return;
+    if (!g_pGameLevel) 
+		return;
 #endif
 
     m_pRender->Render(*this);
@@ -180,9 +159,12 @@ void CEffect_Rain::Render()
 // startup _new_ particle system
 void CEffect_Rain::Hit(Fvector& pos)
 {
-    if (0 != ::Random.randI(2)) return;
+    if (0 != ::Random.randI(2)) 
+		return;
+
     Particle* P = p_allocate();
-    if (0 == P) return;
+    if (0 == P) 
+		return;
 
     const Fsphere& bv_sphere = m_pRender->GetDropBounds();
 
@@ -229,9 +211,14 @@ void CEffect_Rain::p_remove(Particle* P, Particle*& LST)
     P->prev = NULL;
     Particle* next = P->next;
     P->next = NULL;
-    if (prev) prev->next = next;
-    if (next) next->prev = prev;
-    if (LST == P) LST = next;
+    if (prev) 
+		prev->next = next;
+
+    if (next) 
+		next->prev = prev;
+
+    if (LST == P) 
+		LST = next;
 }
 
 // insert node at the top of the head
@@ -240,14 +227,17 @@ void CEffect_Rain::p_insert(Particle* P, Particle*& LST)
     VERIFY(P);
     P->prev = 0;
     P->next = LST;
-    if (LST) LST->prev = P;
+    if (LST) 
+		LST->prev = P;
     LST = P;
 }
 
 // determine size of _list_
 int CEffect_Rain::p_size(Particle* P)
 {
-    if (0 == P) return 0;
+    if (0 == P) 
+		return 0;
+
     int cnt = 0;
     while (P)
     {
@@ -261,7 +251,9 @@ int CEffect_Rain::p_size(Particle* P)
 CEffect_Rain::Particle* CEffect_Rain::p_allocate()
 {
     Particle* P = particle_idle;
-    if (0 == P) return NULL;
+    if (0 == P) 
+		return NULL;
+
     p_remove(P, particle_idle);
     p_insert(P, particle_active);
     return P;

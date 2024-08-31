@@ -104,8 +104,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_COMPRESSED_UPDATE_OBJECTS:
 			{
-				u8 compression_type = P->r_u8();
-				ProcessCompressedUpdate(*P, compression_type);
 			}break;
 		case M_CL_UPDATE:
 			{

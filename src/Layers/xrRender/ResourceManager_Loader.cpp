@@ -4,10 +4,11 @@
 #include "ResourceManager.h"
 #include "blenders\blender.h"
 
-
 void	CResourceManager::OnDeviceDestroy(BOOL )
 {
-	if (RDEVICE.b_is_Ready)				return;
+	if (RDEVICE.b_is_Ready)				
+		return;
+
 	m_textures_description.UnLoad		();
 
 	// Matrices
@@ -50,7 +51,8 @@ void	CResourceManager::OnDeviceDestroy(BOOL )
 
 void	CResourceManager::OnDeviceCreate	(IReader* F)
 {
-	if (!RDEVICE.b_is_Ready) return;
+	if (!RDEVICE.b_is_Ready) 
+		return;
 
 	string256	name;
 
@@ -61,8 +63,10 @@ void	CResourceManager::OnDeviceCreate	(IReader* F)
 	IReader*	fs			= 0;
 	// Load constants
  	fs	 		  			= F->open_chunk	(0);
-	if (fs){
-		while (!fs->eof())	{
+	if (fs)
+	{
+		while (!fs->eof())	
+		{
 			fs->r_stringZ	(name,sizeof(name));
 			CConstant*	C	= _CreateConstant	(name);
 			C->Load			(fs);
@@ -72,8 +76,10 @@ void	CResourceManager::OnDeviceCreate	(IReader* F)
 
 	// Load matrices
     fs						= F->open_chunk(1);
-	if (fs){
-		while (!fs->eof())	{
+	if (fs)
+	{
+		while (!fs->eof())	
+		{
 			fs->r_stringZ	(name,sizeof(name));
 			CMatrix*	M	= _CreateMatrix	(name);
 			M->Load			(fs);
@@ -83,13 +89,23 @@ void	CResourceManager::OnDeviceCreate	(IReader* F)
 
 	// Load blenders
     fs						= F->open_chunk	(2);
-	if (fs){
+	if (fs)
+	{
 		IReader*	chunk	= NULL;
 		int			chunk_id= 0;
 
-		while ((chunk=fs->open_chunk(chunk_id))!=NULL){
+		while ((chunk=fs->open_chunk(chunk_id))!=NULL)
+		{
 			CBlender_DESC	desc;
 			chunk->r		(&desc,sizeof(desc));
+#if RENDER != R_R1
+			if (desc.CLS == B_SHADOW_WORLD) 
+			{
+				chunk->close();
+				chunk_id += 1;
+				continue;
+			}
+#endif
 			IBlender*		B = IBlender::Create(desc.CLS);
 			if	(0==B)
 			{
@@ -120,7 +136,8 @@ void	CResourceManager::OnDeviceCreate	(IReader* F)
 void	CResourceManager::OnDeviceCreate	(LPCSTR shName)
 {
 #ifdef _EDITOR
-	if (!FS.exist(shName)) return;
+	if (!FS.exist(shName))
+		return;
 #endif
 
 	// Check if file is compressed already

@@ -41,7 +41,6 @@ IGame_Level::~IGame_Level()
     Device.seqRender.Remove(this);
     Device.seqFrame.Remove(this);
     CCameraManager::ResetPP();
-    ///////////////////////////////////////////
     Sound->set_geometry_occ(NULL);
     Sound->set_handler(NULL);
     Device.DumpResourcesMemoryUsage();
@@ -122,21 +121,17 @@ bool IGame_Level::Load(u32 dwNum)
     // Done
     FS.r_close(LL_Stream);
     bReady = true;
-    if (!g_dedicated_server) IR_Capture();
-#ifndef DEDICATED_SERVER
-    Device.seqRender.Add (this);
-#endif
+    IR_Capture();
+
+    Device.seqRender.Add(this);
 
     Device.seqFrame.Add(this);
 
     return true;
 }
 
-int psNET_DedicatedSleep = 5;
 void IGame_Level::OnRender()
 {
-#ifndef DEDICATED_SERVER
-
 #ifdef _GPA_ENABLED
     TAL_ID rtID = TAL_MakeID( 1 , Core.dwFrame , 0);
     TAL_CreateID( rtID );
@@ -146,21 +141,12 @@ void IGame_Level::OnRender()
 #endif // _GPA_ENABLED
 
     // Level render, only when no client output required
-    if (!g_dedicated_server)
-    {
-        Render->Calculate ();
-        Render->Render ();
-    }
-    else
-    {
-        Sleep (psNET_DedicatedSleep);
-    }
+    Render->Calculate ();
+    Render->Render ();
 
 #ifdef _GPA_ENABLED
     TAL_RetireID( rtID );
 #endif // _GPA_ENABLED
-
-#endif
 }
 
 void IGame_Level::OnFrame()
@@ -336,3 +322,24 @@ void IGame_Level::SoundEvent_OnDestDestroy(Feel::Sound* obj)
 void IGame_Level::ApplyCamera()
 {}
 
+void IGame_Level::LL_CheckTextures()
+{
+    u32 m_base, c_base, m_lmaps, c_lmaps;
+    Device.m_pRender->ResourcesGetMemoryUsage(m_base, c_base, m_lmaps, c_lmaps);
+
+    Msg("* t-report - base: %d, %d K", c_base, m_base / 1024);
+    Msg("* t-report - lmap: %d, %d K", c_lmaps, m_lmaps / 1024);
+    BOOL bError = FALSE;
+    if (m_base > 64 * 1024 * 1024 || c_base > 400)
+    {
+        bError = TRUE;
+    }
+    if (m_lmaps > 32 * 1024 * 1024 || c_lmaps > 8)
+    {
+#ifdef DEBUG
+        LPCSTR msg = "Too many lmap-textures (limit: 8 textures or 32M).\n        Reduce pixel density (worse) or use more vertex lighting (better).";
+        Msg("***FATAL***: %s", msg);
+#endif // #ifdef DEBUG
+        bError = TRUE;
+    }
+}

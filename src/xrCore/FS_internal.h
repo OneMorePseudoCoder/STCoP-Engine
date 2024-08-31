@@ -58,19 +58,8 @@ public:
     {
         if ((0 != hf) && (0 != count))
         {
-            const u32 mb_sz = 0x1000000;
-            u8* ptr = (u8*)_ptr;
-            int req_size;
-            for (req_size = count; req_size > mb_sz; req_size -= mb_sz, ptr += mb_sz)
-            {
-                size_t W = fwrite(ptr, mb_sz, 1, hf);
-                R_ASSERT3(W == 1, "Can't write mem block to file. Disk maybe full.", _sys_errlist[errno]);
-            }
-            if (req_size)
-            {
-                size_t W = fwrite(ptr, req_size, 1, hf);
-                R_ASSERT3(W == 1, "Can't write mem block to file. Disk maybe full.", _sys_errlist[errno]);
-            }
+            const size_t W = fwrite(_ptr, sizeof(char), count, hf);
+            R_ASSERT3(W == count, "Can't write mem block to file. Disk maybe full.", _sys_errlist[errno]);
         }
     };
     virtual void seek(u32 pos) { if (0 != hf) fseek(hf, pos, SEEK_SET); };

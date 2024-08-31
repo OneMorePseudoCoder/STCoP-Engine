@@ -21,8 +21,6 @@
 #include "game_base_space.h"
 #endif
 
-extern ENGINE_API	bool g_dedicated_server;
-
 #define CHOOSE_MAX(x,inst_x,y,inst_y,z,inst_z)\
 	if(x>y)\
 	if(x>z){inst_x;}\
@@ -37,7 +35,6 @@ CCustomRocket::CCustomRocket()
 	m_bEnginePresent			= false;
 	m_bStopLightsWithEngine		= true;
 	m_bLightsEnabled			= false;
-
 
 	m_vPrevVel.set				(0,0,0);
 
@@ -167,7 +164,6 @@ void CCustomRocket::ObjectContactCallback(bool& do_colide,bool bo1,dContact& c ,
 {
 	do_colide = false;
 	
-
 	dxGeomUserData *l_pUD1 = NULL;
 	dxGeomUserData *l_pUD2 = NULL;
 	l_pUD1 = PHRetrieveGeomUserData(c.geom.g1);
@@ -251,7 +247,6 @@ void CCustomRocket::ObjectContactCallback(bool& do_colide,bool bo1,dContact& c ,
 			l_this->m_pPhysicsShell->setTorque(Fvector().set(0,0,0));
 			l_this->m_pPhysicsShell->set_ApplyByGravity(false);
 			l_this->setEnabled(FALSE);
-			
 		}
 	}
 }
@@ -440,7 +435,6 @@ void CCustomRocket::UpdateEnginePh			()
 	force = m_fEngineImpulseUp*fixed_step;
 	m_pPhysicsShell->applyImpulse(l_dir, force);
 }
-
 
 void CCustomRocket::UpdateEngine				()
 {

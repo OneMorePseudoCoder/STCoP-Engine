@@ -82,6 +82,7 @@ SPPInfo::SPPInfo()
     cm_influence = 0.0f;
     cm_interpolate = 0.0f;
 }
+
 void SPPInfo::normalize()
 {}
 
@@ -115,28 +116,12 @@ SPPInfo& SPPInfo::lerp(const SPPInfo& def, const SPPInfo& to, float factor)
     pp.duality.v += def.duality.v + (to.duality.v - def.duality.v) * factor;
     pp.gray += def.gray + (to.gray - def.gray) * factor;
     pp.blur += def.blur + (to.blur - def.blur) * factor;
-    pp.noise.intensity = to.noise.intensity;// + (to.noise.intensity - def.noise.intensity) * factor;
-    pp.noise.grain = to.noise.grain;// + (to.noise.grain - def.noise.grain) * factor;
-    pp.noise.fps = to.noise.fps; // + (to.noise.fps - def.noise.fps) * factor;
-
-    pp.color_base.set(
-        def.color_base.r + (to.color_base.r - def.color_base.r) * factor,
-        def.color_base.g + (to.color_base.g - def.color_base.g) * factor,
-        def.color_base.b + (to.color_base.b - def.color_base.b) * factor
-    );
-
-    pp.color_gray.set(
-        def.color_gray.r + (to.color_gray.r - def.color_gray.r) * factor,
-        def.color_gray.g + (to.color_gray.g - def.color_gray.g) * factor,
-        def.color_gray.b + (to.color_gray.b - def.color_gray.b) * factor
-    );
-
-    pp.color_add.set(
-        def.color_add.r + (to.color_add.r - def.color_add.r) * factor,
-        def.color_add.g + (to.color_add.g - def.color_add.g) * factor,
-        def.color_add.b + (to.color_add.b - def.color_add.b) * factor
-    );
-
+    pp.noise.intensity = to.noise.intensity;
+    pp.noise.grain = to.noise.grain;
+    pp.noise.fps = to.noise.fps;
+    pp.color_base.set(def.color_base.r + (to.color_base.r - def.color_base.r) * factor, def.color_base.g + (to.color_base.g - def.color_base.g) * factor, def.color_base.b + (to.color_base.b - def.color_base.b) * factor);
+    pp.color_gray.set(def.color_gray.r + (to.color_gray.r - def.color_gray.r) * factor, def.color_gray.g + (to.color_gray.g - def.color_gray.g) * factor, def.color_gray.b + (to.color_gray.b - def.color_gray.b) * factor);
+    pp.color_add.set(def.color_add.r + (to.color_add.r - def.color_add.r) * factor, def.color_add.g + (to.color_add.g - def.color_add.g) * factor, def.color_add.b + (to.color_add.b - def.color_add.b) * factor);
     pp.cm_tex1 = to.cm_tex1;
     pp.cm_tex2 = to.cm_tex2;
     pp.cm_influence += def.cm_influence + (to.cm_influence - def.cm_influence) * factor;
@@ -271,7 +256,6 @@ void CCameraManager::RemovePPEffector(EEffectorPPType type)
             if ((*it)->FreeOnRemove())
             {
                 OnEffectorReleased(*it);
-                // xr_delete (*it);
             }
             m_EffectorsPP.erase(it);
             return;
@@ -330,27 +314,6 @@ void CCameraManager::Update(const Fvector& P, const Fvector& D, const Fvector& N
     m_cam_info.fFar = m_cam_info.fFar*dst + fFAR_Dest*src;
     m_cam_info.fAspect = m_cam_info.fAspect*dst + (fASPECT_Dest*aspect)*src;
     m_cam_info.dont_apply = false;
-
-#pragma todo("Rafa: I guess this thingie needs to be moved to viewports loop or be done when we draw secondary vp. May be into ApplyCamera?")
-	/*
-	if (Render->currentViewPort == SECONDARY_WEAPON_SCOPE)
-	{
-		float fov = g_pGamePersistent->m_pGShaderConstants->hud_params.y;  //-V595
-
-		// что бы изначально прицел включался быстро, а при изменении приближения был эффект наезда камеры
-		if (fis_zero(fFovSecond))
-		{
-			fFovSecond = fov;
-		}
-		else
-		{
-			fFovSecond = fFovSecond * dst + fov * src;
-		}
-	}
-	else
-	{
-		fFovSecond = 0;
-	}*/
 
 	fFovSecond = 0;
 
@@ -462,10 +425,9 @@ extern ENGINE_API BOOL psSVP1FrustumOptimize;
 void CCameraManager::ApplyDeviceInternal(float _viewport_near)
 {
     // Device params
-
 	if (Device.m_bMakeLevelMap)
 	{
-				// build camera matrix
+		// build camera matrix
 		Fbox bb = Device.curr_lm_fbox;
 		bb.getcenter(Device.vCameraPosition);
 
@@ -491,14 +453,12 @@ void CCameraManager::ApplyDeviceInternal(float _viewport_near)
 		Device.fFOV = m_cam_info.fFov;
 		Device.fASPECT = m_cam_info.fAspect;
 		float aspect = m_cam_info.fAspect;
-		//Device.mProject.build_projection(deg2rad(m_cam_info.fFov), m_cam_info.fAspect, _viewport_near, m_cam_info.fFar);
 
 		//--#SM+# Begin-- +SecondVP+
 		// Пересчитываем FOV для второго вьюпорта [Recalculate scene FOV for SecondVP frame]
 		if (Render->currentViewPort == SECONDARY_WEAPON_SCOPE)
 		{
 			// Для второго вьюпорта FOV выставляем здесь
-			//Device.fFOV = fFovSecond;
 			Device.fFOV = g_pGamePersistent->m_pGShaderConstants->hud_params.y;
 
 			// Предупреждаем что мы изменили настройки камеры

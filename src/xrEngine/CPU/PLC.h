@@ -51,9 +51,12 @@ namespace XRay
             }
         }
 
-        static ICF int iCeil_SSE(float x) { return _mm_cvt_ss2si(_mm_set_ss(x)); }
-        void PLCCalc_SSE(int& c0, int& c1, int& c2, const Fvector& camPos, const Fvector* ps, const Fvector& n, const light* l,
-            float energy, const Fvector& obj)
+        static ICF int iCeil_SSE(float x) 
+        { 
+            return _mm_cvt_ss2si(_mm_set_ss(x)); 
+        }
+
+        void PLCCalc_SSE(int& c0, int& c1, int& c2, const Fvector& camPos, const Fvector* ps, const Fvector& n, const light* l, float energy, const Fvector& obj)
         {
             float e = PLC_energy_SSE(ps[0], n, l, energy);
             float nc1 = clampr(camPos.distance_to_sqr(ps[0]) / S_distance2, 0.f, 1.f);

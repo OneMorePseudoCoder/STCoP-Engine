@@ -13,10 +13,6 @@
 # include "CustomHUD.h"
 #endif
 
-#ifdef _EDITOR
-bool g_dedicated_server = false;
-#endif
-
 #ifdef INGAME_EDITOR
 # include "editor_environment_manager.hpp"
 #endif // INGAME_EDITOR
@@ -61,12 +57,10 @@ IGame_Persistent::~IGame_Persistent()
 }
 
 void IGame_Persistent::OnAppActivate()
-{
-}
+{}
 
 void IGame_Persistent::OnAppDeactivate()
-{
-}
+{}
 
 void IGame_Persistent::OnAppStart()
 {
@@ -87,7 +81,6 @@ void IGame_Persistent::OnAppEnd()
 #endif
 }
 
-
 void IGame_Persistent::PreStart(LPCSTR op)
 {
     string256 prev_type;
@@ -101,6 +94,7 @@ void IGame_Persistent::PreStart(LPCSTR op)
         OnGameEnd();
     }
 }
+
 void IGame_Persistent::Start(LPCSTR op)
 {
     string256 prev_type;
@@ -129,7 +123,6 @@ void IGame_Persistent::Disconnect()
 
     if (g_hud)
         DEL_INSTANCE(g_hud);
-    //. g_hud->OnDisconnected ();
 #endif
 }
 
@@ -150,8 +143,8 @@ void IGame_Persistent::Prefetch()
     float p_time = 1000.f*Device.GetTimerGlobal()->GetElapsed_sec();
     u64 before_memory = Device.Statistic->GetTotalRAMConsumption();
 
-    //Log("Loading sounds...");
-    //::Sound->prefetch();
+    Log("Loading sounds...");
+    ::Sound->prefetch();
     Log("Loading objects...");
     ObjectPool.prefetch();
     Log("Loading models...");
@@ -165,7 +158,6 @@ void IGame_Persistent::Prefetch()
 }
 #endif
 
-
 void IGame_Persistent::OnGameEnd()
 {
 #ifndef _EDITOR
@@ -177,10 +169,8 @@ void IGame_Persistent::OnGameEnd()
 void IGame_Persistent::OnFrame()
 {
 #ifndef _EDITOR
-
     if (!Device.Paused() || Device.dwPrecacheFrame)
         Environment().OnFrame();
-
 
     Device.Statistic->Particles_starting = ps_needtoplay.size();
     Device.Statistic->Particles_active = ps_active.size();
@@ -193,6 +183,7 @@ void IGame_Persistent::OnFrame()
         ps_needtoplay.pop_back();
         psi->Play(false);
     }
+
     // Destroy inactive particle systems
     while (ps_destroy.size())
     {
@@ -256,6 +247,6 @@ void IGame_Persistent::destroy_particles(const bool& all_particles)
 void IGame_Persistent::OnAssetsChanged()
 {
 #ifndef _EDITOR
-    Device.m_pRender->OnAssetsChanged(); //Resources->m_textures_description.Load();
+    Device.m_pRender->OnAssetsChanged();
 #endif
 }

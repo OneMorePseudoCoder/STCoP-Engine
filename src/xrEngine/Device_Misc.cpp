@@ -1,5 +1,4 @@
 #include "stdafx.h"
-//#include "dxerr8.h"
 
 // *****************************************************************************************
 // Error handling
@@ -9,7 +8,9 @@ static struct _DF
 {
     char* name;
     u32 mask;
-} DF[] =
+} 
+
+DF[] =
 {
     {"rsFullscreen", rsFullscreen},
     {"rsClearBB", rsClearBB},

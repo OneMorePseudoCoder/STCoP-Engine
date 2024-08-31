@@ -51,7 +51,6 @@
 #include "PHDebug.h"
 #include "debug_text_tree.h"
 
-ENGINE_API bool g_dedicated_server;
 extern CUISequencer* g_tutorial;
 extern CUISequencer* g_tutorial2;
 
@@ -71,24 +70,18 @@ CLevel::CLevel() :
     eEnvironment = Engine.Event.Handler_Attach("LEVEL:Environment", this);
     eEntitySpawn = Engine.Event.Handler_Attach("LEVEL:spawn", this);
     m_pBulletManager = xr_new<CBulletManager>();
-    if (!g_dedicated_server)
-    {
-        m_map_manager = xr_new<CMapManager>();
-        m_game_task_manager = xr_new<CGameTaskManager>();
-    }
+    m_map_manager = xr_new<CMapManager>();
+    m_game_task_manager = xr_new<CGameTaskManager>();
     m_dwDeltaUpdate = u32(fixed_step*1000);
     m_seniority_hierarchy_holder = xr_new<CSeniorityHierarchyHolder>();
-    if (!g_dedicated_server)
-    {
-        m_level_sound_manager = xr_new<CLevelSoundManager>();
-        m_space_restriction_manager = xr_new<CSpaceRestrictionManager>();
-        m_client_spawn_manager = xr_new<CClientSpawnManager>();
-        m_autosave_manager = xr_new<CAutosaveManager>();
-        m_debug_renderer = xr_new<CDebugRenderer>();
+    m_level_sound_manager = xr_new<CLevelSoundManager>();
+    m_space_restriction_manager = xr_new<CSpaceRestrictionManager>();
+    m_client_spawn_manager = xr_new<CClientSpawnManager>();
+    m_autosave_manager = xr_new<CAutosaveManager>();
+    m_debug_renderer = xr_new<CDebugRenderer>();
 #ifdef DEBUG
-        m_level_debug = xr_new<CLevelDebug>();
+    m_level_debug = xr_new<CLevelDebug>();
 #endif
-    }
     m_ph_commander = xr_new<CPHCommander>();
     m_ph_commander_scripts = xr_new<CPHCommander>();
     pObjects4CrPr.clear();
@@ -136,8 +129,7 @@ CLevel::~CLevel()
     xr_delete(m_client_spawn_manager);
     xr_delete(m_autosave_manager);
     xr_delete(m_debug_renderer);
-    if (!g_dedicated_server)
-        ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorLevel);
+    ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorLevel);
     xr_delete(game);
     xr_delete(game_events);
     xr_delete(m_pBulletManager);
@@ -166,7 +158,6 @@ CLevel::~CLevel()
     {
         StopSaveDemo();
     }
-    deinit_compression();
 }
 
 shared_str CLevel::name() const
@@ -201,21 +192,6 @@ void CLevel::PrefetchSound(LPCSTR name)
 // Game interface ////////////////////////////////////////////////////
 int	CLevel::get_RPID(LPCSTR /**name/**/)
 {
-    /*
-    // Gain access to string
-    LPCSTR	params = pLevel->r_string("respawn_point",name);
-    if (0==params)	return -1;
-
-    // Read data
-    Fvector4	pos;
-    int			team;
-    sscanf		(params,"%f,%f,%f,%d,%f",&pos.x,&pos.y,&pos.z,&team,&pos.w); pos.y += 0.1f;
-
-    // Search respawn point
-    svector<Fvector4,maxRP>	&rp = Level().get_team(team).RespawnPoints;
-    for (int i=0; i<(int)(rp.size()); ++i)
-    if (pos.similar(rp[i],EPS_L))	return i;
-    */
     return -1;
 }
 
@@ -223,7 +199,6 @@ bool g_bDebugEvents = false;
 
 void CLevel::cl_Process_Event(u16 dest, u16 type, NET_Packet& P)
 {
-    // Msg("--- event[%d] for [%d]",type,dest);
     CObject* O = Objects.net_Find(dest);
     if (0 == O)
     {
@@ -420,16 +395,14 @@ void CLevel::OnFrame()
 	if (m_bNeed_CrPr)
         make_NetCorrectionPrediction();
 
-    if (!g_dedicated_server)
-    {
-        if (g_mt_config.test(mtMap))
-            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_map_manager, &CMapManager::Update));
-        else
-            MapManager().Update();
-        if (Device.dwPrecacheFrame == 0)
-        {							
-            GameTaskManager().UpdateTasks();
-        }
+    if (g_mt_config.test(mtMap))
+        Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_map_manager, &CMapManager::Update));
+    else
+        MapManager().Update();
+
+    if (Device.dwPrecacheFrame == 0)
+    {							
+        GameTaskManager().UpdateTasks();
     }
 
     // Inherited update
@@ -440,31 +413,27 @@ void CLevel::OnFrame()
 #endif
 
     g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
-    if (!g_dedicated_server)
-        ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
+    ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
     m_ph_commander->update();
     m_ph_commander_scripts->update();
     Device.Statistic->TEST0.Begin();
     BulletManager().CommitRenderSet();
     Device.Statistic->TEST0.End();
+
     // update static sounds
-    if (!g_dedicated_server)
+    if (g_mt_config.test(mtLevelSounds))
     {
-        if (g_mt_config.test(mtLevelSounds))
-        {
-            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
-        }
-        else
-            m_level_sound_manager->Update();
+        Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
     }
+    else
+        m_level_sound_manager->Update();
+
     // defer LUA-GC-STEP
-    if (!g_dedicated_server)
-    {
-        if (g_mt_config.test(mtLUA_GC))
-            Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this, &CLevel::script_gc));
-        else
-            script_gc();
-    }
+    if (g_mt_config.test(mtLUA_GC))
+        Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this, &CLevel::script_gc));
+    else
+        script_gc();
+
     if (pStatGraphR)
     {
         static float fRPC_Mult = 10.0f;
@@ -494,15 +463,12 @@ void CLevel::OnRender()
 {
 	::Render->BeforeWorldRender();	//--#SM+#-- +SecondVP+
 
-	//Level().rend
-	//debug_renderer().render();
     inherited::OnRender();
     if (!game)
         return;
     Game().OnRender();
-    //Device.Statistic->TEST1.Begin();
+
     BulletManager().Render();
-    //Device.Statistic->TEST1.End();
 
 	::Render->AfterWorldRender(); //--#SM+#-- +SecondVP+
 

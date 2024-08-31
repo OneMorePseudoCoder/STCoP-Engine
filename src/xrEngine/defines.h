@@ -46,8 +46,6 @@ enum
     // 23-32 bit - reserved to Editor
 };
 
-
-//. ENGINE_API extern u32 psCurrentMode ;
 ENGINE_API extern u32 psCurrentVidMode[];
 ENGINE_API extern u32 psCurrentBPP;
 ENGINE_API extern Flags32 psDeviceFlags;

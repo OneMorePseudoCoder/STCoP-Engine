@@ -13,19 +13,14 @@
 
 u32 hud_adj_mode = 0;
 u32 hud_adj_item_idx = 0;
+
 // "press SHIFT+NUM 0-return 1-hud_pos 2-hud_rot 3-itm_pos 4-itm_rot 5-fire_point 6-fire_2_point 7-shell_point";
 
 extern ENGINE_API float hud_adj_delta_pos, hud_adj_delta_rot;
 
-//float _delta_pos			= READ_IF_EXISTS(pFFSettings, r_float, "hud_adj", "_delta_pos", 0.0005f);
-//float _delta_rot			= READ_IF_EXISTS(pFFSettings, r_float, "hud_adj", "_delta_rot", 0.05f);
-
 bool is_attachable_item_tuning_mode()
 {
-	return	pInput->iGetAsyncKeyState(DIK_LSHIFT) ||
-		pInput->iGetAsyncKeyState(DIK_Z) ||
-		pInput->iGetAsyncKeyState(DIK_X) ||
-		pInput->iGetAsyncKeyState(DIK_C);
+	return	pInput->iGetAsyncKeyState(DIK_LSHIFT) || pInput->iGetAsyncKeyState(DIK_Z) || pInput->iGetAsyncKeyState(DIK_X) || pInput->iGetAsyncKeyState(DIK_C);
 }
 
 void tune_remap(const Ivector& in_values, Ivector& out_values)
@@ -68,7 +63,6 @@ void calc_cam_diff_pos(Fmatrix item_transform, Fvector diff, Fvector& res)
 	cam_m.j.set(Device.vCameraTop);
 	cam_m.k.set(Device.vCameraDirection);
 	cam_m.c.set(Device.vCameraPosition);
-
 
 	Fvector							res1;
 	cam_m.transform_dir(res1, diff);
@@ -420,7 +414,6 @@ void hud_draw_adjust_mode()
 	case 9:
 		_text = "adjusting rot STEP";
 		break;
-
 	};
 	if (_text)
 	{

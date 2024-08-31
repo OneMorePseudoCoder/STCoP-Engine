@@ -29,7 +29,6 @@ void CUIActorMenu::InitUpgradeMode()
 	InitInventoryContents( m_pInventoryBagList );
 	VERIFY( m_pPartnerInvOwner );
 	m_pPartnerInvOwner->StartTrading();
-//-	UpdateUpgradeItem();
 }
 
 void CUIActorMenu::DeInitUpgradeMode()
@@ -51,11 +50,13 @@ void CUIActorMenu::DeInitUpgradeMode()
 
 	if(!CurrentGameUI())
 		return;
+
 	//только если находимся в режиме single
 	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
-	if(!pGameSP) return;
+	if (!pGameSP) 
+		return;
 
-	if(pGameSP->TalkMenu->IsShown())
+	if (pGameSP->TalkMenu->IsShown())
 	{
 		pGameSP->TalkMenu->NeedUpdateQuestions();
 	}

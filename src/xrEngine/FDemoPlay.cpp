@@ -145,17 +145,6 @@ void CDemoPlay::stat_Stop()
         rfps_middlepoint /= float(stat_table.size() - 1);
     }
 
-    /*
-    for (u32 it=1; it<stat_table.size(); it++)
-    {
-    float fps = 1.f / stat_table[it];
-    if (fps<rfps_min) rfps_min = fps;
-    if (fps>rfps_max) rfps_max = fps;
-    rfps_middlepoint += fps;
-    }
-    rfps_middlepoint /= float(stat_table.size()-1);
-    */
-
     Msg("* [DEMO] FPS: average[%f], min[%f], max[%f], middle[%f]", rfps_average, rfps_min, rfps_max, rfps_middlepoint);
 
     if (g_bBenchmark)
@@ -263,11 +252,9 @@ BOOL CDemoPlay::ProcessCam(SCamEffectorInfo& info)
         if (frame >= m_count)
         {
             dwCyclesLeft--;
-            if (0 == dwCyclesLeft) return FALSE;
+            if (0 == dwCyclesLeft) 
+				return FALSE;
             fStartTime = 0;
-            // just continue
-            // stat_Stop ();
-            // stat_Start ();
         }
 
         int f1 = frame;

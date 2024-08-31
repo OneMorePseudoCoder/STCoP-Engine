@@ -225,27 +225,6 @@ void CUICharacterInfo::InitCharacter(u16 id)
 */
 }
 
-void CUICharacterInfo::InitCharacterMP( LPCSTR player_name, LPCSTR player_icon )
-{
-	ClearInfo();
-	
-	if ( m_icons[eName] )
-	{
-		m_icons[eName]->TextItemControl()->SetTextST( player_name );
-		m_icons[eName]->Show( true );
-	}
-
-	if ( m_icons[eIcon] )
-	{
-		m_icons[eIcon]->InitTexture( player_icon );
-		m_icons[eIcon]->Show( true );
-	}
-	if ( m_icons[eIconOver] )
-	{
-		m_icons[eIconOver]->Show( true );
-	}
-}
-
 void  CUICharacterInfo::SetRelation( ALife::ERelationType relation, CHARACTER_GOODWILL goodwill )
 {
 	if ( !m_icons[eRelation] || !m_icons[eRelationCaption] )
@@ -255,7 +234,6 @@ void  CUICharacterInfo::SetRelation( ALife::ERelationType relation, CHARACTER_GO
 	m_icons[eRelation]->TextItemControl()->SetTextColor( GetRelationColor(  relation ) );
 	m_icons[eRelation]->TextItemControl()->SetTextST(    GetGoodwillAsText( goodwill ) );
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 

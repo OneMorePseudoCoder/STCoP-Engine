@@ -41,8 +41,8 @@ public:
         DIDEVICEINSTANCE deviceInfo;
         DIDEVICEOBJECTINSTANCE objectInfo;
     };
+
 private:
-    BENCH_SEC_SCRAMBLEMEMBER1
     LPDIRECTINPUT8 pDI; // The DInput object
     LPDIRECTINPUTDEVICE8 pMouse; // The DIDevice7 interface
     LPDIRECTINPUTDEVICE8 pKeyboard; // The DIDevice7 interface
@@ -55,11 +55,8 @@ private:
     //----------------------
     BOOL KBState[COUNT_KB_BUTTONS];
 
-    HRESULT CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice,
-                              const DIDATAFORMAT* pdidDataFormat, u32 dwFlags,
-                              u32 buf_size);
+    HRESULT CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice, const DIDATAFORMAT* pdidDataFormat, u32 dwFlags, u32 buf_size);
 
-    // xr_stack<IInputReceiver*> cbStack;
     xr_vector<IInputReceiver*> cbStack;
 
     void MouseUpdate();

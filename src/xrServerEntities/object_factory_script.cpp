@@ -7,9 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "pch_script.h"
-
-#ifndef DEDICATED_SERVER_ONLY
-
 #include "object_factory.h"
 #include "ai_space.h"
 #include "script_engine.h"
@@ -45,7 +42,8 @@ void CObjectFactory::register_script_class	(LPCSTR client_class, LPCSTR server_c
 void CObjectFactory::register_script_class			(LPCSTR unknown_class, LPCSTR clsid, LPCSTR script_clsid)
 {
 	luabind::object				creator;
-	if (!ai().script_engine().function_object(unknown_class,creator,LUA_TUSERDATA)) {
+	if (!ai().script_engine().function_object(unknown_class,creator,LUA_TUSERDATA)) 
+	{
 		ai().script_engine().script_log	(eLuaMessageTypeError,"Cannot register class %s",unknown_class);
 		return;
 	}
@@ -61,16 +59,9 @@ void CObjectFactory::register_script_class			(LPCSTR unknown_class, LPCSTR clsid
 	);
 }
 
-#ifndef NO_XR_GAME
-	ENGINE_API	bool g_dedicated_server;
-#endif // NO_XR_GAME
-
 void CObjectFactory::register_script_classes()
 {
-#ifndef NO_XR_GAME
-	if (!g_dedicated_server)
-#endif // NO_XR_GAME
-		ai();
+	ai();
 }
 
 using namespace luabind;
@@ -101,5 +92,3 @@ void CObjectFactory::script_register(lua_State *L)
 			.def("register",	(void (CObjectFactory::*)(LPCSTR,LPCSTR,LPCSTR))(&CObjectFactory::register_script_class))
 	];
 }
-
-#endif // #ifndef DEDICATED_SERVER_ONLY

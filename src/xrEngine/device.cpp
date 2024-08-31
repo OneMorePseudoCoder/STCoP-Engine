@@ -42,27 +42,6 @@ ref_light precache_light = 0;
 
 BOOL CRenderDevice::Begin()
 {
-#ifndef DEDICATED_SERVER
-
-    /*
-    HW.Validate ();
-    HRESULT _hr = HW.pDevice->TestCooperativeLevel();
-    if (FAILED(_hr))
-    {
-    // If the device was lost, do not render until we get it back
-    if (D3DERR_DEVICELOST==_hr) {
-    Sleep (33);
-    return FALSE;
-    }
-
-    // Check if the device is ready to be reset
-    if (D3DERR_DEVICENOTRESET==_hr)
-    {
-    Reset ();
-    }
-    }
-    */
-
     switch (m_pRender->GetDeviceState())
     {
     case IRenderDeviceRender::dsOK:
@@ -85,17 +64,9 @@ BOOL CRenderDevice::Begin()
 
     m_pRender->Begin();
 
-    /*
-    CHK_DX (HW.pDevice->BeginScene());
-    RCache.OnFrameBegin ();
-    RCache.set_CullMode (CULL_CW);
-    RCache.set_CullMode (CULL_CCW);
-    if (HW.Caps.SceneMode) overdrawBegin ();
-    */
-
     FPU::m24r();
     g_bRendering = TRUE;
-#endif
+
     return TRUE;
 }
 
@@ -106,12 +77,8 @@ void CRenderDevice::Clear()
 
 extern void CheckPrivilegySlowdown();
 
-
 void CRenderDevice::End(void)
 {
-#ifndef DEDICATED_SERVER
-
-
 #ifdef INGAME_EDITOR
     bool load_finished = false;
 #endif // #ifdef INGAME_EDITOR
@@ -119,7 +86,6 @@ void CRenderDevice::End(void)
     {
         ::Sound->set_master_volume(0.f);
         dwPrecacheFrame--;
-        //. pApp->load_draw_internal ();
         if (0 == dwPrecacheFrame)
         {
 
@@ -157,24 +123,17 @@ void CRenderDevice::End(void)
 
     g_bRendering = FALSE;
     // end scene
+
     // Present goes here, so call OA Frame end.
     if (g_SASH.IsBenchmarkRunning())
         g_SASH.DisplayFrame(Device.fTimeGlobal);
     m_pRender->End();
-    //RCache.OnFrameEnd ();
-    //Memory.dbg_check ();
-    //CHK_DX (HW.pDevice->EndScene());
 
-    //HRESULT _hr = HW.pDevice->Present( NULL, NULL, NULL, NULL );
-    //if (D3DERR_DEVICELOST==_hr) return; // we will handle this later
-    //R_ASSERT2 (SUCCEEDED(_hr), "Presentation failed. Driver upgrade needed?");
 # ifdef INGAME_EDITOR
     if (load_finished && m_editor)
         m_editor->on_load_finished();
 # endif // #ifdef INGAME_EDITOR
-#endif
 }
-
 
 void CRenderDevice::SecondaryThreadProc(void* context)
 {
@@ -199,11 +158,9 @@ void CRenderDevice::SecondaryThreadProc(void* context)
 #include "igame_level.h"
 void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_user_input)
 {
-    if (m_pRender->GetForceGPU_REF()) amount = 0;
-#ifdef DEDICATED_SERVER
-    amount = 0;
-#endif
-    // Msg ("* PCACHE: start for %d...",amount);
+    if (m_pRender->GetForceGPU_REF()) 
+		amount = 0;
+
     dwPrecacheFrame = dwPrecacheTotal = amount;
     if (amount && !precache_light && g_pGameLevel && g_loading_events.empty())
     {
@@ -220,7 +177,6 @@ void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_use
         load_screen_renderer.start(b_wait_user_input);
     }
 }
-
 
 int g_svDedicateServerUpdateReate = 100;
 
@@ -380,7 +336,6 @@ void CRenderDevice::on_idle()
 	}
 #endif // 0
 
-	
 	// Restore main vp saved stuff for the needs of new frame
     if (Device.m_SecondViewport.IsSVPActive())
     {
@@ -426,7 +381,6 @@ void CRenderDevice::on_idle()
 
 void CRenderDevice::message_loop()
 {
-
     MSG msg;
     PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
     while (msg.message != WM_QUIT)
@@ -467,7 +421,6 @@ void CRenderDevice::Run()
     // Message cycle
     seqAppStart.Process(rp_AppStart);
 
-    //CHK_DX(HW.pDevice->Clear(0,0,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1,0));
     m_pRender->ClearTarget();
 
     message_loop();
@@ -478,9 +431,8 @@ void CRenderDevice::Run()
     mt_bMustExit = TRUE;
     syncProcessFrame.Set();
     syncThreadExit.Wait();
-    while (mt_bMustExit) Sleep(0);
-    // DeleteCriticalSection (&mt_csEnter);
-    // DeleteCriticalSection (&mt_csLeave);
+    while (mt_bMustExit) 
+		Sleep(0);
 }
 
 u32 app_inactive_time = 0;
@@ -497,12 +449,6 @@ void CRenderDevice::FrameMove()
 
     if (psDeviceFlags.test(rsConstantFPS))
     {
-        // 20ms = 50fps
-        //fTimeDelta = 0.020f;
-        //fTimeGlobal += 0.020f;
-        //dwTimeDelta = 20;
-        //dwTimeGlobal += 20;
-        // 33ms = 30fps
         fTimeDelta = 0.033f;
         fTimeGlobal += 0.033f;
         dwTimeDelta = 33;
@@ -514,7 +460,6 @@ void CRenderDevice::FrameMove()
         float fPreviousFrameTime = Timer.GetElapsed_sec();
         Timer.Start(); // previous frame
         fTimeDelta = 0.1f * fTimeDelta + 0.9f*fPreviousFrameTime; // smooth random system activity - worst case ~7% error
-        //fTimeDelta = 0.7f * fTimeDelta + 0.3f*fPreviousFrameTime; // smooth random system activity
         if (fTimeDelta > .1f)
             fTimeDelta = .1f; // limit to 15fps minimum
 
@@ -524,8 +469,7 @@ void CRenderDevice::FrameMove()
         if (Paused())
             fTimeDelta = 0.0f;
 
-        // u64 qTime = TimerGlobal.GetElapsed_clk();
-        fTimeGlobal = TimerGlobal.GetElapsed_sec(); //float(qTime)*CPU::cycles2seconds;
+        fTimeGlobal = TimerGlobal.GetElapsed_sec();
         u32 _old_global = dwTimeGlobal;
         dwTimeGlobal = TimerGlobal.GetElapsed_ms();
         dwTimeDelta = dwTimeGlobal - _old_global;
@@ -534,11 +478,7 @@ void CRenderDevice::FrameMove()
     // Frame move
     Statistic->EngineTOTAL.Begin();
 
-    // TODO: HACK to test loading screen.
-    //if(!g_bLoaded)
     ProcessLoading(rp_Frame);
-    //else
-    // seqFrame.Process (rp_Frame);
     Statistic->EngineTOTAL.End();
 }
 
@@ -549,20 +489,15 @@ void ProcessLoading(RP_FUNC* f)
 }
 
 ENGINE_API BOOL bShowPauseString = TRUE;
+
 #include "IGame_Persistent.h"
 
 void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
     static int snd_emitters_ = -1;
 
-    if (g_bBenchmark) return;
-
-
-#ifdef DEBUG
-    // Msg("pause [%s] timer=[%s] sound=[%s] reason=%s",bOn?"ON":"OFF", bTimer?"ON":"OFF", bSound?"ON":"OFF", reason);
-#endif // DEBUG
-
-#ifndef DEDICATED_SERVER
+    if (g_bBenchmark) 
+		return;
 
     if (bOn)
     {
@@ -585,14 +520,11 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
         if (bSound && ::Sound)
         {
             snd_emitters_ = ::Sound->pause_emitters(true);
-#ifdef DEBUG
-            // Log("snd_emitters_[true]",snd_emitters_);
-#endif // DEBUG
         }
     }
     else
     {
-        if (bTimer && /*g_pGamePersistent->CanBePaused() &&*/ g_pauseMngr.Paused())
+        if (bTimer && g_pauseMngr.Paused())
         {
             fTimeDelta = EPS_S + EPS_S;
             g_pauseMngr.Pause(FALSE);
@@ -603,9 +535,6 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
             if (snd_emitters_ > 0) //avoid crash
             {
                 snd_emitters_ = ::Sound->pause_emitters(false);
-#ifdef DEBUG
-                // Log("snd_emitters_[false]",snd_emitters_);
-#endif // DEBUG
             }
             else
             {
@@ -615,9 +544,6 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
             }
         }
     }
-
-#endif
-
 }
 
 BOOL CRenderDevice::Paused()
@@ -640,25 +566,16 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
             Device.seqAppActivate.Process(rp_AppActivate);
             app_inactive_time += TimerMM.GetElapsed_ms() - app_inactive_time_start;
 
-#ifndef DEDICATED_SERVER
 # ifdef INGAME_EDITOR
             if (!editor())
 # endif // #ifdef INGAME_EDITOR
                 ShowCursor(FALSE);
-				/*if (m_hWnd)
-				{
-					RECT winRect;
-					GetWindowRect(m_hWnd, &winRect);
-					ClipCursor(&winRect);
-				}*/
-#endif // #ifndef DEDICATED_SERVER
         }
         else
         {
             app_inactive_time_start = TimerMM.GetElapsed_ms();
             Device.seqAppDeactivate.Process(rp_AppDeactivate);
             ShowCursor(TRUE);
-			//ClipCursor(NULL);
         }
     }
 }
@@ -669,7 +586,6 @@ void CRenderDevice::AddSeqFrame(pureFrame* f, bool mt)
         seqFrameMT.Add(f, REG_PRIORITY_HIGH);
     else
         seqFrame.Add(f, REG_PRIORITY_LOW);
-
 }
 
 void CRenderDevice::RemoveSeqFrame(pureFrame* f)
@@ -678,8 +594,7 @@ void CRenderDevice::RemoveSeqFrame(pureFrame* f)
     seqFrame.Remove(f);
 }
 
-CLoadScreenRenderer::CLoadScreenRenderer()
-    :b_registered(false)
+CLoadScreenRenderer::CLoadScreenRenderer() : b_registered(false)
 {}
 
 void CLoadScreenRenderer::start(bool b_user_input)
@@ -691,7 +606,8 @@ void CLoadScreenRenderer::start(bool b_user_input)
 
 void CLoadScreenRenderer::stop()
 {
-    if (!b_registered) return;
+    if (!b_registered) 
+		return;
     Device.seqRender.Remove(this);
     pApp->destroy_loading_shaders();
     b_registered = false;

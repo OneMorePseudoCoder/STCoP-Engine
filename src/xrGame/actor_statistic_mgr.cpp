@@ -2,18 +2,7 @@
 #include "actor_statistic_mgr.h"
 #include "alife_registry_wrappers.h"
 #include "alife_simulator_header.h"
-/*
-xr_token actor_stats_token[]={
-	{"total",				100},
-	{"stalkerkills",		1},
-	{"monsterkills",		2},
-	{"quests",				3},
-	{"artefacts",			4},
-	{"reputation",			5},
-	{"foo",					0},
-	{0,						0}
-};
-*/
+
 void SStatDetailBData::save(IWriter &stream)
 {
 	save_data			(key,			stream);
@@ -31,7 +20,6 @@ void SStatDetailBData::load(IReader &stream)
 	if(ai().get_alife()->header().version()>0x0002)
 		load_data			(str_value,		stream);
 }
-
 
 ////////////////////////////////////////////////
 void SStatSectionData::save(IWriter &stream)	
@@ -106,7 +94,6 @@ s32 SStatSectionData::GetTotalPoints() const
 		res		+= (*it).int_count*(*it).int_points;
 	}
 	return res;
-
 }
 
 CActorStatisticMgr::CActorStatisticMgr		()
@@ -163,7 +150,8 @@ s32 CActorStatisticMgr::GetSectionPoints(const shared_str& key)
 {
 	if( key != "total" )
 		return GetSection(key).GetTotalPoints();
-	else{//total
+	else
+	{
 		s32 _total = -1;
 		vStatSectionData& d					= GetStorage();
 		vStatSectionData::iterator it		= d.begin();

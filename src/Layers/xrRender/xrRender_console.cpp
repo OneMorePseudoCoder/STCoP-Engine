@@ -223,7 +223,7 @@ float		ps_r2_dof_kernel_size		= 5.0f;						//	7.0f
 
 float		ps_r3_dyn_wet_surf_near		= 10.f;				// 10.0f
 float		ps_r3_dyn_wet_surf_far		= 30.f;				// 30.0f
-int			ps_r3_dyn_wet_surf_sm_res	= 256;				// 256
+int			ps_r3_dyn_wet_surf_sm_res	= 1024;				// 256
 
 //AVO: detail draw radius
 Flags32 ps_common_flags = { 0 }; // r1-only
@@ -336,10 +336,8 @@ class CCC_Screenshot : public IConsole_Command
 {
 public:
 	CCC_Screenshot(LPCSTR N) : IConsole_Command(N)  { };
-	virtual void Execute(LPCSTR args) {
-		if (g_dedicated_server)
-			return;
-
+	virtual void Execute(LPCSTR args) 
+	{
 		string_path	name;	name[0]=0;
 		sscanf		(args,"%s",	name);
 		LPCSTR		image	= xr_strlen(name)?name:0;

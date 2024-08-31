@@ -13,8 +13,8 @@ extern xr_token* vid_quality_token;
 //////////////////////////////////////////////////////////////////////
 
 void __cdecl dummy(void)
-{
-};
+{};
+
 CEngineAPI::CEngineAPI()
 {
     hGame = 0;
@@ -46,13 +46,9 @@ ENGINE_API int g_current_renderer = 0;
 ENGINE_API bool is_enough_address_space_available()
 {
     SYSTEM_INFO system_info;
-
     GetSystemInfo(&system_info);
-
     return (*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
-
-#ifndef DEDICATED_SERVER
 
 void CEngineAPI::InitializeNotDedicated()
 {
@@ -104,8 +100,6 @@ void CEngineAPI::InitializeNotDedicated()
             g_current_renderer = 2;
     }
 }
-#endif // DEDICATED_SERVER
-
 
 void CEngineAPI::Initialize(void)
 {
@@ -113,9 +107,7 @@ void CEngineAPI::Initialize(void)
     // render
     LPCSTR r1_name = "xrRender_R1.dll";
 
-#ifndef DEDICATED_SERVER
     InitializeNotDedicated();
-#endif // DEDICATED_SERVER
 
     if (0 == hRender)
     {
@@ -167,15 +159,26 @@ void CEngineAPI::Initialize(void)
 
 void CEngineAPI::Destroy(void)
 {
-    if (hGame) { FreeLibrary(hGame); hGame = 0; }
-    if (hRender) { FreeLibrary(hRender); hRender = 0; }
+    if (hGame) 
+    { 
+        FreeLibrary(hGame); 
+        hGame = 0; 
+    }
+
+    if (hRender) 
+    { 
+        FreeLibrary(hRender); 
+        hRender = 0; 
+    }
+
     pCreate = 0;
     pDestroy = 0;
     Engine.Event._destroy();
     XRC.r_clear_compact();
 }
 
-extern "C" {
+extern "C" 
+{
     typedef bool __cdecl SupportsAdvancedRendering(void);
     typedef bool _declspec(dllexport) SupportsDX10Rendering();
     typedef bool _declspec(dllexport) SupportsDX11Rendering();
@@ -183,17 +186,6 @@ extern "C" {
 
 void CEngineAPI::CreateRendererList()
 {
-#ifdef DEDICATED_SERVER
-
-    vid_quality_token = xr_alloc<xr_token>(2);
-
-    vid_quality_token[0].id = 0;
-    vid_quality_token[0].name = xr_strdup("renderer_r1");
-
-    vid_quality_token[1].id = -1;
-    vid_quality_token[1].name = NULL;
-
-#else
     // TODO: ask renderers if they are supported!
     if (vid_quality_token != NULL) return;
     bool bSupports_r2 = false;
@@ -332,5 +324,4 @@ void CEngineAPI::CreateRendererList()
         Msg("[%s]", _tmp[i]);
 #endif // DEBUG
     }
-#endif //#ifndef DEDICATED_SERVER
 }

@@ -1,11 +1,10 @@
 #pragma once
-#include "../xrEngine/dedicated_server_only.h"
-#include "../xrEngine/no_single.h"
 
 class CUIDialogWnd;
 class CUIWindow;
 
-class dlgItem{
+class dlgItem
+{
 public:
 	dlgItem			(CUIWindow* pWnd);
 	CUIWindow*		wnd;
@@ -13,16 +12,20 @@ public:
 	bool operator < (const dlgItem& itm) const;
 };
 
-class recvItem{
+class recvItem
+{
 public:
-	enum{	eCrosshair		= (1<<0),
-			eIndicators		= (1<<1)};
+	enum
+	{	
+		eCrosshair		= (1<<0),
+		eIndicators		= (1<<1)
+	};
 	recvItem		(CUIDialogWnd*);
 	CUIDialogWnd*	m_item;
 	Flags8			m_flags;
 };
 
-class PROTECT_API CDialogHolder :public pureFrame
+class CDialogHolder : public pureFrame
 {
 	//dialogs
 	xr_vector<recvItem>										m_input_receivers;
@@ -57,5 +60,4 @@ public:
 	virtual bool 			IR_UIOnMouseMove				(int dx, int dy);
 	virtual bool 			IR_UIOnMouseWheel				(int direction);
 	virtual bool 			IR_UIOnKeyboardHold				(int dik);
-
 };

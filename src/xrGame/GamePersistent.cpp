@@ -191,7 +191,7 @@ void CGamePersistent::OnGameEnd	()
 
 void CGamePersistent::WeathersUpdate()
 {
-	if (g_pGameLevel && !g_dedicated_server)
+	if (g_pGameLevel)
 	{
 		CActor* actor				= smart_cast<CActor*>(Level().CurrentViewEntity());
 		BOOL bIndoor				= TRUE;
@@ -350,7 +350,8 @@ bool allow_intro ()
 #endif	// #ifdef MASTER_GOLD
 	{
 		return false;
-	}else
+	}
+	else
 		return true;
 }
 
@@ -359,7 +360,7 @@ void CGamePersistent::start_logo_intro()
 	if(Device.dwPrecacheFrame==0)
 	{
 		m_intro_event.bind		(this, &CGamePersistent::update_logo_intro);
-		if (!g_dedicated_server && 0==xr_strlen(m_game_params.m_game_or_spawn) && NULL==g_pGameLevel)
+		if (0==xr_strlen(m_game_params.m_game_or_spawn) && NULL==g_pGameLevel)
 		{
 			VERIFY				(NULL==m_intro);
 			m_intro				= xr_new<CUISequencer>();
@@ -378,8 +379,8 @@ void CGamePersistent::update_logo_intro()
 		xr_delete				(m_intro);
 		Msg("intro_delete ::update_logo_intro");
 		Console->Execute		("main_menu on");
-	}else
-	if(!m_intro)
+	}
+	else if(!m_intro)
 	{
 		m_intro_event			= 0;
 	}
@@ -411,7 +412,7 @@ void CGamePersistent::update_game_loaded()
 
 void CGamePersistent::start_game_intro		()
 {
-	if(!allow_intro())
+	if (!allow_intro())
 	{
 		m_intro_event			= 0;
 		return;
@@ -471,18 +472,22 @@ void CGamePersistent::OnFrame	()
 #ifdef DEBUG
 	++m_frame_counter;
 #endif
-	if (!g_dedicated_server && !m_intro_event.empty())	m_intro_event();
+	if (!m_intro_event.empty())	
+		m_intro_event();
 	
-	if(!g_dedicated_server && Device.dwPrecacheFrame==0 && !m_intro && m_intro_event.empty())
+	if (Device.dwPrecacheFrame==0 && !m_intro && m_intro_event.empty())
 		load_screen_renderer.stop();
 
-	if( !m_pMainMenu->IsActive() )
+	if (!m_pMainMenu->IsActive())
 		m_pMainMenu->DestroyInternal(false);
 
-	if(!g_pGameLevel)			return;
-	if(!g_pGameLevel->bReady)	return;
+	if (!g_pGameLevel)			
+		return;
 
-	if(Device.Paused())
+	if (!g_pGameLevel->bReady)
+		return;
+
+	if (Device.Paused())
 	{
 #ifndef MASTER_GOLD
 		if (Level().CurrentViewEntity()) 
@@ -625,8 +630,8 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 		game->restart_simulator	(saved_name);
 		xr_free					(saved_name);
 		return;
-	}else
-	if(E==eDemoStart)
+	}
+	else if(E==eDemoStart)
 	{
 		string256			cmd;
 		LPCSTR				demo	= LPCSTR(P1);

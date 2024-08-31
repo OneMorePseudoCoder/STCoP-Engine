@@ -10,15 +10,8 @@
 #include "../xrNetServer/net_server.h"
 #include "game_sv_base.h"
 #include "id_generator.h"
-#include "../xrEngine/mp_logging.h"
 #include "secure_messaging.h"
-#include "xrServer_updates_compressor.h"
 #include "xrClientsPool.h"
-
-#ifdef DEBUG
-//. #define SLOW_VERIFY_ENTITIES
-#endif
-
 
 class CSE_Abstract;
 
@@ -38,14 +31,6 @@ public:
 	u32						net_LastMoveUpdateTime;
 	
 	game_PlayerState*		ps;
-	struct{
-		u8						m_maxPingWarnings;
-		u32						m_dwLastMaxPingWarningTime;
-	}m_ping_warn;
-	struct{
-		BOOL					m_has_admin_rights;
-		u32						m_dwLoginTime;
-	}m_admin_rights;
 
 	shared_str					m_cdkey_digest;
 	secure_messaging::key_t		m_secret_key;
@@ -56,21 +41,14 @@ public:
 	virtual void			Clear					();
 };
 
-
 // main
 struct	svs_respawn
 {
 	u32		timestamp;
 	u16		phantom;
 };
-IC bool operator < (const svs_respawn& A, const svs_respawn& B)	{ return A.timestamp<B.timestamp; }
 
-struct CheaterToKick
-{
-	shared_str	reason;
-	ClientID	cheater_id;
-};
-typedef xr_vector<CheaterToKick> cheaters_t;
+IC bool operator < (const svs_respawn& A, const svs_respawn& B)	{ return A.timestamp<B.timestamp; }
 
 class xrServer	: public IPureServer  
 {
@@ -78,15 +56,7 @@ private:
 	xrS_entities				entities;
 	xr_multiset<svs_respawn>	q_respawn;
 	xr_vector<u16>				conn_spawned_ids;
-	cheaters_t					m_cheaters;
-	
-	typedef server_updates_compressor::send_ready_updates_t::const_iterator update_iterator_t;
-	update_iterator_t			m_update_begin;
-	update_iterator_t			m_update_end;
-	server_updates_compressor	m_updator;
-	
-	void						MakeUpdatePackets			();
-	void						SendUpdatePacketsToAll		();
+
 	u32							m_last_updates_size;
 	u32							m_last_update_time;
 	
@@ -257,7 +227,6 @@ public:
 			void			verify_entity		(const CSE_Abstract *entity) const;
 #endif
 };
-
 
 #ifdef DEBUG
 		enum e_dbg_net_Draw_Flags

@@ -154,7 +154,6 @@ void CStats::Show()
         {
             u32 rendered_polies = Device.m_pRender->GetCacheStatPolys();
             fTPS = fInv*fTPS + fOne*float(rendered_polies) / (RenderTOTAL.result*1000.f);
-            //fTPS = fInv*fTPS + fOne*float(RCache.stat.polys)/(RenderTOTAL.result*1000.f);
             fRFPS = fInv*fRFPS + fOne*1000.f / RenderTOTAL.result;
         }
     }
@@ -165,9 +164,6 @@ void CStats::Show()
         Memory.stat_calls = 0;
     }
 
-    ////////////////////////////////////////////////
-    if (g_dedicated_server) return;
-    ////////////////////////////////////////////////
     int frm = 2000;
     div_t ddd = div(Device.dwFrame, frm);
     if (ddd.rem < frm / 2.0f)
@@ -211,9 +207,7 @@ void CStats::Show()
         F.OutNext("FPS/RFPS:    %3.1f/%3.1f", fFPS, fRFPS);
         F.OutNext("TPS:         %2.2f M", fTPS);
         m_pRender->OutData1(F);
-        //F.OutNext ("VERT:        %d/%d", RCache.stat.verts,RCache.stat.calls?RCache.stat.verts/RCache.stat.calls:0);
-        //F.OutNext ("POLY:        %d/%d", RCache.stat.polys,RCache.stat.calls?RCache.stat.polys/RCache.stat.calls:0);
-        //F.OutNext ("DIP/DP:      %d", RCache.stat.calls);
+
 #ifdef DEBUG
         F.OutSkip();
 #ifdef FS_DEBUG
@@ -221,12 +215,9 @@ void CStats::Show()
         F.OutSkip();
 #endif
         m_pRender->OutData2(F);
-        //F.OutNext ("SH/T/M/C:    %d/%d/%d/%d",RCache.stat.states,RCache.stat.textures,RCache.stat.matrices,RCache.stat.constants);
-        //F.OutNext ("RT/PS/VS:    %d/%d/%d", RCache.stat.target_rt,RCache.stat.ps,RCache.stat.vs);
-        //F.OutNext ("DCL/VB/IB:   %d/%d/%d", RCache.stat.decl,RCache.stat.vb,RCache.stat.ib);
 #endif
         m_pRender->OutData3(F);
-        //F.OutNext ("xforms:      %d", RCache.stat.xforms);
+
         F.OutSkip();
 
 #define PPP(a) (100.f*float(a)/float(EngineTOTAL.result))
@@ -474,10 +465,7 @@ void CStats::OnDeviceCreate()
     fpsFont->SetColor(color_rgba(250, 250, 15, 180));
 
 
-    if (!pSettings->section_exist("evaluation")
-            || !pSettings->line_exist("evaluation", "line1")
-            || !pSettings->line_exist("evaluation", "line2")
-            || !pSettings->line_exist("evaluation", "line3"))
+    if (!pSettings->section_exist("evaluation") || !pSettings->line_exist("evaluation", "line1") || !pSettings->line_exist("evaluation", "line2") || !pSettings->line_exist("evaluation", "line3"))
         FATAL("");
 
     eval_line_1 = pSettings->r_string_wb("evaluation", "line1");
@@ -496,8 +484,6 @@ void CStats::OnDeviceDestroy()
     xr_delete(pFont);
     xr_delete(fpsFont);
 }
-
-
 
 void CStats::OnRender()
 {

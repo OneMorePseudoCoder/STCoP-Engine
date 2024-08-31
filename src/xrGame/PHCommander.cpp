@@ -3,8 +3,6 @@
 
 #include "phsimplecalls.h"
 #ifdef DEBUG
-//#include "phworld.h"
-//extern CPHWorld	*ph_world;
 #include "../xrphysics/IPHWorld.h"
 #endif
 
@@ -19,6 +17,7 @@ CPHCall::~CPHCall()
 	xr_delete(m_action);
 	xr_delete(m_condition);
 }
+
 bool CPHCall::obsolete()
 {
 	return !m_action || m_action->obsolete() || !m_condition || m_condition->obsolete();
@@ -33,6 +32,7 @@ bool CPHCall::equal(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
 {
 	return m_action->compare(cmp_action)&&m_condition->compare(cmp_condition);
 }
+
 bool CPHCall::is_any(CPHReqComparerV* v)
 {
 	return m_action->compare(v)||m_condition->compare(v);
@@ -40,7 +40,8 @@ bool CPHCall::is_any(CPHReqComparerV* v)
 
 void delete_call(CPHCall* &call)
 {
-	try{
+	try
+	{
 		xr_delete(call);
 	}
 	catch(...)
@@ -53,15 +54,19 @@ CPHCommander::~CPHCommander()
 {
 	clear();
 }
+
 void CPHCommander::clear	()
 {
-	while (m_calls.size())	{
+	while (m_calls.size())	
+	{
 		remove_call(m_calls.end()-1);
 	}
-	while (m_calls_as_add_buffer.size())	{
+	while (m_calls_as_add_buffer.size())	
+	{
 		remove_call(m_calls_as_add_buffer.end()-1);
 	}
-	while (m_calls_as_remove_buffer.size())	{
+	while (m_calls_as_remove_buffer.size())	
+	{
 		remove_call(m_calls_as_remove_buffer.end()-1);
 	}
 }
@@ -89,6 +94,7 @@ void CPHCommander::update	()
 		}
 	}
 }
+
 void CPHCommander::update_threadsafety 			()
 {
 	lock.Enter();
@@ -102,10 +108,12 @@ void CPHCommander::	add_call_threadsafety		(CPHCondition* condition,CPHAction* a
 	add_call( condition, action );
 	lock.Leave();
 }
+
 void CPHCommander::add_call(CPHCondition* condition,CPHAction* action,PHCALL_STORAGE& cs)
 {
 	cs.push_back(xr_new<CPHCall>(condition,action));
 }
+
 void CPHCommander::add_call(CPHCondition* condition,CPHAction* action)
 {
 	add_call(condition,action,m_calls);
@@ -121,8 +129,7 @@ void CPHCommander::remove_call(PHCALL_I i,PHCALL_STORAGE& cs)
 		Fvector f = cfa->force();
 		float m = f.magnitude();
 		if(m>EPS_S)
-				f.mul(1.f/m);
-		//Msg(" const force removed: force: %f,  remove step: %d  world step: %d ,dir(%f,%f,%f) ", m, esc->step(), (u32)physics_world()->StepsNum(), f.x, f.y , f.z ); 
+			f.mul(1.f/m);
 	}
 #endif
 	delete_call(*i);
@@ -133,8 +140,6 @@ void CPHCommander::remove_call(PHCALL_I i)
 {
 	remove_call(i,m_calls);
 }
-
-
 
 struct SFEqualPred
 {
@@ -148,6 +153,7 @@ struct SFEqualPred
 		return	call->equal(cmp_condition,cmp_action);
 	}
 };
+
 struct SFRemovePred2
 {
 	CPHReqComparerV* cmp_condition,*cmp_action;
@@ -163,7 +169,6 @@ struct SFRemovePred2
 			return true;
 		}
 		return false;
-		
 	}
 };
 
@@ -177,24 +182,14 @@ PHCALL_I CPHCommander::find_call(CPHReqComparerV* cmp_condition,CPHReqComparerV*
 	return find_call(cmp_condition,cmp_action,m_calls);
 }
 
-bool				CPHCommander::has_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
+bool CPHCommander::has_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
 {
 	return find_call(cmp_condition,cmp_action) != m_calls.end();
 }
 
 void CPHCommander::remove_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action,PHCALL_STORAGE& cs)
 {
-	cs.erase	(
-		std::remove_if(
-			cs.begin(),
-			cs.end(),
-			SFRemovePred2(
-				cmp_condition,
-				cmp_action
-			)
-		),
-		cs.end()
-	);
+	cs.erase(std::remove_if(cs.begin(), cs.end(), SFRemovePred2(cmp_condition, cmp_action)), cs.end());
 }
 
 void CPHCommander::remove_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
@@ -204,17 +199,19 @@ void CPHCommander::remove_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* c
 
 bool CPHCommander::add_call_unique(CPHCondition* condition,CPHReqComparerV* cmp_condition,CPHAction* action,CPHReqComparerV* cmp_action,PHCALL_STORAGE& cs)
 {
-	if(cs.end()==find_call(cmp_condition,cmp_action,cs))
+	if (cs.end()==find_call(cmp_condition,cmp_action,cs))
 	{
 		add_call(condition,action,cs);
 		return true;
 	}
 	return false;
 }
+
 bool CPHCommander::add_call_unique(CPHCondition* condition,CPHReqComparerV* cmp_condition,CPHAction* action,CPHReqComparerV* cmp_action)
 {
 	return add_call_unique(condition,cmp_condition,action,cmp_action,m_calls);
 }
+
 struct SRemoveRped
 {
 	CPHReqComparerV*	cmp_object;
@@ -236,21 +233,16 @@ struct SRemoveRped
 
 void CPHCommander::remove_calls(CPHReqComparerV* cmp_object,PHCALL_STORAGE& cs)
 {
-	cs.erase	(
-		std::remove_if(
-			cs.begin(),
-			cs.end(),
-			SRemoveRped(cmp_object)
-		),
-		cs.end()
-	);
+	cs.erase(std::remove_if(cs.begin(), cs.end(), SRemoveRped(cmp_object)), cs.end());
 }
+
 void CPHCommander::remove_calls_threadsafety(CPHReqComparerV* cmp_object)
 {
 	lock.Enter();
 	remove_calls(cmp_object);
 	lock.Leave();
 }
+
 void CPHCommander::remove_calls(CPHReqComparerV* cmp_object)
 {
 	remove_calls(cmp_object,m_calls);
@@ -260,34 +252,29 @@ void		CPHCommander::		add_call_unique_as				(CPHCondition* condition,CPHReqCompa
 {
 	add_call_unique(condition,cmp_condition,action,cmp_action,m_calls_as_add_buffer);
 }
+
 void		CPHCommander::		add_call_as					(CPHCondition* condition,CPHAction* action)
 {
 	add_call(condition,action,m_calls_as_add_buffer);
 }
 
-
 PHCALL_I	CPHCommander::		find_call_as				(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
 {
 	return find_call(cmp_condition,cmp_action,m_calls);
 }
+
 void		CPHCommander::		remove_call_as				(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
 {
 	remove_call(cmp_condition,cmp_action,m_calls_as_add_buffer);
-	
 }
+
 void		CPHCommander::		remove_calls_as				(CPHReqComparerV* cmp_object)
-{
-	
-}
+{}
 
 void		CPHCommander::		update_as  					()
-{
+{}
 
-}
-
-
-
-void	CPHCommander::		phys_shell_relcase	( CPhysicsShell* sh )
+void CPHCommander::phys_shell_relcase( CPhysicsShell* sh )
 {
 	CPHReqComparerHasShell c(sh);
 	remove_calls_threadsafety(&c);

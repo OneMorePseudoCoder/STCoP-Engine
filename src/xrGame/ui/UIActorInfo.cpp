@@ -21,10 +21,8 @@
 #define				ACTOR_STATISTIC_XML		"actor_statistic.xml"
 #define				ACTOR_CHARACTER_XML		"pda_dialog_character.xml"
 
-
 CUIActorInfoWnd::CUIActorInfoWnd()
 {}
-
 
 void CUIActorInfoWnd::Init()
 {
@@ -80,14 +78,14 @@ void CUIActorInfoWnd::Init()
 void CUIActorInfoWnd::Show(bool status)
 {
 	inherited::Show(status);
-	if (!status) return;
+	if (!status) 
+		return;
 	
 	UICharacterInfo->InitCharacter			(Actor()->ID());
 #pragma todo("implement this")
 //.	UICharIconHeader->UITitleText.SetText	(Actor()->Name());
 	FillPointsInfo							();
 }
-
 
 void CUIActorInfoWnd::FillPointsInfo			()
 {
@@ -96,9 +94,9 @@ void CUIActorInfoWnd::FillPointsInfo			()
 
 	UIMasterList->Clear						();
 
-	const vStatSectionData& _storage	= Actor()->StatisticMgr().GetCStorage();
-	vStatSectionData::const_iterator	it		= _storage.begin();
-	vStatSectionData::const_iterator	it_e	= _storage.end();
+	const vStatSectionData& _storage = Actor()->StatisticMgr().GetCStorage();
+	vStatSectionData::const_iterator it = _storage.begin();
+	vStatSectionData::const_iterator it_e = _storage.end();
 	
 	FillMasterPart						(&uiXml, "foo");
 	
@@ -193,6 +191,7 @@ void CUIActorInfoWnd::FillPointsDetail(const shared_str& id)
 		UIDetailList->AddWindow				(itm, true);
 	}
 }
+
 void	CUIActorInfoWnd::Reset()
 {
 	inherited::Reset();
@@ -205,13 +204,11 @@ void	CUIActorInfoWnd::FillReputationDetails(CUIXml* xml, LPCSTR path)
 
 	CHARACTER_COMMUNITY						comm;
 
-
 	CHARACTER_REPUTATION					rep_actor, rep_neutral;
 	rep_actor.set							(Actor()->Reputation());
 	rep_neutral.set							(NEUTAL_REPUTATION);
 
 	CHARACTER_GOODWILL d_neutral			= CHARACTER_REPUTATION::relation(rep_actor.index(), rep_neutral.index());
-
 
 	string64 buff;
 	for(int i=0;i<cnt;++i)
@@ -235,11 +232,8 @@ void	CUIActorInfoWnd::FillReputationDetails(CUIXml* xml, LPCSTR path)
 	}
 }
 
-
-CUIActorStaticticHeader::CUIActorStaticticHeader(CUIActorInfoWnd* w)
-:m_actorInfoWnd(w)
+CUIActorStaticticHeader::CUIActorStaticticHeader(CUIActorInfoWnd* w) : m_actorInfoWnd(w)
 {}
-
 
 void CUIActorStaticticHeader::Init	(CUIXml* xml, LPCSTR path, int idx_in_xml)
 {
@@ -264,16 +258,16 @@ void CUIActorStaticticHeader::Init	(CUIXml* xml, LPCSTR path, int idx_in_xml)
 
 	m_stored_alpha						= color_get_A(m_text1->GetTextColor());
 	xml->SetLocalRoot					(_stored_root);
-
 }
 
 bool CUIActorStaticticHeader::OnMouseDown	(int mouse_btn)
 {
-	if(mouse_btn==MOUSE_1 && m_id!="total")
+	if (mouse_btn==MOUSE_1 && m_id!="total")
 	{
 		m_actorInfoWnd->MasterList().SetSelected	(this);
 		return true;
-	}else
+	}
+	else
 		return true;
 }
 
@@ -281,11 +275,11 @@ void CUIActorStaticticHeader::SetSelected(bool b)
 {
 	CUISelectable::SetSelected(b);
 	m_text1->SetTextColor( subst_alpha(m_text1->GetTextColor(), b?255:m_stored_alpha ));
-	if(b){ 
+	if (b)
+	{ 
 		m_actorInfoWnd->FillPointsDetail			(m_id);
 	}
 }
-
 
 void CUIActorStaticticDetail::Init		(CUIXml* xml, LPCSTR path, int idx)
 {

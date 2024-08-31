@@ -34,7 +34,6 @@ static u32 const tips_word_color = color_rgba(5, 100, 56, 200);
 static u32 const tips_scroll_back_color = color_rgba(15, 15, 15, 230);
 static u32 const tips_scroll_pos_color = color_rgba(70, 70, 70, 240);
 
-
 ENGINE_API CConsole* Console = NULL;
 
 extern char const* const ioc_prompt;
@@ -124,8 +123,7 @@ bool CConsole::is_mark(Console_mark type)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CConsole::CConsole()
-    :m_hShader_back(NULL)
+CConsole::CConsole() : m_hShader_back(NULL)
 {
     m_editor = xr_new<text_editor::line_editor>((u32)CONSOLE_BUF_SIZE);
     m_cmd_history_max = cmd_history_max;
@@ -258,7 +256,7 @@ void CConsole::OnRender()
     if (!m_hShader_back)
     {
         m_hShader_back = xr_new< FactoryPtr<IUIShader> >();
-        (*m_hShader_back)->create("hud\\default", "ui\\ui_console"); // "ui\\ui_empty"
+        (*m_hShader_back)->create("hud\\default", "ui\\ui_console");
     }
 
     if (!pFont)
@@ -266,6 +264,7 @@ void CConsole::OnRender()
         pFont = xr_new<CGameFont>("hud_font_di", CGameFont::fsDeviceIndependent);
         pFont->SetHeightI(0.025f);
     }
+
     if (!pFont2)
     {
         pFont2 = xr_new<CGameFont>("hud_font_di2", CGameFont::fsDeviceIndependent);
@@ -273,14 +272,9 @@ void CConsole::OnRender()
     }
 
     bool bGame = false;
-    if ((g_pGameLevel && g_pGameLevel->bReady) ||
-            (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()))
+    if ((g_pGameLevel && g_pGameLevel->bReady) || (g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive()))
     {
         bGame = true;
-    }
-    if (g_dedicated_server)
-    {
-        bGame = false;
     }
 
     DrawBackgrounds(bGame);
@@ -300,8 +294,6 @@ void CConsole::OnRender()
 
     float ypos = fMaxY - LDIST * 1.1f;
     float scr_x = 1.0f / Device.fWidth_2;
-
-    //---------------------------------------------------------------------------------
     float scr_width = 1.9f * Device.fWidth_2;
     float ioc_d = pFont->SizeOf_(ioc_prompt);
     float d1 = pFont->SizeOf_("_");
@@ -311,7 +303,6 @@ void CConsole::OnRender()
     LPCSTR s_mark = ec().str_mark();
     LPCSTR s_mark_a = ec().str_after_mark();
 
-    // strncpy_s( buf1, cur_pos, editor, MAX_LEN );
     float str_length = ioc_d + pFont->SizeOf_(s_cursor);
     float out_pos = 0.0f;
     if (str_length > scr_width)
@@ -367,8 +358,6 @@ void CConsole::OnRender()
     out_pos += pFont2->SizeOf_(s_mark);
     pFont->OutI(-1.0f + out_pos * scr_x, ypos, "%s", s_mark_a);
 
-    //pFont2->OutI( -1.0f + ioc_d * scr_x, ypos, "%s", editor=all );
-
     if (ec().cursor_view())
     {
         pFont->SetColor(cursor_font_color);
@@ -391,10 +380,9 @@ void CConsole::OnRender()
         {
             continue;
         }
+
         Console_mark cm = (Console_mark)ls[0];
         pFont->SetColor(get_mark_color(cm));
-        //u8 b = (is_mark( cm ))? 2 : 0;
-        //OutFont( ls + b, ypos );
         OutFont(ls, ypos);
     }
 
@@ -538,11 +526,7 @@ void CConsole::DrawBackgrounds(bool bGame)
             u_height = 0.5f * font_h;
         }
 
-        //float u_pos = (back_height - u_height) * float(m_start_tip) / float(tips_sz);
         float u_pos = back_height * float(m_start_tip) / float(tips_sz);
-
-        //clamp( u_pos, 0.0f, back_height - u_height );
-
         rs = rb;
         rs.y1 = pr.y1 + u_pos;
         rs.y2 = rs.y1 + u_height;
@@ -582,6 +566,7 @@ void CConsole::ExecuteCommand(LPCSTR cmd_str, bool record_cmd)
     {
         return;
     }
+
     if (record_cmd)
     {
         char c[2];
@@ -675,12 +660,6 @@ void CConsole::Hide()
     {
         return;
     }
-    if (g_pGamePersistent && g_dedicated_server)
-    {
-        return;
-    }
-    // if ( g_pGameLevel ||
-    // ( g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive() ))
 
     if (pInput->get_exclusive_mode())
     {
@@ -938,7 +917,6 @@ void CConsole::update_tips()
     // cmd name
     {
         add_internal_cmds(cur, m_tips);
-        //add_next_cmds( cur, m_tips );
         m_tips_mode = 1;
     }
 
@@ -951,7 +929,6 @@ void CConsole::update_tips()
     {
         reset_selected_tip();
     }
-
 }
 
 void CConsole::select_for_filter(LPCSTR filter_str, vecTips& in_v, vecTipsEx& out_v)

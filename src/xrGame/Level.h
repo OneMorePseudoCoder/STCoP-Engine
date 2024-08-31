@@ -12,7 +12,6 @@
 #include "GlobalFeelTouch.hpp"
 #include "Level_network_map_sync.h"
 #include "secure_messaging.h"
-#include "traffic_optimization.h"
 
 class CHUDManager;
 class CParticlesObject;
@@ -41,11 +40,6 @@ const int maxTeams = 32;
 class CFogOfWarMngr;
 class CBulletManager;
 class CMapManager;
-
-namespace file_transfer
-{
-class client_site;
-}
 
 class CLevel :
     public IGame_Level,
@@ -126,7 +120,6 @@ private:
     u32 m_dwDeltaUpdate = 0;
     u32 m_dwLastNetUpdateTime = 0;
     void UpdateDeltaUpd(u32 LastTime);
-    void BlockCheatLoad();
     bool Connect2Server(const char* options);
     shared_str m_client_digest;	// for screenshots
 
@@ -213,7 +206,6 @@ public:
     void cl_Process_Spawn(NET_Packet& P);
     void ProcessGameEvents();
     void ProcessGameSpawns();
-    void ProcessCompressedUpdate(NET_Packet& P, u8 const compression_type);
     // Input
     virtual	void IR_OnKeyboardPress(int btn);
     virtual void IR_OnKeyboardRelease(int btn);
@@ -302,14 +294,7 @@ public:
 
 public:
     void remove_objects();
-    file_transfer::client_site* m_file_transfer = nullptr;
-    compression::ppmd_trained_stream* m_trained_stream = nullptr;
-    compression::lzo_dictionary_buffer m_lzo_dictionary;
-    // aligned to 16 bytes m_lzo_working_buffer
-    u8* m_lzo_working_memory = nullptr;
-    u8* m_lzo_working_buffer = nullptr;
-    void init_compression();
-    void deinit_compression();
+
     DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 

@@ -30,10 +30,12 @@ ISpatial::ISpatial(ISpatial_DB* space)
     spatial.sector = NULL;
     spatial.space = space;
 }
+
 ISpatial::~ISpatial(void)
 {
     spatial_unregister();
 }
+
 BOOL ISpatial::spatial_inside()
 {
     float dr = -(-spatial.node_radius + spatial.sphere.R);
@@ -61,11 +63,7 @@ BOOL verify_sp(ISpatial* sp, Fvector& node_center, float node_radius)
 void ISpatial::spatial_register()
 {
     spatial.type |= STYPEFLAG_INVALIDSECTOR;
-    if (spatial.node_ptr)
-    {
-        // already registered - nothing to do
-    }
-    else
+    if (!spatial.node_ptr)
     {
         // register
         R_ASSERT(spatial.space);
@@ -83,10 +81,6 @@ void ISpatial::spatial_unregister()
         spatial.node_ptr = NULL;
         spatial.sector = NULL;
     }
-    else
-    {
-        // already unregistered
-    }
 }
 
 void ISpatial::spatial_move()
@@ -101,26 +95,21 @@ void ISpatial::spatial_move()
         spatial.space->remove(this);
         spatial.space->insert(this);
     }
-    else
-    {
-        //*** we are not registered yet, or already unregistered
-        //*** ignore request
-    }
 }
 
 void ISpatial::spatial_updatesector_internal()
 {
     IRender_Sector* S = ::Render->detectSector(spatial_sector_point());
     spatial.type &= ~STYPEFLAG_INVALIDSECTOR;
-    if (S) spatial.sector = S;
+    if (S) 
+		spatial.sector = S;
 }
 
 //////////////////////////////////////////////////////////////////////////
 void ISpatial_NODE::_init(ISpatial_NODE* _parent)
 {
     parent = _parent;
-    children[0] = children[1] = children[2] = children[3] =
-        children[4] = children[5] = children[6] = children[7] = NULL;
+    children[0] = children[1] = children[2] = children[3] = children[4] = children[5] = children[6] = children[7] = NULL;
     items.clear();
 }
 
@@ -185,6 +174,7 @@ void ISpatial_DB::initialize(Fbox& BB)
         m_root->_init(NULL);
     }
 }
+
 ISpatial_NODE* ISpatial_DB::_node_create()
 {
     stat_nodes++;
@@ -196,6 +186,7 @@ ISpatial_NODE* ISpatial_DB::_node_create()
         return N;
     }
 }
+
 void ISpatial_DB::_node_destroy(ISpatial_NODE*& P)
 {
     VERIFY(P->_empty());
@@ -297,18 +288,27 @@ void ISpatial_DB::insert(ISpatial* S)
 
 void ISpatial_DB::_remove(ISpatial_NODE* N, ISpatial_NODE* N_sub)
 {
-    if (0 == N) return;
+    if (0 == N) 
+		return;
 
     //*** we are assured that node contains N_sub and this subnode is empty
     u32 octant = u32(-1);
-    if (N_sub == N->children[0]) octant = 0;
-    else if (N_sub == N->children[1]) octant = 1;
-    else if (N_sub == N->children[2]) octant = 2;
-    else if (N_sub == N->children[3]) octant = 3;
-    else if (N_sub == N->children[4]) octant = 4;
-    else if (N_sub == N->children[5]) octant = 5;
-    else if (N_sub == N->children[6]) octant = 6;
-    else if (N_sub == N->children[7]) octant = 7;
+    if (N_sub == N->children[0]) 
+		octant = 0;
+    else if (N_sub == N->children[1]) 
+		octant = 1;
+    else if (N_sub == N->children[2]) 
+		octant = 2;
+    else if (N_sub == N->children[3]) 
+		octant = 3;
+    else if (N_sub == N->children[4]) 
+		octant = 4;
+    else if (N_sub == N->children[5]) 
+		octant = 5;
+    else if (N_sub == N->children[6]) 
+		octant = 6;
+    else if (N_sub == N->children[7]) 
+		octant = 7;
     VERIFY(octant < 8);
     VERIFY(N_sub->_empty());
     _node_destroy(N->children[octant]);
@@ -327,7 +327,8 @@ void ISpatial_DB::remove(ISpatial* S)
     N->_remove(S);
 
     // Recurse
-    if (N->_empty()) _remove(N->parent, N);
+    if (N->_empty())
+		_remove(N->parent, N);
 
 #ifdef DEBUG
     stat_remove.End();

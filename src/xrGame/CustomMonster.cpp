@@ -107,12 +107,10 @@ CCustomMonster::~CCustomMonster	()
 
 #ifdef DEBUG
 	Msg							("dumping client spawn manager stuff for object with id %d",ID());
-	if(!g_dedicated_server)
-		Level().client_spawn_manager().dump	(ID());
+	Level().client_spawn_manager().dump	(ID());
 #endif // DEBUG
-	if(!g_dedicated_server)
-		Level().client_spawn_manager().clear(ID());
 
+	Level().client_spawn_manager().clear(ID());
 }
 
 void CCustomMonster::Load		(LPCSTR section)
@@ -312,23 +310,11 @@ void CCustomMonster::shedule_Update	( u32 DT )
 
 		// Look and action streams
 		float							temp = conditions().health();
-		if (temp > 0) {
+		if (temp > 0) 
+		{
 			Exec_Action				(dt);
 			VERIFY					(_valid(Position()));
-			//Exec_Visibility		();
 			VERIFY					(_valid(Position()));
-			//////////////////////////////////////
-			//Fvector C; float R;
-			//////////////////////////////////////
-			// Ñ Îëåñÿ - ÏÈÂÎ!!!! (Äèìå :-))))
-			// m_PhysicMovementControl->GetBoundingSphere	(C,R);
-			//////////////////////////////////////
-			//Center(C);
-			//R = Radius();
-			//////////////////////////////////////
-			/// #pragma todo("Oles to all AI guys: perf/logical problem: Only few objects needs 'feel_touch' why to call update for everybody?")
-			///			feel_touch_update		(C,R);
-
 			net_update				uNext;
 			uNext.dwTimeStamp		= Level().timeServer();
 			uNext.o_model			= movement().m_body.current.yaw;
@@ -584,16 +570,19 @@ void CCustomMonster::eye_pp_s2				( )
 
 void CCustomMonster::Exec_Visibility	( )
 {
-	//if (0==Sector())				return;
-	if (!g_Alive())					return;
+	if (!g_Alive())					
+		return;
 
 	Device.Statistic->AI_Vis.Begin	();
 	switch (eye_pp_stage%2)	
 	{
 	case 0:	
-			eye_pp_s0();			
-			eye_pp_s1();			break;
-	case 1:	eye_pp_s2();			break;
+		eye_pp_s0();			
+		eye_pp_s1();			
+		break;
+	case 1:	
+		eye_pp_s2();			
+		break;
 	}
 	++eye_pp_stage					;
 	Device.Statistic->AI_Vis.End		();

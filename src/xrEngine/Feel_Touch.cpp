@@ -82,8 +82,6 @@ void Touch::feel_touch_update(Fvector& C, float R)
             d--;
         }
     }
-
-    //. Engine.Sheduler.Slice ();
 }
 
 void Touch::feel_touch_relcase(CObject* O)

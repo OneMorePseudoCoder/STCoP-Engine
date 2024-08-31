@@ -29,7 +29,6 @@
 #include "UIPropertiesBox.h"
 #include "UIMainIngameWnd.h"
 
-
 bool  CUIActorMenu::AllowItemDrops(EDDListType from, EDDListType to)
 {
 	xr_vector<EDDListType>& v = m_allowed_drops[to];
@@ -37,7 +36,8 @@ bool  CUIActorMenu::AllowItemDrops(EDDListType from, EDDListType to)
 
 	return(it!=v.end());
 }
-class CUITrashIcon :public ICustomDrawDragItem
+
+class CUITrashIcon : public ICustomDrawDragItem
 {
 	CUIStatic			m_icon;
 public:
@@ -105,7 +105,6 @@ bool CUIActorMenu::OnItemDrop(CUICellItem* itm)
 		}break;
 	case iActorSlot:
 		{
-			//.			if(GetSlotList(CurrentIItem()->GetSlot())==new_owner)
 			u16 slot_to_place;
 			if( CanSetItemToList(CurrentIItem(), new_owner, slot_to_place) )
 				ToSlot	(itm, true, slot_to_place);
@@ -364,10 +363,9 @@ void CUIActorMenu::OnPressUserKey()
 {
 	switch ( m_currMenuMode )
 	{
-	case mmUndefined:		break;
-	case mmInventory:		break;
+	case mmUndefined:		
+	case mmInventory:
 	case mmTrade:			
-//		OnBtnPerformTrade( this, 0 );
 		break;
 	case mmUpgrade:			
 		TrySetCurUpgrade();

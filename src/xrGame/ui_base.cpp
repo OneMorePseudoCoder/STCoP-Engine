@@ -198,15 +198,9 @@ void ui_core::PopScissor()
 
 ui_core::ui_core()
 {
-	if(!g_dedicated_server)
-	{
-		m_pUICursor					= xr_new<CUICursor>();
-		m_pFontManager				= xr_new<CFontManager>();
-	}else
-	{
-		m_pUICursor					= NULL;
-		m_pFontManager				= NULL;
-	}
+	m_pUICursor					= xr_new<CUICursor>();
+	m_pFontManager				= xr_new<CFontManager>();
+
 	m_bPostprocess				= false;
 	
 	OnDeviceReset				();
@@ -227,17 +221,11 @@ void ui_core::pp_start()
 	m_bPostprocess		= true;
 
 	m_pp_scale_.set	( float(::Render->getTarget()->get_width())/float(UI_BASE_WIDTH),	float(::Render->getTarget()->get_height())/float(UI_BASE_HEIGHT) );
-	m_2DFrustumPP.CreateFromRect(Frect().set(	0.0f,
-												0.0f,
-												float(::Render->getTarget()->get_width()),
-												float(::Render->getTarget()->get_height())
-												));
+	m_2DFrustumPP.CreateFromRect(Frect().set(0.0f, 0.0f, float(::Render->getTarget()->get_width()), float(::Render->getTarget()->get_height())));
 
 	m_current_scale			= &m_pp_scale_;
 	
-	g_current_font_scale.set(	float(::Render->getTarget()->get_width())/float(Device.dwWidth),	
-								float(::Render->getTarget()->get_height())/float(Device.dwHeight) );
-
+	g_current_font_scale.set(float(::Render->getTarget()->get_width())/float(Device.dwWidth), float(::Render->getTarget()->get_height())/float(Device.dwHeight));
 }
 
 void ui_core::pp_stop()

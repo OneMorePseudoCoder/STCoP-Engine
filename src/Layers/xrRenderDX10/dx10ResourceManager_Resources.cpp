@@ -125,8 +125,12 @@ SPass*		CResourceManager::_CreatePass			(const SPass& proto)
 
 void		CResourceManager::_DeletePass			(const SPass* P)
 {
-	if (0==(P->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
-	if (reclaim(v_passes,P))						return;
+	if (0==(P->dwFlags&xr_resource_flagged::RF_REGISTERED))	
+		return;
+
+	if (reclaim(v_passes,P))						
+		return;
+
 	Msg	("! ERROR: Failed to find compiled pass");
 }
 
@@ -135,22 +139,29 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 {
 	string_path			name;
 	xr_strcpy				(name,_name);
-	if (0 == ::Render->m_skinning)	xr_strcat(name,"_0");
-	if (1 == ::Render->m_skinning)	xr_strcat(name,"_1");
-	if (2 == ::Render->m_skinning)	xr_strcat(name,"_2");
-	if (3 == ::Render->m_skinning)	xr_strcat(name,"_3");
-	if (4 == ::Render->m_skinning)	xr_strcat(name,"_4");
+	if (0 == ::Render->m_skinning)	
+		xr_strcat(name,"_0");
+	if (1 == ::Render->m_skinning)	
+		xr_strcat(name,"_1");
+	if (2 == ::Render->m_skinning)	
+		xr_strcat(name,"_2");
+	if (3 == ::Render->m_skinning)	
+		xr_strcat(name,"_3");
+	if (4 == ::Render->m_skinning)	
+		xr_strcat(name,"_4");
+
 	LPSTR N				= LPSTR		(name);
 	map_VS::iterator I	= m_vs.find	(N);
-	if (I!=m_vs.end())	return I->second;
+	if (I!=m_vs.end())	
+		return I->second;
 	else
 	{
 		SVS*	_vs					= xr_new<SVS>	();
 		_vs->dwFlags				|= xr_resource_flagged::RF_REGISTERED;
 		m_vs.insert					(std::make_pair(_vs->set_name(name),_vs));
-		//_vs->vs				= NULL;
-		//_vs->signature		= NULL;
-		if (0==stricmp(_name,"null"))	{
+
+		if (0==stricmp(_name,"null"))	
+		{
 			return _vs;
 		}
 
@@ -187,8 +198,10 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 		// Select target
 		LPCSTR						c_target	= "vs_2_0";
 		LPCSTR						c_entry		= "main";
-		if (HW.Caps.geometry_major>=2)	c_target="vs_2_0";
-		else 							c_target="vs_1_1";
+		if (HW.Caps.geometry_major>=2)	
+			c_target="vs_2_0";
+		else 							
+			c_target="vs_1_1";
 
 		if (strstr(data, "main_vs_1_1"))	{ c_target = "vs_1_1"; c_entry = "main_vs_1_1";	}
 		if (strstr(data, "main_vs_2_0"))	{ c_target = "vs_2_0"; c_entry = "main_vs_2_0";	}
@@ -197,10 +210,7 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 
 		VERIFY(SUCCEEDED(_hr));
 
-		CHECK_OR_EXIT			(
-			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
-		);
+		CHECK_OR_EXIT			(!FAILED(_hr), make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings."));
 
 		return					_vs;
 	}
@@ -275,7 +285,6 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR _name)
 		{
 			string1024			tmp;
 			//	TODO: HACK: Test failure
-			//Memory.mem_compact();
 			xr_sprintf				(tmp, "DX10: %s is missing. Replace with stub_default.ps", cname);
 			Msg					(tmp);
 			strconcat					(sizeof(cname), cname,::Render->getShaderPath(),"stub_default",".ps");
@@ -352,7 +361,6 @@ SGS*	CResourceManager::_CreateGS			(LPCSTR name)
 		{
 			string1024			tmp;
 			//	TODO: HACK: Test failure
-			//Memory.mem_compact();
 			xr_sprintf				(tmp, "DX10: %s is missing. Replace with stub_default.gs", cname);
 			Msg					(tmp);
 			strconcat					(sizeof(cname), cname,::Render->getShaderPath(),"stub_default",".gs");
@@ -372,10 +380,7 @@ SGS*	CResourceManager::_CreateGS			(LPCSTR name)
 
 		FS.r_close				( file );
 
-		CHECK_OR_EXIT			(
-			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
-		);
+		CHECK_OR_EXIT			(!FAILED(_hr), make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings."));
 
 		return					_gs;
 	}
@@ -441,6 +446,7 @@ R_constant_table*	CResourceManager::_CreateConstantTable	(R_constant_table& C)
 	v_constant_tables.back()->dwFlags	|=	xr_resource_flagged::RF_REGISTERED;
 	return v_constant_tables.back		();
 }
+
 void				CResourceManager::_DeleteConstantTable	(const R_constant_table* C)
 {
 	if (0==(C->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
@@ -487,9 +493,7 @@ void	CResourceManager::_DeleteRT		(const CRT* RT)
 }
 
 void	CResourceManager::DBG_VerifyGeoms	()
-{
-
-}
+{}
 
 SGeometry*	CResourceManager::CreateGeom	(D3DVERTEXELEMENT9* decl, ID3DVertexBuffer* vb, ID3DIndexBuffer* ib)
 {
@@ -514,6 +518,7 @@ SGeometry*	CResourceManager::CreateGeom	(D3DVERTEXELEMENT9* decl, ID3DVertexBuff
 	v_geoms.push_back	(Geom);
 	return	Geom;
 }
+
 SGeometry*	CResourceManager::CreateGeom		(u32 FVF, ID3DVertexBuffer* vb, ID3DIndexBuffer* ib)
 {
 	D3DVERTEXELEMENT9	dcl	[MAX_FVF_DECL_SIZE];
@@ -524,15 +529,18 @@ SGeometry*	CResourceManager::CreateGeom		(u32 FVF, ID3DVertexBuffer* vb, ID3DInd
 
 void		CResourceManager::DeleteGeom		(const SGeometry* Geom)
 {
-	if (0==(Geom->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
-	if (reclaim(v_geoms,Geom))							return;
+	if (0==(Geom->dwFlags&xr_resource_flagged::RF_REGISTERED))	
+		return;
+
+	if (reclaim(v_geoms,Geom))							
+		return;
+
 	Msg	("! ERROR: Failed to find compiled geometry-declaration");
 }
 
 //--------------------------------------------------------------------------------------------------------------
 CTexture* CResourceManager::_CreateTexture	(LPCSTR _Name)
 {
-	// DBG_VerifyTextures	();
 	if (0==xr_strcmp(_Name,"null"))	return 0;
 	R_ASSERT		(_Name && _Name[0]);
 	string_path		Name;
@@ -541,7 +549,8 @@ CTexture* CResourceManager::_CreateTexture	(LPCSTR _Name)
 	// ***** first pass - search already loaded texture
 	LPSTR N			= LPSTR(Name);
 	map_TextureIt I = m_textures.find	(N);
-	if (I!=m_textures.end())	return	I->second;
+	if (I!=m_textures.end())	
+		return	I->second;
 	else
 	{
 		CTexture *	T		=	xr_new<CTexture>();
@@ -555,24 +564,26 @@ CTexture* CResourceManager::_CreateTexture	(LPCSTR _Name)
 
 bool CResourceManager::_FindTexture(LPCSTR _Name)
 {
-	if (0 == xr_strcmp(_Name, "null"))	return 0;
+	if (0 == xr_strcmp(_Name, "null"))	
+		return 0;
 
 	R_ASSERT(_Name && _Name[0]);
 
 	LPSTR N = LPSTR(_Name);
 	map_TextureIt I = m_textures.find(N);
-	if (I != m_textures.end())	return	true;
-	else return false;
+	if (I != m_textures.end())	
+		return	true;
+	else 
+		return false;
 }
 
 void	CResourceManager::_DeleteTexture		(const CTexture* T)
 {
-	// DBG_VerifyTextures	();
-
 	if (0==(T->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
 	LPSTR N					= LPSTR		(*T->cName);
 	map_Texture::iterator I	= m_textures.find	(N);
-	if (I!=m_textures.end())	{
+	if (I!=m_textures.end())	
+	{
 		m_textures.erase(I);
 		return;
 	}
@@ -602,7 +613,8 @@ CMatrix*	CResourceManager::_CreateMatrix	(LPCSTR Name)
 
 	LPSTR N = LPSTR(Name);
 	map_Matrix::iterator I = m_matrices.find	(N);
-	if (I!=m_matrices.end())	return I->second;
+	if (I!=m_matrices.end())	
+		return I->second;
 	else
 	{
 		CMatrix* M			=	xr_new<CMatrix>();
@@ -612,6 +624,7 @@ CMatrix*	CResourceManager::_CreateMatrix	(LPCSTR Name)
 		return			M;
 	}
 }
+
 void	CResourceManager::_DeleteMatrix		(const CMatrix* M)
 {
 	if (0==(M->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
@@ -623,6 +636,7 @@ void	CResourceManager::_DeleteMatrix		(const CMatrix* M)
 	}
 	Msg	("! ERROR: Failed to find xform-def '%s'",*M->cName);
 }
+
 void	CResourceManager::ED_UpdateMatrix		(LPCSTR Name, CMatrix* data)
 {
 	CMatrix*	M	= _CreateMatrix	(Name);
@@ -632,11 +646,13 @@ void	CResourceManager::ED_UpdateMatrix		(LPCSTR Name, CMatrix* data)
 CConstant*	CResourceManager::_CreateConstant	(LPCSTR Name)
 {
 	R_ASSERT(Name && Name[0]);
-	if (0==stricmp(Name,"$null"))	return NULL;
+	if (0==stricmp(Name,"$null"))	
+		return NULL;
 
 	LPSTR N = LPSTR(Name);
 	map_Constant::iterator I	= m_constants.find	(N);
-	if (I!=m_constants.end())	return I->second;
+	if (I!=m_constants.end())	
+		return I->second;
 	else
 	{
 		CConstant* C		=	xr_new<CConstant>();
@@ -646,6 +662,7 @@ CConstant*	CResourceManager::_CreateConstant	(LPCSTR Name)
 		return	C;
 	}
 }
+
 void	CResourceManager::_DeleteConstant		(const CConstant* C)
 {
 	if (0==(C->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
@@ -665,49 +682,66 @@ void	CResourceManager::ED_UpdateConstant	(LPCSTR Name, CConstant* data)
 }
 
 //--------------------------------------------------------------------------------------------------------------
-bool	cmp_tl	(const std::pair<u32,ref_texture>& _1, const std::pair<u32,ref_texture>& _2)	{
+bool	cmp_tl	(const std::pair<u32,ref_texture>& _1, const std::pair<u32,ref_texture>& _2)	
+{
 	return _1.first < _2.first;
 }
+
 STextureList*	CResourceManager::_CreateTextureList(STextureList& L)
 {
 	std::sort	(L.begin(),L.end(),cmp_tl);
 	for (u32 it=0; it<lst_textures.size(); it++)
 	{
 		STextureList*	base		= lst_textures[it];
-		if (L.equal(*base))			return base;
+		if (L.equal(*base))			
+			return base;
 	}
 	STextureList*	lst		=	xr_new<STextureList>(L);
 	lst->dwFlags			|=	xr_resource_flagged::RF_REGISTERED;
 	lst_textures.push_back	(lst);
 	return lst;
 }
+
 void			CResourceManager::_DeleteTextureList(const STextureList* L)
 {
-	if (0==(L->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
-	if (reclaim(lst_textures,L))					return;
+	if (0==(L->dwFlags&xr_resource_flagged::RF_REGISTERED))	
+		return;
+	if (reclaim(lst_textures,L))					
+		return;
 	Msg	("! ERROR: Failed to find compiled list of textures");
 }
 //--------------------------------------------------------------------------------------------------------------
 SMatrixList*	CResourceManager::_CreateMatrixList(SMatrixList& L)
 {
 	BOOL bEmpty = TRUE;
-	for (u32 i=0; i<L.size(); i++)	if (L[i]) { bEmpty=FALSE; break; }
-	if (bEmpty)	return NULL;
+	for (u32 i=0; i<L.size(); i++)	
+		if (L[i]) 
+		{ 
+			bEmpty=FALSE; 
+			break; 
+		}
+	
+	if (bEmpty)	
+		return NULL;
 
 	for (u32 it=0; it<lst_matrices.size(); it++)
 	{
 		SMatrixList*	base		= lst_matrices[it];
-		if (L.equal(*base))			return base;
+		if (L.equal(*base))			
+			return base;
 	}
 	SMatrixList*	lst		=	xr_new<SMatrixList>(L);
 	lst->dwFlags			|=	xr_resource_flagged::RF_REGISTERED;
 	lst_matrices.push_back	(lst);
 	return lst;
 }
+
 void			CResourceManager::_DeleteMatrixList ( const SMatrixList* L )
 {
-	if (0==(L->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
-	if (reclaim(lst_matrices,L))					return;
+	if (0==(L->dwFlags&xr_resource_flagged::RF_REGISTERED))
+		return;
+	if (reclaim(lst_matrices,L))					
+		return;
 	Msg	("! ERROR: Failed to find compiled list of xform-defs");
 }
 //--------------------------------------------------------------------------------------------------------------
@@ -727,6 +761,7 @@ SConstantList*	CResourceManager::_CreateConstantList(SConstantList& L)
 	lst_constants.push_back	(lst);
 	return lst;
 }
+
 void			CResourceManager::_DeleteConstantList(const SConstantList* L )
 {
 	if (0==(L->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;

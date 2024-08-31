@@ -42,7 +42,6 @@ IC bool		InterpolateAndDither(float* alpha255,	u32 x, u32 y, u32 sx, u32 sy, u32
 
 #ifndef _EDITOR
 #ifdef	DEBUG
-//#include "../../Include/xrRender/DebugRender.h"
 #include "dxDebugRender.h"
 static void draw_obb		( const Fmatrix &matrix, const u32 &color )
 {
@@ -69,7 +68,6 @@ bool det_render_debug = false;
 
 #include "../../xrEngine/gamemtllib.h"
 
-//#define		DBG_SWITCHOFF_RANDOMIZE
 void		CDetailManager::cache_Decompress(Slot* S)
 {
 	VERIFY				(S);
@@ -97,7 +95,8 @@ void		CDetailManager::cache_Decompress(Slot* S)
 	Fvector*	verts	= g_pGameLevel->ObjectSpace.GetStaticVerts();
 #endif
 
-	if (0==triCount)	return;
+	if (0==triCount)	
+		return;
 
 	// Build shading table
 	float		alpha255	[dm_obj_in_slot][4];
@@ -234,19 +233,6 @@ void		CDetailManager::cache_Decompress(Slot* S)
 #endif
 #endif
 
-			// Color
-			/*
-			DetailPalette*	c_pal			= (DetailPalette*)&DS.color;
-			float gray255	[4];
-			gray255[0]						=	255.f*float(c_pal->a0)/15.f;
-			gray255[1]						=	255.f*float(c_pal->a1)/15.f;
-			gray255[2]						=	255.f*float(c_pal->a2)/15.f;
-			gray255[3]						=	255.f*float(c_pal->a3)/15.f;
-			*/
-			//float c_f						=	1.f;	//Interpolate		(gray255,x,z,d_size)+.5f;
-			//int c_dw						=	255;	//iFloor			(c_f);
-			//clamp							(c_dw,0,255);
-			//Item.C_dw						=	color_rgba		(c_dw,c_dw,c_dw,255);
 #if RENDER==R_R1
 			Item.c_rgb.x					=	DS.r_qclr	(DS.c_r,	15);
 			Item.c_rgb.y					=	DS.r_qclr	(DS.c_g,	15);
@@ -255,21 +241,23 @@ void		CDetailManager::cache_Decompress(Slot* S)
 			Item.c_hemi						=	DS.r_qclr	(DS.c_hemi,	15);
 			Item.c_sun						=	DS.r_qclr	(DS.c_dir,	15);
 
-			//? hack: RGB = hemi
-			//? Item.c_rgb.add					(ps_r__Detail_rainbow_hemi*Item.c_hemi);
-
 			// Vis-sorting
 #ifndef		DBG_SWITCHOFF_RANDOMIZE
 			if (!UseVS())
 			{
 				// Always still on CPU pipe
 				Item.vis_ID	= 0;
-			} else {
-				if (Dobj->m_Flags.is(DO_NO_WAVING))	Item.vis_ID	= 0;
+			} 
+			else 
+			{
+				if (Dobj->m_Flags.is(DO_NO_WAVING))	
+					Item.vis_ID	= 0;
 				else
 				{
-					if (::Random.randI(0,3)==0)	Item.vis_ID	= 2;	// Second wave
-					else						Item.vis_ID = 1;	// First wave
+					if (::Random.randI(0,3)==0)	
+						Item.vis_ID	= 2;	// Second wave
+					else						
+						Item.vis_ID = 1;	// First wave
 				}
 			}
 #else

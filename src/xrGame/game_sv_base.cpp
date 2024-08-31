@@ -14,8 +14,6 @@
 
 #include "debug_renderer.h"
 
-ENGINE_API	bool g_dedicated_server;
-
 BOOL	net_sv_control_hit = FALSE;
 
 // Main
@@ -316,23 +314,20 @@ void game_sv_GameState::OnPlayerDisconnect		(ClientID id_who, LPSTR, u16 )
 
 void game_sv_GameState::Create(shared_str& options)
 {
-	if (!g_dedicated_server)
-	{
-		// loading scripts
-		ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
-		string_path					S;
-		FS.update_path(S, "$game_config$", "script.ltx");
-		CInifile* l_tpIniFile = xr_new<CInifile>(S);
-		R_ASSERT(l_tpIniFile);
+	// loading scripts
+	ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
+	string_path					S;
+	FS.update_path(S, "$game_config$", "script.ltx");
+	CInifile* l_tpIniFile = xr_new<CInifile>(S);
+	R_ASSERT(l_tpIniFile);
 
-		if (l_tpIniFile->section_exist(type_name()))
-			if (l_tpIniFile->r_string(type_name(), "script"))
-				ai().script_engine().add_script_process(ScriptEngine::eScriptProcessorGame, xr_new<CScriptProcess>("game", l_tpIniFile->r_string(type_name(), "script")));
-			else
-				ai().script_engine().add_script_process(ScriptEngine::eScriptProcessorGame, xr_new<CScriptProcess>("game", ""));
+	if (l_tpIniFile->section_exist(type_name()))
+		if (l_tpIniFile->r_string(type_name(), "script"))
+			ai().script_engine().add_script_process(ScriptEngine::eScriptProcessorGame, xr_new<CScriptProcess>("game", l_tpIniFile->r_string(type_name(), "script")));
+		else
+			ai().script_engine().add_script_process(ScriptEngine::eScriptProcessorGame, xr_new<CScriptProcess>("game", ""));
 
-		xr_delete(l_tpIniFile);
-	}
+	xr_delete(l_tpIniFile);
 }
 
 CSE_Abstract*		game_sv_GameState::spawn_begin				(LPCSTR N)
@@ -380,20 +375,16 @@ void game_sv_GameState::u_EventSend(NET_Packet& P, u32 dwFlags)
 
 void game_sv_GameState::Update		()
 {
-	if (!g_dedicated_server)
+	if (Level().game) 
 	{
-		if (Level().game) 
-		{
-			CScriptProcess *script_process = ai().script_engine().script_process(ScriptEngine::eScriptProcessorGame);
-			if (script_process)
-				script_process->update();
-		}
+		CScriptProcess *script_process = ai().script_engine().script_process(ScriptEngine::eScriptProcessorGame);
+		if (script_process)
+			script_process->update();
 	}
 }
 
 void game_sv_GameState::OnDestroyObject(u16 eid_who)
-{
-}
+{}
 
 game_sv_GameState::game_sv_GameState()
 {
@@ -404,8 +395,7 @@ game_sv_GameState::game_sv_GameState()
 
 game_sv_GameState::~game_sv_GameState()
 {
-	if (!g_dedicated_server)
-		ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
+	ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
 	xr_delete(m_event_queue);
 }
 
@@ -488,19 +478,12 @@ void game_sv_GameState::OnEvent (NET_Packet &tNetPacket, u16 type, u32 time, Cli
 	case GAME_EVENT_CREATE_PLAYER_STATE:
 		{
 			xrClientData* CL		=	m_server->ID_to_client(sender);
-			R_ASSERT2(CL,
-				make_string("M_CREATE_PLAYER_STATE: client 0x%08x not found", 
-					sender.value()
-				).c_str()
-			);
+			R_ASSERT2(CL, make_string("M_CREATE_PLAYER_STATE: client 0x%08x not found", sender.value()).c_str());
 			CL->ps					= createPlayerState(&tNetPacket);
 			CL->ps->m_online_time	= Level().timeServer();
 			CL->ps->DeathTime		= Device.dwTimeGlobal;
 			
 			if (psNET_direct_connect)
-				break;
-
-			if (g_dedicated_server && (CL == m_server->GetServerClient()))
 				break;
 		}break;
 	default:
@@ -570,15 +553,12 @@ public:
 		Msg("- Erasing [%d] event before start.", ge->type);
 		return true;
 	}
-
 };
 
 void game_sv_GameState::CleanDelayedEventFor(u16 id_entity_victim)
 {
 	EventDeleterPredicate event_deleter(id_entity_victim);
-	m_event_queue->EraseEvents(
-		fastdelegate::MakeDelegate(&event_deleter, &EventDeleterPredicate::PredicateDelVictim)
-	);
+	m_event_queue->EraseEvents(fastdelegate::MakeDelegate(&event_deleter, &EventDeleterPredicate::PredicateDelVictim));
 }
 
 class EventDeleteForClientPredicate
@@ -610,9 +590,7 @@ private:
 void game_sv_GameState::CleanDelayedEventFor(ClientID const & clientId)
 {
 	EventDeleteForClientPredicate event_deleter(clientId);
-	m_event_queue->EraseEvents(
-		fastdelegate::MakeDelegate(&event_deleter, &EventDeleteForClientPredicate::Predicate)
-	);
+	m_event_queue->EraseEvents(fastdelegate::MakeDelegate(&event_deleter, &EventDeleteForClientPredicate::Predicate));
 }
 
 void game_sv_GameState::CleanDelayedEvents()

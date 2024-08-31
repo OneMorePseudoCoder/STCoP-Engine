@@ -46,17 +46,13 @@ void xrServer::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, 
 	R_ASSERT						(c_dest == c_from);							// assure client ownership of event
 	u16								parent_id = e_dest->ID_Parent;
 
-#ifdef MP_LOGGING
-	Msg("--- SV: Process destroy: parent [%d] item [%d][%s]", 
-		parent_id, id_dest, e_dest->name());
-#endif //#ifdef MP_LOGGING
-
 	//---------------------------------------------
 	NET_Packet	P2, *pEventPack = pEPack;
 	P2.w_begin	(M_EVENT_PACK);
 	//---------------------------------------------
 	// check if we have children 
-	if (!e_dest->children.empty()) {
+	if (!e_dest->children.empty()) 
+	{
 		if (!pEventPack) pEventPack = &P2;
 
 		while (!e_dest->children.empty())
@@ -94,7 +90,8 @@ void xrServer::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, 
 	}
 
 	// Everything OK, so perform entity-destroy
-	if (e_dest->m_bALifeControl && ai().get_alife()) {
+	if (e_dest->m_bALifeControl && ai().get_alife()) 
+	{
 		game_sv_Single				*_game = smart_cast<game_sv_Single*>(game);
 		VERIFY						(_game);
 		if (ai().alife().objects().object(id_dest,true))

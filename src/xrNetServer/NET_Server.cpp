@@ -191,8 +191,7 @@ IPureServer::_Recieve( const void* data, u32 data_size, u32 param )
 
 //==============================================================================
 
-IPureServer::IPureServer	(CTimer* timer, BOOL	Dedicated)
-	:	m_bDedicated(Dedicated)
+IPureServer::IPureServer	(CTimer* timer)
 #ifdef PROFILE_CRITICAL_SECTIONS
 	,csPlayers(MUTEX_PROFILE_ID(IPureServer::csPlayers))
 	,csMessage(MUTEX_PROFILE_ID(IPureServer::csMessage))
@@ -204,7 +203,7 @@ IPureServer::IPureServer	(CTimer* timer, BOOL	Dedicated)
 	SV_Client				= NULL;
 	NET						= NULL;
 	net_Address_device		= NULL;
-	pSvNetLog				= NULL;//xr_new<INetLog>("logs\\net_sv_log.log", TimeGlobal(device_timer));
+	pSvNetLog				= NULL;
 #ifdef DEBUG
 	sender_functor_invoked = false;
 #endif

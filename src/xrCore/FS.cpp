@@ -230,7 +230,8 @@ void CMemoryWriter::w(const void* ptr, u32 count)
     if (position + count > mem_size)
     {
         // reallocate
-        if (mem_size == 0) mem_size = 128;
+        if (mem_size == 0) 
+            mem_size = 1024 * 1024;
         while (mem_size <= (position + count)) mem_size *= 2;
         if (0 == data) data = (BYTE*)Memory.mem_alloc(mem_size
 #ifdef DEBUG_MEMORY_NAME
@@ -248,7 +249,12 @@ void CMemoryWriter::w(const void* ptr, u32 count)
     if (position > file_size) file_size = position;
 }
 
-//static const u32 mb_sz = 0x1000000;
+void CMemoryWriter::reserve(const size_t count)
+{
+    mem_size = count;
+    data = (BYTE*)Memory.mem_alloc(mem_size);
+}
+
 bool CMemoryWriter::save_to(LPCSTR fn)
 {
     IWriter* F = FS.w_open(fn);
@@ -261,13 +267,13 @@ bool CMemoryWriter::save_to(LPCSTR fn)
     return false;
 }
 
-
 void IWriter::open_chunk(u32 type)
 {
     w_u32(type);
     chunk_pos.push(tell());
     w_u32(0); // the place for 'size'
 }
+
 void IWriter::close_chunk()
 {
     VERIFY(!chunk_pos.empty());
@@ -278,6 +284,7 @@ void IWriter::close_chunk()
     seek(pos);
     chunk_pos.pop();
 }
+
 u32 IWriter::chunk_size() // returns size of currently opened chunk, 0 otherwise
 {
     if (chunk_pos.empty()) return 0;

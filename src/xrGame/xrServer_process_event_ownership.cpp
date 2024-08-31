@@ -20,18 +20,14 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
 	CSE_Abstract*		e_parent	= game->get_entity_from_eid	(id_parent);
 	CSE_Abstract*		e_entity	= game->get_entity_from_eid	(id_entity);
 	
-	
-#ifdef MP_LOGGING
-	Msg( "--- SV: Process ownership take: parent [%d][%s], item [%d][%s]", 
-		id_parent, e_parent ? e_parent->name_replace() : "null_parent",
-		id_entity, e_entity ? e_entity->name() : "null_entity");
-#endif // MP_LOGGING
-	
-	if ( !e_parent ) {
+	if ( !e_parent ) 
+	{
 		Msg( "! ERROR on ownership: parent not found. parent_id = [%d], entity_id = [%d], frame = [%d].", id_parent, id_entity, Device.dwFrame );
 		return;
 	}
-	if ( !e_entity ) {
+
+	if ( !e_entity ) 
+	{
 //		Msg( "! ERROR on ownership: entity not found. parent_id = [%d], entity_id = [%d], frame = [%d].", id_parent, id_entity, Device.dwFrame );
 		return;
 	}
@@ -77,5 +73,4 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
 		// Signal to everyone (including sender)
 		SendBroadcast		(BroadcastCID,P,MODE);
 	}
-
 }

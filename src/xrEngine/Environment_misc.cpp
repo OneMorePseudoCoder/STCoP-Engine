@@ -283,7 +283,6 @@ void CEnvDescriptor::load(CEnvironment& environment, CInifile& config)
     C_CHECK(ambient);
     C_CHECK(hemi_color);
     C_CHECK(sun_color);
-    on_device_create();
 }
 
 void CEnvDescriptor::on_device_create()
@@ -603,7 +602,6 @@ void CEnvironment::load_weather_effects()
             EnvVec& env = WeatherFXs[weather];
             env.push_back(xr_new<CEnvDescriptor>("00:00:00"));
             env.back()->exec_time_loaded = 0;
-            //. why? env.push_back (xr_new<CEnvDescriptor>("00:00:00")); env.back()->exec_time_loaded = 0;
             int env_count = pSettings->line_count(sect_w);
             LPCSTR exec_tm, sect_e;
             for (int env_idx = 0; env_idx < env_count; env_idx++)

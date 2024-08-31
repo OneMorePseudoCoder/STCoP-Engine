@@ -852,34 +852,39 @@ bool CInventory::Eat(PIItem pIItem)
 {
 	//устанаовить съедобна ли вещь
 	CEatableItem* pItemToEat = smart_cast<CEatableItem*>(pIItem);
-	if ( !pItemToEat )			return false;
+	if ( !pItemToEat )			
+		return false;
 
 	CEntityAlive *entity_alive = smart_cast<CEntityAlive*>(m_pOwner);
-	if ( !entity_alive )		return false;
+	if ( !entity_alive )		
+		return false;
 
 	CInventoryOwner* IO	= smart_cast<CInventoryOwner*>(entity_alive);
-	if ( !IO )					return false;
+	if ( !IO )					
+		return false;
 	
 	CInventory* pInventory = pItemToEat->m_pInventory;
-	if ( !pInventory || pInventory != this )	return false;
-	if ( pInventory != IO->m_inventory )		return false;
-	if ( pItemToEat->object().H_Parent()->ID() != entity_alive->ID() )		return false;
+	if ( !pInventory || pInventory != this )	
+		return false;
+
+	if ( pInventory != IO->m_inventory )		
+		return false;
+
+	if ( pItemToEat->object().H_Parent()->ID() != entity_alive->ID() )		
+		return false;
 	
 	if (!pItemToEat->UseBy(entity_alive))
 		return false;
 
-#ifdef MP_LOGGING
-	Msg( "--- Actor [%d] use or eat [%d][%s]", entity_alive->ID(), pItemToEat->object().ID(), pItemToEat->object().cNameSect().c_str() );
-#endif // MP_LOGGING
-
-	if(Actor()->m_inventory == this)
+	if (Actor()->m_inventory == this)
 		Actor()->callback(GameObject::eUseObject)((smart_cast<CGameObject*>(pIItem))->lua_game_object());
 
-	if(pItemToEat->Empty())
+	if (pItemToEat->Empty())
 	{
 		pIItem->SetDropManual(TRUE);
 		return		false;
 	}
+
 	return			true;
 }
 
@@ -1021,7 +1026,8 @@ bool CInventory::CanTakeItem(CInventoryItem *inventory_item) const
 	if(!inventory_item->CanTake()) return false;
 
 	for(TIItemContainer::const_iterator it = m_all.begin(); it != m_all.end(); it++)
-		if((*it)->object().ID() == inventory_item->object().ID()) break;
+		if((*it)->object().ID() == inventory_item->object().ID()) 
+			break;
 	VERIFY3(it == m_all.end(), "item already exists in inventory",*inventory_item->object().cName());
 
 	CActor* pActor = smart_cast<CActor*>(m_pOwner);
@@ -1043,7 +1049,7 @@ u32  CInventory::BeltWidth() const
 			return outfit->get_artefact_count();
 		}
 	}
-	return 0; //m_iMaxBelt;
+	return 0;
 }
 
 void  CInventory::AddAvailableItems(TIItemContainer& items_container, bool for_trade) const

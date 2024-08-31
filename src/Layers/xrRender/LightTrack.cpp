@@ -34,17 +34,18 @@ CROS_impl::CROS_impl	()
 	sun_value			= 0.2f;
 	sun_smooth			= 0.2f;
 
+	for (size_t i = 0; i < NUM_FACES; ++i)
+	{
+		hemi_cube[i] = hemi_cube_smooth[i] = 0;
+	}
+
 #if RENDER!=R_R1
 	last_position.set( 0.0f, 0.0f, 0.0f );
 	ticks_to_update		= 0;
 	sky_rays_uptodate	= 0;
 #endif	// RENDER!=R_R1
 
-//#if RENDER==R_R1
 	MODE				= IRender_ObjectSpecific::TRACE_ALL											;
-//#else
-//	MODE				= IRender_ObjectSpecific::TRACE_HEMI + IRender_ObjectSpecific::TRACE_SUN	;
-//#endif
 }
 
 void	CROS_impl::add		(light* source)
@@ -69,36 +70,6 @@ IC bool	pred_energy			(const CROS_impl::Light& L1, const CROS_impl::Light& L2)	{
 //////////////////////////////////////////////////////////////////////////
 #pragma warning(push)
 #pragma warning(disable:4305)
-
-// const float		hdir		[lt_hemisamples][3] = 
-// {
-// 	{0.00000,	1.00000,	0.00000	},
-// 	{0.52573,	0.85065,	0.00000	},
-// 	{0.16246,	0.85065,	0.50000	},
-// 	{-0.42533,	0.85065,	0.30902	},
-// 	{-0.42533,	0.85065,	-0.30902},
-// 	{0.16246,	0.85065,	-0.50000},
-// 	{0.89443,	0.44721,	0.00000	},
-// 	{0.27639,	0.44721,	0.85065	},
-// 	{-0.72361,	0.44721,	0.52573	},
-// 	{-0.72361,	0.44721,	-0.52573},
-// 	{0.27639,	0.44721,	-0.85065},
-// 	{0.68819,	0.52573,	0.50000	},
-// 	{-0.26287,	0.52573,	0.80902	},
-// 	{-0.85065,	0.52573,	-0.00000},
-// 	{-0.26287,	0.52573,	-0.80902},
-// 	{0.68819,	0.52573,	-0.50000},
-// 	{0.95106,	0.00000,	0.30902	},
-// 	{0.58779,	0.00000,	0.80902	},
-// 	{-0.00000,	0.00000,	1.00000	},
-// 	{-0.58779,	0.00000,	0.80902	},
-// 	{-0.95106,	0.00000,	0.30902	},
-// 	{-0.95106,	0.00000,	-0.30902},
-// 	{-0.58779,	0.00000,	-0.80902},
-// 	{0.00000,	0.00000,	-1.00000},
-// 	{0.58779,	0.00000,	-0.80902},
-// 	{0.95106,	0.00000,	-0.30902}
-// };
 
 const float		hdir		[lt_hemisamples][3] = 
 {
@@ -136,24 +107,6 @@ const float		hdir		[lt_hemisamples][3] =
 };
 #pragma warning(pop)
 
-//inline CROS_impl::CubeFaces CROS_impl::get_cube_face(Fvector3& dir)
-//{
-//	float x2 = dir.x*dir.x;
-//	float y2 = dir.y*dir.y;
-//	float z2 = dir.z*dir.z;
-//
-//	if (x2 >= y2 + z2)
-//	{
-//		return (dir.x > 0) ? CUBE_FACE_POS_X : CUBE_FACE_NEG_X;
-//	}
-//	else if (y2 >= z2 + x2)
-//	{
-//		return (dir.y > 0) ? CUBE_FACE_POS_Y : CUBE_FACE_NEG_Y;
-//	}
-//	/*else*/
-//	return (dir.z > 0) ? CUBE_FACE_POS_Z : CUBE_FACE_NEG_Z;
-//}
-
 inline void CROS_impl::accum_hemi(float* hemi_cube, Fvector3& dir, float scale)
 {
 	if (dir.x>0)
@@ -181,7 +134,6 @@ void	CROS_impl::update	(IRenderable* O)
 	if					(0==O)								return;
 	if					(0==O->renderable.visual)			return;
 	VERIFY				(dynamic_cast<CROS_impl*>			(O->renderable_ROS()));
-	//float	dt			=	Device.fTimeDelta;
 
 	CObject*	_object	= dynamic_cast<CObject*>	(O);
 
@@ -190,8 +142,6 @@ void	CROS_impl::update	(IRenderable* O)
 	Fvector	position;	O->renderable.xform.transform_tiny	(position,vis.sphere.P);
 	position.y			+=  .3f * vis.sphere.R;
 	Fvector	direction;	direction.random_dir();
-//.			position.mad(direction,0.25f*radius);
-//.			position.mad(direction,0.025f*radius);
 
 	//function call order is important at least for r1
 	for (size_t i = 0; i < NUM_FACES; ++i)
@@ -260,10 +210,6 @@ void	CROS_impl::update	(IRenderable* O)
 		}
 #endif
 
-//		lacc.x		*= desc.lmap_color.x;
-//		lacc.y		*= desc.lmap_color.y;
-//		lacc.z		*= desc.lmap_color.z;
-//		Msg				("- rgb[%f,%f,%f]",lacc.x,lacc.y,lacc.z);
 		accum.add		(lacc);
 	} else 			accum.set	( .1f, .1f, .1f );
 
@@ -395,14 +341,11 @@ void CROS_impl::calc_sky_hemi_value(Fvector& position, CObject* _object)
 
 			// take sample
 			Fvector	direction;	direction.set	(hdir[sample][0],hdir[sample][1],hdir[sample][2]).normalize	();
-			//.			result[sample]	=	!g_pGameLevel->ObjectSpace.RayTest(position,direction,50.f,collide::rqtBoth,&cache[sample],_object);
 			result[sample]	=	!g_pGameLevel->ObjectSpace.RayTest(position,direction,50.f,collide::rqtStatic,&cache[sample],_object);
-			//	Msg				("%d:-- %s",sample,result[sample]?"true":"false");
 		}
 	}
+
 	// hemi & sun: update and smooth
-	//	float	l_f				=	dt*lt_smooth;
-	//	float	l_i				=	1.f-l_f;
 	int		_pass			=	0;
 	for (int it=0; it<result_count; it++)	if (result[it])	_pass	++;
 	hemi_value				=	float	(_pass)/float(result_count?result_count:1);

@@ -16,8 +16,7 @@ m_owner(owner)
 }
 
 Vision::~Vision()
-{
-}
+{}
 
 struct SFeelParam
 {
@@ -27,6 +26,7 @@ struct SFeelParam
     float vis_threshold;
     SFeelParam(Vision* _parent, Vision::feel_visible_Item* _item, float _vis_threshold) :parent(_parent), item(_item), vis(1.f), vis_threshold(_vis_threshold) {}
 };
+
 IC BOOL feel_vision_callback(collide::rq_result& result, LPVOID params)
 {
     SFeelParam* fp = (SFeelParam*)params;
@@ -42,6 +42,7 @@ IC BOOL feel_vision_callback(collide::rq_result& result, LPVOID params)
     }
     return (fp->vis > fp->vis_threshold);
 }
+
 void Vision::o_new(CObject* O)
 {
     feel_visible.push_back(feel_visible_Item());
@@ -55,14 +56,15 @@ void Vision::o_new(CObject* O)
     I.cp_LP = O->get_new_local_point_on_mesh(I.bone_id);
     I.cp_LAST = O->get_last_local_point_on_mesh(I.cp_LP, I.bone_id);
 }
+
 void Vision::o_delete(CObject* O)
 {
     xr_vector<feel_visible_Item>::iterator I = feel_visible.begin(), TE = feel_visible.end();
     for (; I != TE; I++)
         if (I->O == O)
         {
-        feel_visible.erase(I);
-        return;
+			feel_visible.erase(I);
+			return;
         }
 }
 
@@ -78,13 +80,21 @@ void Vision::feel_vision_relcase(CObject* object)
 {
     xr_vector<CObject*>::iterator Io;
     Io = std::find(seen.begin(), seen.end(), object);
-    if (Io != seen.end()) seen.erase(Io);
+    if (Io != seen.end()) 
+		seen.erase(Io);
     Io = std::find(query.begin(), query.end(), object);
-    if (Io != query.end())query.erase(Io);
+    if (Io != query.end())
+		query.erase(Io);
     Io = std::find(diff.begin(), diff.end(), object);
-    if (Io != diff.end()) diff.erase(Io);
+    if (Io != diff.end()) 
+		diff.erase(Io);
     xr_vector<feel_visible_Item>::iterator Ii = feel_visible.begin(), IiE = feel_visible.end();
-    for (; Ii != IiE; ++Ii)if (Ii->O == object) { feel_visible.erase(Ii); break; }
+    for (; Ii != IiE; ++Ii)
+		if (Ii->O == object) 
+		{ 
+			feel_visible.erase(Ii); 
+			break; 
+		}
 }
 
 void Vision::feel_vision_query(Fmatrix& mFull, Fvector& P)
@@ -94,13 +104,7 @@ void Vision::feel_vision_query(Fmatrix& mFull, Fvector& P)
 
     // Traverse object database
     r_spatial.clear();
-    g_SpatialSpace->q_frustum
-        (
-        r_spatial,
-        0,
-        STYPE_VISIBLEFORAI,
-        Frustum
-        );
+    g_SpatialSpace->q_frustum(r_spatial, 0, STYPE_VISIBLEFORAI, Frustum);
 
     // Determine visibility for dynamic part of scene
     seen.clear();
@@ -128,10 +132,7 @@ void Vision::feel_vision_update(CObject* parent, Fvector& P, float dt, float vis
 
         {
             diff.resize(_max(seen.size(), query.size()));
-            xr_vector<CObject*>::iterator E = std::set_difference(
-                seen.begin(), seen.end(),
-                query.begin(), query.end(),
-                diff.begin());
+            xr_vector<CObject*>::iterator E = std::set_difference(seen.begin(), seen.end(), query.begin(), query.end(), diff.begin());
             diff.resize(E - diff.begin());
             for (u32 i = 0; i < diff.size(); i++)
                 o_new(diff[i]);
@@ -142,10 +143,7 @@ void Vision::feel_vision_update(CObject* parent, Fvector& P, float dt, float vis
     if (!query.empty())
     {
         diff.resize(_max(seen.size(), query.size()));
-        xr_vector<CObject*>::iterator E = std::set_difference(
-            query.begin(), query.end(),
-            seen.begin(), seen.end(),
-            diff.begin());
+        xr_vector<CObject*>::iterator E = std::set_difference(query.begin(), query.end(), seen.begin(), seen.end(), diff.begin());
         diff.resize(E - diff.begin());
         for (u32 i = 0; i < diff.size(); i++)
             o_delete(diff[i]);
@@ -155,17 +153,18 @@ void Vision::feel_vision_update(CObject* parent, Fvector& P, float dt, float vis
     query = seen;
     o_trace(P, dt, vis_threshold);
 }
+
 void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
 {
     RQR.r_clear();
     xr_vector<feel_visible_Item>::iterator I = feel_visible.begin(), E = feel_visible.end();
     for (; I != E; I++)
     {
-        if (0 == I->O->CFORM()) { I->fuzzy = -1; continue; }
-
-        // verify relation
-        // if (positive(I->fuzzy) && I->O->Position().similar(I->cp_LR_dst,lr_granularity) && P.similar(I->cp_LR_src,lr_granularity))
-        // continue;
+        if (0 == I->O->CFORM()) 
+		{ 
+			I->fuzzy = -1; 
+			continue; 
+		}
 
         I->cp_LR_dst = I->O->Position();
         I->cp_LR_src = P;
@@ -192,7 +191,6 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
             {
                 // similar with previous query
                 feel_params.vis = I->Cache_vis;
-                // Log("cache 0");
             }
             else
             {
@@ -200,7 +198,6 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
                 if (CDB::TestRayTri(P, D, I->Cache.verts, _u, _v, _range, false) && (_range > 0 && _range < f))
                 {
                     feel_params.vis = 0.f;
-                    // Log("cache 1");
                 }
                 else
                 {
@@ -214,14 +211,11 @@ void Vision::o_trace(Fvector& P, float dt, float vis_threshold)
                     }
                     else
                     {
-                        // feel_params.vis = 0.f;
-                        // I->Cache_vis = feel_params.vis ;
                         I->Cache.set(P, D, f, FALSE);
                     }
-                    // Log("query");
                 }
             }
-            // Log("Vis",feel_params.vis);
+
             r_spatial.clear();
             g_SpatialSpace->q_ray(r_spatial, 0, STYPE_VISIBLEFORAI, P, D, f);
 

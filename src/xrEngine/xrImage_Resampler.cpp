@@ -47,13 +47,15 @@ void free_image(Image* image)
 
 Pixel get_pixel(Image* image, int x, int y)
 {
-    if ((x < 0) || (x >= image->xsize) || (y < 0) || (y >= image->ysize)) return 0;
+    if ((x < 0) || (x >= image->xsize) || (y < 0) || (y >= image->ysize)) 
+        return 0;
     return image->data[(y * image->span) + x];
 }
 
 void get_row(Pixel* row, Image* image, int y)
 {
-    if ((y < 0) || (y >= image->ysize)) return;
+    if ((y < 0) || (y >= image->ysize)) 
+        return;
     CopyMemory(row, image->data + (y * image->span), (sizeof(Pixel) * image->xsize));
 }
 
@@ -77,7 +79,6 @@ Pixel put_pixel(Image* image, int x, int y, Pixel data)
     return image->data[(y * image->span) + x] = data;
 }
 
-
 /*
  * filter function definitions
  */
@@ -86,9 +87,12 @@ Pixel put_pixel(Image* image, int x, int y, Pixel data)
 #define filter_support (1.0)
 float filter(float t)
 {
-    /* f(t) = 2|t|^3 - 3|t|^2 + 1, -1 <= t <= 1 */
-    if (t < 0.0) t = -t;
-    if (t < 1.0) return float((2.0 * t - 3.0) * t * t + 1.0);
+    if (t < 0.0) 
+        t = -t;
+
+    if (t < 1.0) 
+        return float((2.0 * t - 3.0) * t * t + 1.0);
+
     return(0.0);
 }
 
@@ -96,7 +100,9 @@ float filter(float t)
 #define box_support (0.5)
 float box_filter(float t)
 {
-    if ((t > -0.5) && (t <= 0.5)) return(1.0);
+    if ((t > -0.5) && (t <= 0.5)) 
+        return(1.0);
+
     return(0.0);
 }
 
@@ -104,8 +110,12 @@ float box_filter(float t)
 #define triangle_support (1.0)
 float triangle_filter(float t)
 {
-    if (t < 0.0f) t = -t;
-    if (t < 1.0f) return(1.0f - t);
+    if (t < 0.0f) 
+        t = -t;
+
+    if (t < 1.0f) 
+        return(1.0f - t);
+
     return(0.0f);
 }
 
@@ -113,8 +123,12 @@ float triangle_filter(float t)
 #define bell_support (1.5)
 float bell_filter(float t) /* box (*) box (*) box */
 {
-    if (t < 0) t = -t;
-    if (t < .5) return float(.75 - (t * t));
+    if (t < 0) 
+        t = -t;
+
+    if (t < .5) 
+        return float(.75 - (t * t));
+
     if (t < 1.5)
     {
         t = (t - 1.5f);
@@ -129,7 +143,9 @@ float B_spline_filter(float t) /* box (*) box (*) box (*) box */
 {
     float tt;
 
-    if (t < 0) t = -t;
+    if (t < 0)
+        t = -t;
+
     if (t < 1)
     {
         tt = t * t;
@@ -148,13 +164,18 @@ float B_spline_filter(float t) /* box (*) box (*) box (*) box */
 float sinc(float x)
 {
     x *= 3.1415926f;
-    if (x != 0) return(_sin(x) / x);
+    if (x != 0) 
+        return(_sin(x) / x);
+
     return(1.0);
 }
+
 float Lanczos3_filter(float t)
 {
     if (t < 0) t = -t;
-    if (t < 3.0f) return float(sinc(t) * sinc(t / 3.0f));
+    if (t < 3.0f) 
+        return float(sinc(t) * sinc(t / 3.0f));
+
     return(0.0);
 }
 
@@ -171,17 +192,12 @@ float Mitchell_filter(float t)
     if (t < 0) t = -t;
     if (t < 1.0f)
     {
-        t = (((12.0f - 9.0f * B - 6.0f * C) * (t * tt))
-             + ((-18.0f + 12.0f * B + 6.0f * C) * tt)
-             + (6.0f - 2.0f * B));
+        t = (((12.0f - 9.0f * B - 6.0f * C) * (t * tt)) + ((-18.0f + 12.0f * B + 6.0f * C) * tt) + (6.0f - 2.0f * B));
         return(t / 6.0f);
     }
     else if (t < 2.0f)
     {
-        t = (((-1.0f * B - 6.0f * C) * (t * tt))
-             + ((6.0f * B + 30.0f * C) * tt)
-             + ((-12.0f * B - 48.0f * C) * t)
-             + (8.0f * B + 24.f * C));
+        t = (((-1.0f * B - 6.0f * C) * (t * tt)) + ((6.0f * B + 30.0f * C) * tt) + ((-12.0f * B - 48.0f * C) * t) + (8.0f * B + 24.f * C));
         return(t / 6.0f);
     }
     return(0.0);
@@ -267,7 +283,6 @@ void imf_Process(u32* dstI, u32 dstW, u32 dstH, u32* srcI, u32 srcW, u32 srcH, E
         fwidth = Mitchell_support;
         break;
     }
-
 
     //
     Image* tmp = 0; /* intermediate image */

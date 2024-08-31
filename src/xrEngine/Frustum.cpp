@@ -33,6 +33,7 @@ void CFrustum::fplane::cache()
         }
     }
 }
+
 void CFrustum::_add(Fplane& P)
 {
     VERIFY(p_count < FRUSTUM_MAXPLANES);
@@ -40,6 +41,7 @@ void CFrustum::_add(Fplane& P)
     planes[p_count].cache();
     p_count++;
 }
+
 void CFrustum::_add(Fvector& P1, Fvector& P2, Fvector& P3)
 {
     VERIFY(p_count < FRUSTUM_MAXPLANES);
@@ -243,7 +245,8 @@ void CFrustum::SimplifyPoly_AABB(sPoly* poly, Fplane& plane)
     Fvector from, up, right, y;
     from.set((*poly)[0]);
     y.set(0, 1, 0);
-    if (_abs(plane.n.y) > 0.99f) y.set(1, 0, 0);
+    if (_abs(plane.n.y) > 0.99f) 
+		y.set(1, 0, 0);
     right.crossproduct(y, plane.n);
     up.crossproduct(plane.n, right);
     mView.build_camera_dir(from, plane.n, up);
@@ -343,7 +346,8 @@ sPoly* CFrustum::ClipPoly(sPoly& S, sPoly& D) const
         float denum, t;
         for (j = 0; j < src->size() - 1; j++)
         {
-            if ((*src)[j].similar((*src)[j + 1], EPS_S)) continue;
+            if ((*src)[j].similar((*src)[j + 1], EPS_S)) 
+				continue;
 
             if (negative(cls[j]))
             {
@@ -396,7 +400,8 @@ BOOL CFrustum::CreateFromClipPoly(Fvector* p, int count, Fvector& vBase, CFrustu
     sPoly* dest = clip.ClipPoly(poly1, poly2);
 
     // here we end up with complete frustum-polygon in 'dest'
-    if (0 == dest) return false;
+    if (0 == dest)
+		return false;
 
     CreateFromPoints(dest->begin(), dest->size(), vBase);
     return true;

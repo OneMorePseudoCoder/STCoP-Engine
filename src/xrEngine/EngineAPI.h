@@ -21,13 +21,15 @@ public:
 };
 
 // Class creation/destroying interface
-extern "C" {
+extern "C" 
+{
     typedef DLL_API DLL_Pure* __cdecl Factory_Create(CLASS_ID CLS_ID);
     typedef DLL_API void __cdecl Factory_Destroy(DLL_Pure* O);
 };
 
 // Tuning interface
-extern "C" {
+extern "C" 
+{
     typedef void __cdecl VTPause(void);
     typedef void __cdecl VTResume(void);
 };
@@ -39,17 +41,14 @@ private:
     HMODULE hRender;
     HMODULE hTuner;
 public:
-    BENCH_SEC_SCRAMBLEMEMBER1
-        Factory_Create* pCreate;
+    Factory_Create* pCreate;
     Factory_Destroy* pDestroy;
     BOOL tune_enabled;
     VTPause* tune_pause;
     VTResume* tune_resume;
     void Initialize();
 
-#ifndef DEDICATED_SERVER
     void InitializeNotDedicated();
-#endif // DEDICATED_SERVER
 
     void Destroy();
 

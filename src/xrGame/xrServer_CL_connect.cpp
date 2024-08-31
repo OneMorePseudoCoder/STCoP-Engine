@@ -9,19 +9,23 @@ void xrServer::Perform_connect_spawn(CSE_Abstract* E, xrClientData* CL, NET_Pack
 {
 	P.B.count = 0;
 	xr_vector<u16>::iterator it = std::find(conn_spawned_ids.begin(), conn_spawned_ids.end(), E->ID);
-	if(it != conn_spawned_ids.end())
+	if (it != conn_spawned_ids.end())
 	{
 		return;
 	}
 	
 	conn_spawned_ids.push_back(E->ID);
 	
-	if (E->net_Processed)						return;
-	if (E->s_flags.is(M_SPAWN_OBJECT_PHANTOM))	return;
+	if (E->net_Processed)						
+		return;
+
+	if (E->s_flags.is(M_SPAWN_OBJECT_PHANTOM))	
+		return;
 
 	// Connectivity order
 	CSE_Abstract* Parent = ID_to_entity	(E->ID_Parent);
-	if (Parent)		Perform_connect_spawn	(Parent,CL,P);
+	if (Parent)		
+		Perform_connect_spawn	(Parent,CL,P);
 
 	// Process
 	Flags16			save = E->s_flags;
@@ -104,15 +108,13 @@ void	xrServer::SendConnectResult(IClient* CL, u8 res, u8 res1, char* ResultStr)
 		P.w_u8(1);
 	else
 		P.w_u8(0);
+
 	P.w_stringZ(Level().m_caServerOptions);
 	
 	SendTo		(CL->ID, P);
 
 	if (!res)			//need disconnect 
 	{
-#ifdef MP_LOGGING
-		Msg("* Server disconnecting client, resaon: %s", ResultStr);
-#endif
 		Flush_Clients_Buffers	();
 		DisconnectClient		(CL, ResultStr);
 	}	

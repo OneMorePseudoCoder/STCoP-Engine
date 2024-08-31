@@ -13,7 +13,6 @@
 extern void ReplaceSpaceAndLowerCase(shared_str& s);
 #endif
 
-
 //------------------------------------------------------------------------------------------
 // CCustomMotion
 //------------------------------------------------------------------------------------------
@@ -170,6 +169,7 @@ void COMotion::CreateKey(float t, const Fvector& P, const Fvector& R)
     envs[ctRotationP]->InsertKey(t,R.x);
     envs[ctRotationB]->InsertKey(t,R.z);
 }
+
 void COMotion::DeleteKey(float t)
 {
     envs[ctPositionX]->DeleteKey(t);
@@ -179,10 +179,12 @@ void COMotion::DeleteKey(float t)
     envs[ctRotationP]->DeleteKey(t);
     envs[ctRotationB]->DeleteKey(t);
 }
+
 int COMotion::KeyCount()
 {
     return envs[ctPositionX]->keys.size();
 }
+
 void COMotion::FindNearestKey(float t, float& mn, float& mx, float eps)
 {
     KeyIt min_k;
@@ -191,13 +193,16 @@ void COMotion::FindNearestKey(float t, float& mn, float& mx, float eps)
     mn = (min_k!=envs[ctPositionX]->keys.end())?(*min_k)->time:t;
     mx = (max_k!=envs[ctPositionX]->keys.end())?(*max_k)->time:t;
 }
+
 float COMotion::GetLength(float* mn, float* mx)
 {
-    float ln,len=0.f;
-    for (int ch=0; ch<ctMaxChannel; ch++)
-        if ((ln=envs[ch]->GetLength(mn,mx))>len) len=ln;
+    float ln, len = 0.f;
+    for (int ch = 0; ch < ctMaxChannel; ch++)
+        if ((ln = envs[ch]->GetLength(mn,mx)) > len) 
+			len = ln;
     return len;
 }
+
 BOOL COMotion::ScaleKeys(float from_time, float to_time, float scale_factor)
 {
     BOOL bRes=TRUE;
@@ -205,6 +210,7 @@ BOOL COMotion::ScaleKeys(float from_time, float to_time, float scale_factor)
         if (FALSE==(bRes=envs[ch]->ScaleKeys(from_time, to_time, scale_factor, 1.f/fFPS))) break;
     return bRes;
 }
+
 BOOL COMotion::NormalizeKeys(float from_time, float to_time, float speed)
 {
     if (to_time<from_time) return FALSE;
@@ -238,8 +244,8 @@ BOOL COMotion::NormalizeKeys(float from_time, float to_time, float speed)
                 t0 = (*it)->time;
                 new_tm +=dt;
                 tms.push_back (new_tm);
-    }
-}
+			}
+		}
     }
     for (int ch = 0; ch < ctMaxChannel; ch++)
     {
@@ -250,15 +256,6 @@ BOOL COMotion::NormalizeKeys(float from_time, float to_time, float speed)
             (*k_it)->time = *f_it;
     }
 
-    /*
-     CEnvelope* E = Envelope();
-     for (KeyIt it=E->keys.begin(); it!=E->keys.end(); it++){
-     if (((*it)->time>from_time)&&((*it)->time<to_time)){
-     for (float tm=from_time; tm<=to_time; tm+=1.f/fFPS){
-
-     }
-     }
-     */
     return TRUE;
 }
 #endif
@@ -269,7 +266,6 @@ BOOL COMotion::NormalizeKeys(float from_time, float to_time, float speed)
 //------------------------------------------------------------------------------------------
 #ifdef _EDITOR
 
-//#include "SkeletonCustom.h"
 CSMotion::CSMotion():CCustomMotion()
 {
     mtype =mtSkeleton;
@@ -302,34 +298,36 @@ CSMotion::~CSMotion()
 
 void CSMotion::Clear()
 {
-    for(BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
+    for (BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
     {
-        for (int ch=0; ch<ctMaxChannel; ch++) xr_delete(bm_it->envs[ch]);
+        for (int ch=0; ch < ctMaxChannel; ch++) 
+			xr_delete(bm_it->envs[ch]);
     }
     bone_mots.clear();
 }
 
 st_BoneMotion* CSMotion::FindBoneMotion(shared_str name)
 {
-    for(BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
-        if (bm_it->name.equal(name)) return &*bm_it;
+    for (BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
+        if (bm_it->name.equal(name)) 
+			return &*bm_it;
+	
     return 0;
 }
 
 void CSMotion::add_empty_motion (shared_str const& bone_id)
 {
-    VERIFY (!FindBoneMotion(bone_id));
+    VERIFY(!FindBoneMotion(bone_id));
 
     st_BoneMotion motion;
 
-    motion.SetName (bone_id.c_str());
-    // flRKeyAbsent = (1<<1),
-    motion.m_Flags.assign ( 1 << 1);
+    motion.SetName(bone_id.c_str());
+
+    motion.m_Flags.assign(1<< 1);
 
     for (int ch=0; ch<ctMaxChannel; ch++)
     {
-        motion.envs[ch] = xr_new<CEnvelope> ();
-        // motion.envs[ch];
+        motion.envs[ch] = xr_new<CEnvelope>();
     }
 
     bone_mots.push_back (motion);
@@ -345,12 +343,12 @@ void CSMotion::CopyMotion(CSMotion* source)
     st_BoneMotion* src;
     st_BoneMotion* dest;
     bone_mots.resize(source->bone_mots.size());
-    for(u32 i=0; i<bone_mots.size(); i++)
+    for (u32 i = 0; i < bone_mots.size(); i++)
     {
         dest = &bone_mots[i];
         src = &source->bone_mots[i];
         for (int ch=0; ch<ctMaxChannel; ch++)
-            dest->envs[ch] = xr_new<CEnvelope> (src->envs[ch]);
+            dest->envs[ch] = xr_new<CEnvelope>(src->envs[ch]);
     }
 }
 
@@ -497,20 +495,23 @@ bool CSMotion::Load(IReader& F)
             }
         }
     }
-    if(vers>=0x0007)
+
+    if (vers >= 0x0007)
     {
         u32 sz = F.r_u32();
-        if(sz>0)
+        if(sz > 0)
         {
             marks.resize (sz);
-            for(u32 i=0; i<sz; ++i)
+            for (u32 i=0; i<sz; ++i)
                 marks[i].Load(&F);
         }
     }
-    for(BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
-        xr_strlwr (bm_it->name);
+
+    for (BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
+        xr_strlwr(bm_it->name);
+
     return true;
-    }
+}
 
 void CSMotion::Optimize()
 {
@@ -539,7 +540,6 @@ void CSMotion::SortBonesBySkeleton(BoneVec& bones)
             for (int ch = 0; ch < ctMaxChannel; ++ch)
             {
                 bm.envs[ch] = xr_new<CEnvelope>();
-                //. bm.envs[ch]->Load_2(F);
             }
             bm.envs[ctPositionX]->InsertKey(0.0f, B->_Offset().x);
             bm.envs[ctPositionY]->InsertKey(0.0f, B->_Offset().y);
@@ -567,11 +567,12 @@ void SAnimParams::Set(CCustomMotion* M)
     Set((float)M->FrameStart(), (float)M->FrameEnd(), M->FPS());
     t_current = min_t;
     tmp = t_current;
-    // bPlay=true;
 }
+
 void SAnimParams::Update(float dt, float speed, bool loop)
 {
-    if (!bPlay) return;
+    if (!bPlay) 
+		return;
     bWrapped = false;
 
     t_current += speed*dt;

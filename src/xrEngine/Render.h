@@ -3,31 +3,20 @@
 
 #include "../xrCDB/frustum.h"
 #include "vis_common.h"
-//#include "IRenderDetailModel.h"
 
 #include "../Include/xrAPI/xrAPI.h"
 #include "../Include/xrRender/FactoryPtr.h"
 class IUIShader;
 typedef FactoryPtr<IUIShader> wm_shader;
-//#include "../Include/xrRender/WallMarkArray.h"
 
-#ifdef _EDITOR
-//. #error you cant include this file in borland
-#endif
 // refs
 class ENGINE_API IRenderable;
-//class ENGINE_API IRenderVisual;
-
-//class ENGINE_API IBlender;
-//class ENGINE_API CSkeletonWallmark;
-//class ENGINE_API CKinematics;
 struct ENGINE_API FSlideWindowItem;
 
 // Igor
 class IRenderVisual;
 class IKinematics;
 class CGameFont;
-//class IRenderDetailModel;
 
 #ifndef _EDITOR
 extern const float fLightSmoothFactor;
@@ -69,10 +58,12 @@ public:
     virtual bool get_hud_mode() = 0;
     virtual ~IRender_Light();
 };
+
 struct ENGINE_API resptrcode_light : public resptr_base < IRender_Light >
 {
     void destroy() { _set(NULL); }
 };
+
 typedef resptr_core<IRender_Light, resptrcode_light > ref_light;
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,10 +81,12 @@ public:
     virtual void set_color(float r, float g, float b) = 0;
     virtual ~IRender_Glow();
 };
+
 struct ENGINE_API resptrcode_glow : public resptr_base < IRender_Glow >
 {
     void destroy() { _set(NULL); }
 };
+
 typedef resptr_core<IRender_Glow, resptrcode_glow > ref_glow;
 
 //////////////////////////////////////////////////////////////////////////
@@ -147,7 +140,6 @@ public:
     virtual void set_noise_fps(float f) = 0;
     virtual void set_color_base(u32 f) = 0;
     virtual void set_color_gray(u32 f) = 0;
-    //virtual void set_color_add (u32 f) = 0;
     virtual void set_color_add(const Fvector& f) = 0;
     virtual u32 get_width() = 0;
     virtual u32 get_height() = 0;
@@ -190,8 +182,6 @@ public:
     s32 m_skinning;
     s32 m_MSAASample;
 
-    BENCH_SEC_SCRAMBLEMEMBER1
-
     // data
     CFrustum ViewBase;
     CFrustum* View;
@@ -208,23 +198,11 @@ public:
     virtual void reset_begin() = 0;
     virtual void reset_end() = 0;
 
-    BENCH_SEC_SCRAMBLEVTBL1
-    BENCH_SEC_SCRAMBLEVTBL3
-
     virtual void level_Load(IReader*) = 0;
     virtual void level_Unload() = 0;
 
-    //virtual IDirect3DBaseTexture9* texture_load (LPCSTR fname, u32& msize) = 0;
     void shader_option_skinning(s32 mode) { m_skinning = mode; }
-    virtual HRESULT shader_compile(
-        LPCSTR name,
-        DWORD const* pSrcData,
-        UINT SrcDataLen,
-        LPCSTR pFunctionName,
-        LPCSTR pTarget,
-        DWORD Flags,
-        void*& result
-    ) = 0;
+    virtual HRESULT shader_compile(LPCSTR name, DWORD const* pSrcData, UINT SrcDataLen, LPCSTR pFunctionName, LPCSTR pTarget, DWORD Flags, void*& result) = 0;
 
     // Information
     virtual void Statistics(CGameFont* F) {};
@@ -247,18 +225,12 @@ public:
     virtual void add_Occluder(Fbox2& bb_screenspace) = 0; // mask screen region as oclluded (-1..1, -1..1)
     virtual void add_Visual(IRenderVisual* V) = 0; // add visual leaf (no culling performed at all)
     virtual void add_Geometry(IRenderVisual* V) = 0; // add visual(s) (all culling performed)
-    // virtual void add_StaticWallmark (ref_shader& S, const Fvector& P, float s, CDB::TRI* T, Fvector* V)=0;
     virtual void add_StaticWallmark(const wm_shader& S, const Fvector& P, float s, CDB::TRI* T, Fvector* V) = 0;
     // Prefer this function when possible
     virtual void add_StaticWallmark(IWallMarkArray* pArray, const Fvector& P, float s, CDB::TRI* T, Fvector* V) = 0;
     virtual void clear_static_wallmarks() = 0;
-    //virtual void add_SkeletonWallmark (intrusive_ptr<CSkeletonWallmark> wm) = 0;
-    //virtual void add_SkeletonWallmark (const Fmatrix* xf, CKinematics* obj, ref_shader& sh, const Fvector& start, const Fvector& dir, float size)=0;
     // Prefer this function when possible
     virtual void add_SkeletonWallmark(const Fmatrix* xf, IKinematics* obj, IWallMarkArray* pArray, const Fvector& start, const Fvector& dir, float size) = 0;
-
-    //virtual IBlender* blender_create (CLASS_ID cls) = 0;
-    //virtual void blender_destroy (IBlender* &) = 0;
 
     virtual IRender_ObjectSpecific* ros_create(IRenderable* parent) = 0;
     virtual void ros_destroy(IRender_ObjectSpecific*&) = 0;
@@ -271,15 +243,10 @@ public:
 
     // Models
     virtual IRenderVisual* model_CreateParticles(LPCSTR name) = 0;
-    // virtual IRender_DetailModel* model_CreateDM (IReader* F) = 0;
-    //virtual IRenderDetailModel* model_CreateDM (IReader* F) = 0;
-    //virtual IRenderVisual* model_Create (LPCSTR name, IReader* data=0) = 0;
     virtual IRenderVisual* model_Create(LPCSTR name, IReader* data = 0) = 0;
     virtual IRenderVisual* model_CreateChild(LPCSTR name, IReader* data) = 0;
     virtual IRenderVisual* model_Duplicate(IRenderVisual* V) = 0;
-    //virtual void model_Delete (IRenderVisual* & V, BOOL bDiscard=FALSE) = 0;
     virtual void model_Delete(IRenderVisual*& V, BOOL bDiscard = FALSE) = 0;
-    // virtual void model_Delete (IRender_DetailModel* & F) = 0;
     virtual void model_Logging(BOOL bEnable) = 0;
     virtual void models_Prefetch() = 0;
     virtual void models_Clear(BOOL b_complete) = 0;
@@ -325,7 +292,5 @@ public:
 protected:
     virtual void ScreenshotImpl(ScreenshotMode mode, LPCSTR name, CMemoryWriter* memory_writer) = 0;
 };
-
-//extern ENGINE_API IRender_interface* Render;
 
 #endif

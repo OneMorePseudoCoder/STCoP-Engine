@@ -50,7 +50,6 @@ IConsole_Command* CConsole::GetCommand(LPCSTR cmd) const
         return it->second;
 }
 
-
 int CConsole::GetInteger(LPCSTR cmd, int& min, int& max) const
 {
     min = 0;

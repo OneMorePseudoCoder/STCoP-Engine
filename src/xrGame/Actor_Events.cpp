@@ -63,7 +63,8 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			CObject* Obj					= Level().Objects.net_Find	(id);
 
 			VERIFY2  ( Obj, make_string("GE_OWNERSHIP_REJECT: Object not found, id = %d", id).c_str() );
-			if ( !Obj ) {
+			if ( !Obj ) 
+			{
 				Msg                 ( "! GE_OWNERSHIP_REJECT: Object not found, id = %d", id );
 				break;
 			}
@@ -74,17 +75,10 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			
 			CGameObject * GO = smart_cast<CGameObject*>(Obj);
 			
-#ifdef MP_LOGGING
-			string64 act;
-			xr_strcpy( act, (type == GE_TRADE_SELL)? "sells" : "rejects" );
-			Msg("--- Actor [%d][%s]  %s  [%d][%s]", ID(), Name(), act, GO->ID(), GO->cNameSect().c_str());
-#endif // MP_LOGGING
-			
 			VERIFY( GO->H_Parent() );
 			if ( !GO->H_Parent() )
 			{
-				Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", 
-					ID(), Name(), GO->ID(), GO->cNameSect().c_str());
+				Msg("! ERROR: Actor [%d][%s] tries to reject item [%d][%s] that has no parent", ID(), Name(), GO->ID(), GO->cNameSect().c_str());
 				break;
 			}
 			

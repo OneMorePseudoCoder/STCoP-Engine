@@ -44,12 +44,9 @@ CMainMenu::CMainMenu	()
 
 	m_start_time					= 0;
 
-	if(!g_dedicated_server)
-	{
-		g_btnHint						= xr_new<CUIButtonHint>();
-		g_statHint						= xr_new<CUIButtonHint>();
-	}
-	
+	g_btnHint						= xr_new<CUIButtonHint>();
+	g_statHint						= xr_new<CUIButtonHint>();
+
 	Device.seqFrame.Add		(this,REG_PRIORITY_LOW-1000);
 }
 
@@ -77,7 +74,6 @@ void CMainMenu::ReadTextureInfo()
 
 		CUITextureMaster::ParseShTexInfo(fn3);
 	}
-
 }
 
 extern ENGINE_API BOOL	bShowPauseString;
@@ -91,9 +87,6 @@ void CMainMenu::Activate(bool bActivate)
 		return;
 
 	if ((m_screenshotFrame == Device.dwFrame) || (m_screenshotFrame == Device.dwFrame-1) || (m_screenshotFrame == Device.dwFrame+1))	
-		return;
-
-	if (g_dedicated_server && bActivate) 
 		return;
 
 	if (bActivate)
@@ -403,9 +396,7 @@ void CMainMenu::OnFrame()
 }
 
 void CMainMenu::OnDeviceCreate()
-{
-}
-
+{}
 
 void CMainMenu::Screenshot(IRender_interface::ScreenshotMode mode, LPCSTR name)
 {

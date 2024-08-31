@@ -17,6 +17,7 @@ void CDetailManager::cache_Initialize	()
 			cache_Task(j, i, slt);
 		}
 	}
+
 	VERIFY	(cache_Validate());
 
     for (u32 _mz1 = 0; _mz1 < dm_cache1_line; _mz1++)
@@ -77,7 +78,6 @@ void 	CDetailManager::cache_Task		(int gx, int gz, Slot* D)
 	}
 }
 
-
 BOOL	CDetailManager::cache_Validate	()
 {
 	for (u32 z = 0; z < dm_cache_line; z++)
@@ -118,8 +118,9 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 				cache		[z][dm_cache_line-1] = S;
 				cache_Task	(dm_cache_line-1, z, S);
 			}
-			// R_ASSERT	(cache_Validate());
-		} else {
+		} 
+		else 
+		{
 			// shift matrix to right
 			cache_cx --;
 			for (u32 z = 0; z < dm_cache_line; z++)
@@ -133,12 +134,12 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 				cache		[z][0]	= S;
 				cache_Task	(0,z,S);
 			}
-			// R_ASSERT	(cache_Validate());
 		}
 	}
 	while (cache_cz!=v_z)
 	{
-		if (v_z>cache_cz)	{
+		if (v_z>cache_cz)	
+		{
 			// shift matrix down a bit
 			cache_cz ++;
 			for (u32 x = 0; x < dm_cache_line; x++)
@@ -152,8 +153,9 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 				cache		[0][x]	= S;
 				cache_Task	(x,0,S);
 			}
-			// R_ASSERT	(cache_Validate());
-		} else {
+		} 
+		else 
+		{
 			// shift matrix up
 			cache_cz --;
 			for (u32 x = 0; x < dm_cache_line; x++)
@@ -167,7 +169,6 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 				cache		[dm_cache_line-1][x]	= S;
 				cache_Task	(x,dm_cache_line-1,S);
 			}
-			// R_ASSERT	(cache_Validate());
 		}
 	}
 
@@ -183,9 +184,12 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 		u32		best_id		= 0;
 		float	best_dist	= flt_max;
 
-		if (bFullUnpack){
+		if (bFullUnpack)
+		{
 			best_id			= cache_task.size()-1;
-		} else {
+		} 
+		else 
+		{
 			for (u32 entry=0; entry<cache_task.size(); entry++){
 				// Gain access to data
 				Slot*		S	= cache_task[entry];
@@ -243,7 +247,9 @@ DetailSlot&	CDetailManager::QueryDB(int sx, int sz)
 	{
 		u32 linear_id				= db_z*dtH.size_x + db_x;
 		return dtSlots				[linear_id];
-	} else {
+	} 
+	else 
+	{
 		// Empty slot
 		DS_empty.w_id				(0,DetailSlot::ID_Empty);
 		DS_empty.w_id				(1,DetailSlot::ID_Empty);

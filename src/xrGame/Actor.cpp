@@ -184,7 +184,7 @@ CActor::CActor() : CEntityAlive()
 	m_iLastHittingWeaponID	= u16(-1);
 	m_statistic_manager		= NULL;
 	//-----------------------------------------------------------------------------------
-	m_memory				= g_dedicated_server ? 0 : xr_new<CActorMemory>(this);
+	m_memory				= xr_new<CActorMemory>(this);
 	m_bOutBorder			= false;
 	m_hit_probability		= 1.f;
 	m_feel_touch_characters = 0;
@@ -235,8 +235,8 @@ void CActor::reinit	()
 	material().reinit							();
 
 	m_pUsableObject								= NULL;
-	if (!g_dedicated_server)
-		memory().reinit							();
+
+	memory().reinit								();
 	
 	set_input_external_handler					(0);
 	m_time_lock_accel							= 0;
@@ -248,8 +248,7 @@ void CActor::reload	(LPCSTR section)
 	CInventoryOwner::reload		(section);
 	material().reload			(section);
 	CStepManager::reload		(section);
-	if (!g_dedicated_server)
-		memory().reload			(section);
+	memory().reload				(section);
 	m_location_manager->reload	(section);
 }
 
@@ -435,58 +434,56 @@ void	CActor::Hit(SHit* pHDS)
 #endif // DEBUG
 
 	bool bPlaySound = true;
-	if (!g_Alive()) bPlaySound = false;
 
-	if (!g_dedicated_server)
+	if (!g_Alive()) 
+		bPlaySound = false;
+
+	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
+	if (ps && ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
 	{
-		game_PlayerState* ps = Game().GetPlayerByGameID(ID());
-		if (ps && ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
-		{
-			bPlaySound = false;
-			if (Device.dwFrame != last_hit_frame && HDS.bone() != BI_NONE)
-			{		
-				// вычислить позицию и направленность партикла
-				Fmatrix pos; 
+		bPlaySound = false;
+		if (Device.dwFrame != last_hit_frame && HDS.bone() != BI_NONE)
+		{		
+			// вычислить позицию и направленность партикла
+			Fmatrix pos; 
 
-				CParticlesPlayer::MakeXFORM(this,HDS.bone(),HDS.dir,HDS.p_in_bone_space,pos);
+			CParticlesPlayer::MakeXFORM(this,HDS.bone(),HDS.dir,HDS.p_in_bone_space,pos);
 
-				// установить particles
-				CParticlesObject* ps = NULL;
+			// установить particles
+			CParticlesObject* ps = NULL;
 
-				if (eacFirstEye == cam_active && this == Level().CurrentEntity())
-					ps = CParticlesObject::Create(invincibility_fire_shield_1st,TRUE);
-				else
-					ps = CParticlesObject::Create(invincibility_fire_shield_3rd,TRUE);
+			if (eacFirstEye == cam_active && this == Level().CurrentEntity())
+				ps = CParticlesObject::Create(invincibility_fire_shield_1st,TRUE);
+			else
+				ps = CParticlesObject::Create(invincibility_fire_shield_3rd,TRUE);
 
-				ps->UpdateParent(pos,Fvector().set(0.f,0.f,0.f));
-				GamePersistent().ps_needtoplay.push_back(ps);
-			};
+			ps->UpdateParent(pos,Fvector().set(0.f,0.f,0.f));
+			GamePersistent().ps_needtoplay.push_back(ps);
 		};
-		 
-
-		last_hit_frame = Device.dwFrame;
 	};
+		 
+	last_hit_frame = Device.dwFrame;
 
-	if(	!g_dedicated_server				&& 
-		!sndHit[HDS.hit_type].empty()	&&
-		conditions().PlayHitSound(pHDS)	)
+	if (!sndHit[HDS.hit_type].empty() && conditions().PlayHitSound(pHDS))
 	{
 		ref_sound& S			= sndHit[HDS.hit_type][Random.randI(sndHit[HDS.hit_type].size())];
 		bool b_snd_hit_playing	= sndHit[HDS.hit_type].end() != std::find_if(sndHit[HDS.hit_type].begin(), sndHit[HDS.hit_type].end(), playing_pred());
 
-		if(ALife::eHitTypeExplosion == HDS.hit_type)
+		if (ALife::eHitTypeExplosion == HDS.hit_type)
 		{
 			if (this == Level().CurrentControlEntity())
 			{
 				S.set_volume(10.0f);
-				if(!m_sndShockEffector){
+				if (!m_sndShockEffector)
+				{
 					m_sndShockEffector = xr_new<SndShockEffector>();
-					m_sndShockEffector->Start(this, float(S.get_length_sec()*1000.0f), HDS.damage() );
+					m_sndShockEffector->Start(this, float(S.get_length_sec()*1000.0f), HDS.damage());
 				}
 			}
 			else
 				bPlaySound = false;
 		}
+
 		if (bPlaySound && !b_snd_hit_playing) 
 		{
 			Fvector point		= Position();
@@ -499,7 +496,7 @@ void	CActor::Hit(SHit* pHDS)
 	m_hit_slowmo = conditions().HitSlowmo(pHDS);
 
 	//---------------------------------------------------------------
-	if ((Level().CurrentViewEntity() == this) && !g_dedicated_server && (HDS.hit_type == ALife::eHitTypeFireWound))
+	if ((Level().CurrentViewEntity() == this) && (HDS.hit_type == ALife::eHitTypeFireWound))
 	{
 		CObject* pLastHitter			= Level().Objects.net_Find(m_iLastHitterID);
 		CObject* pLastHittingWeapon		= Level().Objects.net_Find(m_iLastHittingWeaponID);
@@ -515,7 +512,7 @@ void	CActor::Hit(SHit* pHDS)
 		}
 	}
 	
-	if (!g_dedicated_server && !m_disabled_hitmarks)
+	if (!m_disabled_hitmarks)
 	{
 		bool b_fireWound = (pHDS->hit_type==ALife::eHitTypeFireWound || pHDS->hit_type==ALife::eHitTypeWound_2);
 		b_initiated = b_initiated && (pHDS->hit_type==ALife::eHitTypeStrike);
@@ -665,14 +662,11 @@ void CActor::Die	(CObject* who)
 			inventory().Ruck(l_blist.front());
 	};
 
-	if (!g_dedicated_server)
-	{
-		::Sound->play_at_pos	(sndDie[Random.randI(SND_DIE_COUNT)],this,Position());
+	::Sound->play_at_pos	(sndDie[Random.randI(SND_DIE_COUNT)],this,Position());
 
-		m_HeavyBreathSnd.stop	();
-		m_BloodSnd.stop			();		
-		m_DangerSnd.stop		();		
-	}
+	m_HeavyBreathSnd.stop	();
+	m_BloodSnd.stop			();		
+	m_DangerSnd.stop		();		
 
 	cam_Set				(eacFreeLook);
 	CurrentGameUI()->HideShownDialogs();
@@ -1103,7 +1097,7 @@ void CActor::shedule_Update	(u32 DT)
 	pCamBobbing->SetState						(mstate_real, conditions().IsLimping(), IsZoomAimingMode());
 
 	//звук тяжелого дыхания при уталости и хромании
-	if (this == Level().CurrentControlEntity() && !g_dedicated_server)
+	if (this == Level().CurrentControlEntity())
 	{
 		if (conditions().IsLimping() && g_Alive() && !psActorFlags.test(AF_GODMODE_RT))
 		{
@@ -1123,11 +1117,11 @@ void CActor::shedule_Update	(u32 DT)
 
 		// -------------------------------
 		float bs = conditions().BleedingSpeed();
-		if(bs>0.6f)
+		if (bs > 0.6f)
 		{
 			Fvector snd_pos;
-			snd_pos.set(0,ACTOR_HEIGHT,0);
-			if(!m_BloodSnd._feedback())
+			snd_pos.set(0, ACTOR_HEIGHT, 0);
+			if (!m_BloodSnd._feedback())
 				m_BloodSnd.play_at_pos(this, snd_pos, sm_Looped | sm_2D);
 			else
 				m_BloodSnd.set_position(snd_pos);
@@ -1503,8 +1497,7 @@ void CActor::UpdateArtefactsOnBeltAndOutfit()
 		update_time		= 0.0f;
 	}
 
-	for(TIItemContainer::iterator it = inventory().m_belt.begin(); 
-		inventory().m_belt.end() != it; ++it) 
+	for(TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it) 
 	{
 		CArtefact*	artefact = smart_cast<CArtefact*>(*it);
 		if(artefact)

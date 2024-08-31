@@ -9,8 +9,6 @@
 #include "gamepersistent.h"
 #include "xrServer.h"
 #include "../xrEngine/x_ray.h"
-#include "../xrEngine/dedicated_server_only.h"
-#include "../xrEngine/no_single.h"
 
 game_sv_Single::game_sv_Single			()
 {
@@ -27,27 +25,11 @@ void	game_sv_Single::Create			(shared_str& options)
 {
 	inherited::Create					(options);
 
-#ifndef NO_SINGLE
 	if (strstr(*options,"/alife"))
 		m_alife_simulator				= xr_new<CALifeSimulator>(&server(),&options);
-#endif //#ifndef NO_SINGLE
 
 	switch_Phase						(GAME_PHASE_INPROGRESS);
 }
-
-/**
-CSE_Abstract*		game_sv_Single::get_entity_from_eid		(u16 id)
-{
-	if (!ai().get_alife())
-		return			(inherited::get_entity_from_eid(id));
-
-	CSE_Abstract		*object = ai().alife().objects().object(id,true);
-	if (!object)
-		return			(inherited::get_entity_from_eid(id));
-
-	return				(object);
-}
-/**/
 
 void	game_sv_Single::OnCreate		(u16 id_who)
 {
@@ -65,13 +47,16 @@ void	game_sv_Single::OnCreate		(u16 id_who)
 
 	alife_object->m_bOnline	= true;
 
-	if (alife_object->ID_Parent != 0xffff) {
+	if (alife_object->ID_Parent != 0xffff) 
+	{
 		CSE_ALifeDynamicObject			*parent = ai().alife().objects().object(alife_object->ID_Parent,true);
-		if (parent) {
+		if (parent) 
+		{
 			CSE_ALifeTraderAbstract		*trader = smart_cast<CSE_ALifeTraderAbstract*>(parent);
 			if (trader)
 				alife().create			(alife_object);
-			else {
+			else 
+			{
 				CSE_ALifeInventoryBox* const	box = smart_cast<CSE_ALifeInventoryBox*>(parent);
 				if (box)
 					alife().create		(alife_object);
@@ -91,21 +76,17 @@ BOOL	game_sv_Single::OnTouch			(u16 eid_who, u16 eid_what, BOOL bForced)
 	CSE_Abstract*		e_who	= get_entity_from_eid(eid_who);		VERIFY(e_who	);
 	CSE_Abstract*		e_what	= get_entity_from_eid(eid_what);	VERIFY(e_what	);
 
-	if (ai().get_alife()) {
+	if (ai().get_alife()) 
+	{
 		CSE_ALifeInventoryItem	*l_tpALifeInventoryItem	= smart_cast<CSE_ALifeInventoryItem*>	(e_what);
 		CSE_ALifeDynamicObject	*l_tpDynamicObject		= smart_cast<CSE_ALifeDynamicObject*>	(e_who);
 		
-		if	(
-				l_tpALifeInventoryItem && 
-				l_tpDynamicObject && 
-				ai().alife().graph().level().object(l_tpALifeInventoryItem->base()->ID,true) &&
-				ai().alife().objects().object(e_who->ID,true) &&
-				ai().alife().objects().object(e_what->ID,true)
-			)
+		if	(l_tpALifeInventoryItem && l_tpDynamicObject && ai().alife().graph().level().object(l_tpALifeInventoryItem->base()->ID,true) && ai().alife().objects().object(e_who->ID,true) && ai().alife().objects().object(e_what->ID,true))
 			alife().graph().attach	(*e_who,l_tpALifeInventoryItem,l_tpDynamicObject->m_tGraphID,false,false);
 #ifdef DEBUG
 		else
-			if (psAI_Flags.test(aiALife)) {
+			if (psAI_Flags.test(aiALife)) 
+			{
 				Msg				("Cannot attach object [%s][%s][%d] to object [%s][%s][%d]",e_what->name_replace(),*e_what->s_name,e_what->ID,e_who->name_replace(),*e_who->s_name,e_who->ID);
 			}
 #endif
@@ -128,14 +109,12 @@ void game_sv_Single::OnDetach(u16 eid_who, u16 eid_what)
 		if (!l_tpDynamicObject)
 			return;
 		
-		if	(
-				ai().alife().objects().object(e_who->ID,true) && 
-				!ai().alife().graph().level().object(l_tpALifeInventoryItem->base()->ID,true) && 
-				ai().alife().objects().object(e_what->ID,true)
-			)
+		if	(ai().alife().objects().object(e_who->ID,true) && !ai().alife().graph().level().object(l_tpALifeInventoryItem->base()->ID,true) && ai().alife().objects().object(e_what->ID,true))
 			alife().graph().detach(*e_who,l_tpALifeInventoryItem,l_tpDynamicObject->m_tGraphID,false,false);
-		else {
-			if (!ai().alife().objects().object(e_what->ID,true)) {
+		else 
+		{
+			if (!ai().alife().objects().object(e_what->ID,true)) 
+			{
 				u16				id = l_tpALifeInventoryItem->base()->ID_Parent;
 				l_tpALifeInventoryItem->base()->ID_Parent	= 0xffff;
 				
@@ -150,7 +129,8 @@ void game_sv_Single::OnDetach(u16 eid_who, u16 eid_what)
 			}
 #ifdef DEBUG
 			else
-				if (psAI_Flags.test(aiALife)) {
+				if (psAI_Flags.test(aiALife)) 
+				{
 					Msg			("Cannot detach object [%s][%s][%d] from object [%s][%s][%d]",l_tpALifeInventoryItem->base()->name_replace(),*l_tpALifeInventoryItem->base()->s_name,l_tpALifeInventoryItem->base()->ID,l_tpDynamicObject->base()->name_replace(),l_tpDynamicObject->base()->s_name,l_tpDynamicObject->ID);
 				}
 #endif
@@ -158,17 +138,9 @@ void game_sv_Single::OnDetach(u16 eid_who, u16 eid_what)
 	}
 }
 
-
 void	game_sv_Single::Update			()
 {
 	inherited::Update	();
-/*	switch(phase) 	{
-		case GAME_PHASE_PENDING : {
-			OnRoundStart();
-			switch_Phase(GAME_PHASE_INPROGRESS);
-			break;
-		}
-	}*/
 }
 
 ALife::_TIME_ID game_sv_Single::GetStartGameTime	()
@@ -247,8 +219,7 @@ bool game_sv_Single::load_game					(NET_Packet &net_packet, ClientID sender)
 }
 
 void game_sv_Single::reload_game				(NET_Packet &net_packet, ClientID sender)
-{
-}
+{}
 
 void game_sv_Single::switch_distance			(NET_Packet &net_packet, ClientID sender)
 {

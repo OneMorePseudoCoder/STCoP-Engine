@@ -33,12 +33,12 @@ bool IC CheckObjectSize(IKinematics* K)
 
 CPHSkeleton::CPHSkeleton()
 {
-		Init();
+	Init();
 }
 
 CPHSkeleton::~CPHSkeleton()
 {
-		ClearUnsplited();
+	ClearUnsplited();
 }
 
 void CPHSkeleton::RespawnInit()
@@ -78,6 +78,7 @@ bool CPHSkeleton::Spawn(CSE_Abstract *D)
 		source=smart_cast<CPHSkeleton*>(Level().Objects.net_Find(po->source_id));
 		VERIFY(source);
 	}
+
 	if(source)
 	{
 		
@@ -137,43 +138,34 @@ bool CPHSkeleton::Spawn(CSE_Abstract *D)
 
 void CPHSkeleton::Load(LPCSTR section)
 {
-		existence_time= pSettings->r_u32(section,"remove_time")*1000;
+	existence_time= pSettings->r_u32(section,"remove_time")*1000;
 }
 
 void CPHSkeleton::Update(u32 dt)
 {
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	CPhysicsShell* pPhysicsShell=obj->PPhysicsShell();
-	if ( pPhysicsShell && pPhysicsShell->isFractured()) //!ai().get_alife() &&
+	if (pPhysicsShell && pPhysicsShell->isFractured())
 	{
 		PHSplit();
 	}
 
-	if(b_removing&&
-		Device.dwTimeGlobal>m_remove_time&&
-		//(Device.dwTimeGlobal-m_unsplit_time)*phTimefactor>remove_time&&
-		m_unsplited_shels.empty()) 
+	if (b_removing && Device.dwTimeGlobal>m_remove_time && m_unsplited_shels.empty()) 
 	{
-		if (obj->Local())	obj->DestroyObject	();
-/*
-		NET_Packet			P;
-		obj->u_EventGen		(P,GE_DESTROY,obj->ID());
-#ifdef DEBUG
-		Msg					("ge_destroy: [%d] - %s",obj->ID(),*(obj->cName()));
-#endif
-		if (obj->Local())	obj->u_EventSend			(P);
-*/
+		if (obj->Local())	
+			obj->DestroyObject	();
 		b_removing=false;
 	}
-
 }
+
 void CPHSkeleton::SaveNetState(NET_Packet& P)
 {
 
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	CPhysicsShell* pPhysicsShell=obj->PPhysicsShell();
 	IKinematics* K	=smart_cast<IKinematics*>(obj->Visual());
-	if(pPhysicsShell&&pPhysicsShell->isActive())			m_flags.set(CSE_PHSkeleton::flActive,pPhysicsShell->isEnabled());
+	if(pPhysicsShell&&pPhysicsShell->isActive())			
+		m_flags.set(CSE_PHSkeleton::flActive,pPhysicsShell->isEnabled());
 
 	P.w_u8 (m_flags.get());
 	if(K)
@@ -199,13 +191,23 @@ void CPHSkeleton::SaveNetState(NET_Packet& P)
 		SPHNetState state;
 		obj->PHGetSyncItem(i)->get_State(state);
 		Fvector& p=state.position;
-		if(p.x<min.x)min.x=p.x;
-		if(p.y<min.y)min.y=p.y;
-		if(p.z<min.z)min.z=p.z;
+		if(p.x<min.x)
+			min.x=p.x;
+	
+		if(p.y<min.y)
+			min.y=p.y;
+	
+		if(p.z<min.z)
+			min.z=p.z;
 
-		if(p.x>max.x)max.x=p.x;
-		if(p.y>max.y)max.y=p.y;
-		if(p.z>max.z)max.z=p.z;
+		if(p.x>max.x)
+			max.x=p.x;
+	
+		if(p.y>max.y)
+			max.y=p.y;
+	
+		if(p.z>max.z)
+			max.z=p.z;
 	}
 
 	min.sub(2.f*EPS_L);
@@ -243,6 +245,7 @@ void CPHSkeleton::LoadNetState(NET_Packet& P)
 		obj->PHGetSyncItem(i)->set_State(state);
 	}
 }
+
 void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* po)
 {
 	VERIFY( po );
@@ -269,7 +272,6 @@ void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* po)
 	m_flags.set(CSE_PHSkeleton::flSavedData,FALSE);
 }
 
-
 void CPHSkeleton::ClearUnsplited()
 {
 	SHELL_PAIR_I i=m_unsplited_shels.begin(),e=m_unsplited_shels.end();
@@ -283,7 +285,8 @@ void CPHSkeleton::ClearUnsplited()
 
 void CPHSkeleton::SpawnCopy()
 {
-	if(PPhysicsShellHolder()->Local()) {
+	if(PPhysicsShellHolder()->Local()) 
+	{
 		CSE_Abstract*				D	= F_entity_Create("ph_skeleton_object");//*cNameSect()
 		R_ASSERT					(D);
 		/////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,27 +304,21 @@ void CPHSkeleton::SpawnCopy()
 		F_entity_Destroy	(D);
 	}
 }
+
 PHSHELL_PAIR_VECTOR new_shells;
 void CPHSkeleton::PHSplit()
 {
-
-
 	u16 spawned=u16(m_unsplited_shels.size());
 	PPhysicsShellHolder()->PPhysicsShell()->SplitProcess(m_unsplited_shels);
 	u16 i=u16(m_unsplited_shels.size())-spawned;
-	//	Msg("%o,spawned,%d",this,i);
-	for(;i;--i) SpawnCopy();
-
-
+	for(;i;--i) 
+		SpawnCopy();
 }
-
-
-
 
 void CPHSkeleton::UnsplitSingle(CPHSkeleton* SO)
 {
-	//Msg("%o,received has %d,",this,m_unsplited_shels.size());
-	if (0==m_unsplited_shels.size())	return;	//. hack
+	if (0==m_unsplited_shels.size())	
+		return;
 	CPhysicsShellHolder* obj = PPhysicsShellHolder();
 	CPhysicsShellHolder* O =SO->PPhysicsShellHolder();
 	VERIFY2(m_unsplited_shels.size(),"NO_SHELLS !!");
@@ -345,7 +342,6 @@ void CPHSkeleton::UnsplitSingle(CPHSkeleton* SO)
 	mask0.invert();
 	mask1.and(mask0.flags);//second part mask
 
-
 	newKinematics->LL_SetBoneRoot		(split_bone);
 	VERIFY2(mask1.flags,"mask1 -Zero");
 	newKinematics->LL_SetBonesVisible	(mask1.flags);
@@ -360,13 +356,14 @@ void CPHSkeleton::UnsplitSingle(CPHSkeleton* SO)
 
 	newPhysicsShell->ObjectInRoot().identity();
 
-	if(!newPhysicsShell->isEnabled())O->processing_deactivate();
+	if (!newPhysicsShell->isEnabled())
+		O->processing_deactivate();
+
 	newPhysicsShell->set_PhysicsRefObject(O);
 	
 	m_unsplited_shels.erase(m_unsplited_shels.begin());
 	O->setVisible(TRUE);
 	O->setEnabled(TRUE);
-
 
 	SO->CopySpawnInit		();
 	CopySpawnInit			();
@@ -377,14 +374,11 @@ void CPHSkeleton::UnsplitSingle(CPHSkeleton* SO)
 
 void CPHSkeleton::CopySpawnInit()
 {
-	if(ReadyForRemove())
-			SetAutoRemove();
+	if (ReadyForRemove())
+		SetAutoRemove();
 }
 
-
-
-
-void CPHSkeleton::SetAutoRemove(u32 time/*=CSE_PHSkeleton::existence_time*/)
+void CPHSkeleton::SetAutoRemove(u32 time)
 {
 	b_removing=true;
 	m_remove_time=Device.dwTimeGlobal+iFloor(time/phTimefactor);
@@ -392,29 +386,28 @@ void CPHSkeleton::SetAutoRemove(u32 time/*=CSE_PHSkeleton::existence_time*/)
 	PPhysicsShellHolder()->SheduleRegister();
 }
 
-static bool removable;//for RecursiveBonesCheck
+static bool removable;
 void CPHSkeleton::RecursiveBonesCheck(u16 id)
 {
-	if(!removable) return;
+	if(!removable) 
+		return;
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	IKinematics* K		= smart_cast<IKinematics*>(obj->Visual());
 	CBoneData& BD		= K->LL_GetData(u16(id));
-	//////////////////////////////////////////
 	Flags64 mask;
 	mask.assign(K->LL_GetBonesVisible());
-	///////////////////////////////////////////
-	if(
-		mask.is(1ui64<<(u64)id)&& 
-		!(BD.shape.flags.is(SBoneShape::sfRemoveAfterBreak))
-		) {
-			removable = false;
-			return;
-		}
-		///////////////////////////////////////////////
-		for (vecBonesIt it=BD.children.begin(); BD.children.end() != it; ++it){
-			RecursiveBonesCheck		((*it)->GetSelfID());
-		}
+	if(mask.is(1ui64<<(u64)id) && !(BD.shape.flags.is(SBoneShape::sfRemoveAfterBreak))) 
+	{
+		removable = false;
+		return;
+	}
+	///////////////////////////////////////////////
+	for (vecBonesIt it=BD.children.begin(); BD.children.end() != it; ++it)
+	{
+		RecursiveBonesCheck		((*it)->GetSelfID());
+	}
 }
+
 bool CPHSkeleton::ReadyForRemove()
 {
 	removable=true;
@@ -422,9 +415,9 @@ bool CPHSkeleton::ReadyForRemove()
 	RecursiveBonesCheck(smart_cast<IKinematics*>(obj->Visual())->LL_GetBoneRoot());
 	return removable;
 }
+
 void CPHSkeleton::InitServerObject(CSE_Abstract * D)
 {
-
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	CSE_ALifeDynamicObject		*l_tpALifeDynamicObject = smart_cast<CSE_ALifeDynamicObject*>(D);
 	R_ASSERT					(l_tpALifeDynamicObject);
@@ -437,7 +430,7 @@ void CPHSkeleton::InitServerObject(CSE_Abstract * D)
 
 	l_tpALifePhysicObject->source_id	= u16(obj->ID());
 	l_tpALifePhysicObject->startup_animation=m_startup_anim;
-	D->s_name			= "ph_skeleton_object";//*cNameSect()
+	D->s_name			= "ph_skeleton_object";
 	D->set_name_replace	("");
 //.	D->s_gameid			=	u8(GameID());
 	D->s_RP				=	0xff;

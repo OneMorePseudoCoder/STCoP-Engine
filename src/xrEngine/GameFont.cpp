@@ -108,6 +108,7 @@ void CGameFont::Initialize(LPCSTR cShader, LPCSTR cTextureName)
 				}
             }
 		}
+
         // Filling entire character table
         for (u32 i = 0; i < nNumChars; i++)
         {

@@ -24,10 +24,7 @@ using namespace std::placeholders;
 #include <malloc.h>
 #pragma warning(pop)
 
-u32 g_sv_traffic_optimization_level = eto_none;
-
-xrClientData::xrClientData	() :
-	IClient(Device.GetTimerGlobal())
+xrClientData::xrClientData	() : IClient(Device.GetTimerGlobal())
 {
 	ps = NULL;
 	Clear		();
@@ -39,19 +36,14 @@ void	xrClientData::Clear()
 	net_Ready								= FALSE;
 	net_Accepted							= FALSE;
 	net_PassUpdates							= TRUE;
-	m_ping_warn.m_maxPingWarnings			= 0;
-	m_ping_warn.m_dwLastMaxPingWarningTime	= 0;
-	m_admin_rights.m_has_admin_rights		= FALSE;
 };
-
 
 xrClientData::~xrClientData()
 {
 	xr_delete(ps);
 }
 
-
-xrServer::xrServer() : IPureServer(Device.GetTimerGlobal(), g_dedicated_server)
+xrServer::xrServer() : IPureServer(Device.GetTimerGlobal())
 {
 	m_aDelayedPackets.clear();
 	m_last_updates_size	= 0;
@@ -80,12 +72,15 @@ xrServer::~xrServer()
 //--------------------------------------------------------------------
 
 CSE_Abstract*	xrServer::ID_to_entity		(u16 ID)
-{
-	// #pragma todo("??? to all : ID_to_entity - must be replaced to 'game->entity_from_eid()'")	
-	if (0xffff==ID)				return 0;
+{	
+	if (0xffff==ID)				
+		return 0;
+
 	xrS_entities::iterator	I	= entities.find	(ID);
-	if (entities.end()!=I)		return I->second;
-	else						return 0;
+	if (entities.end()!=I)		
+		return I->second;
+	else						
+		return 0;
 }
 
 //--------------------------------------------------------------------
@@ -222,60 +217,6 @@ void _stdcall xrServer::SendGameUpdateTo(IClient* client)
 	Packet.w_begin			(PacketType);
 	game->net_Export_Update	(Packet, xr_client->ID, xr_client->ID);
 	SendTo					(xr_client->ID, Packet, net_flags(FALSE,TRUE));
-}
-
-void xrServer::MakeUpdatePackets()
-{
-	NET_Packet						tmpPacket;			
-	u32								position;
-
-	m_updator.begin_updates			();
-	
-	xrS_entities::iterator I	= entities.begin();
-	xrS_entities::iterator E	= entities.end();
-	for (; I!=E; ++I)
-	{//all entities
-		CSE_Abstract&	Test			= *(I->second);
-
-		if (0==Test.owner)								continue;
-		if (!Test.net_Ready)							continue;
-		if (Test.s_flags.is(M_SPAWN_OBJECT_PHANTOM))	continue;	// Surely: phantom
-		if (!Test.Net_Relevant() )						continue;
-
-		tmpPacket.B.count				= 0;
-		// write specific data
-		{
-			tmpPacket.w_u16					(Test.ID);
-			tmpPacket.w_chunk_open8			(position);
-			Test.UPDATE_Write				(tmpPacket);
-			u32 ObjectSize					= u32(tmpPacket.w_tell()-position)-sizeof(u8);
-			tmpPacket.w_chunk_close8		(position);
-
-			if (ObjectSize == 0)			continue;					
-
-			m_updator.write_update_for		(Test.ID, tmpPacket);
-		}
-	}//all entities
-
-	m_updator.end_updates			(m_update_begin, m_update_end);
-}
-
-void xrServer::SendUpdatePacketsToAll()
-{
-	m_last_updates_size = 0;
-	for (update_iterator_t i = m_update_begin; i != m_update_end; ++i)
-	{
-		NET_Packet& to_send = **i;
-		if (to_send.B.count > 2)
-		{
-			m_last_updates_size += to_send.B.count;
-			SendBroadcast	(GetServerClient()->ID, to_send, net_flags(FALSE,TRUE));
-			if (Level().IsDemoSave())
-			{
-				Level().SavePacket(to_send);
-			}
-		}
-	}
 }
 
 void xrServer::SendUpdatesToAll()
