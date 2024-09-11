@@ -52,8 +52,6 @@ void setup_lm_screenshot_matrices()
 	//Device.m_pRender->SetCacheXform(Device.mView, Device.mProject);
 	Device.m_bMakeLevelMap = true;
 	Device.curr_lm_fbox = curr_lm_fbox;
-
-
 }
 
 Fbox get_level_screenshot_bound()
@@ -71,6 +69,7 @@ Fbox get_level_screenshot_bound()
 
     return res;
 }
+
 void _InitializeFont(CGameFont*& F, LPCSTR section, u32 flags);
 CDemoRecord::CDemoRecord(const char* name, float life_time) : CEffectorCam(cefDemo, life_time/*,FALSE*/)
 {
@@ -458,8 +457,6 @@ static void update_whith_timescale(Fvector& v, const Fvector& v_delta)
     v.mad(v, v_delta, scale);
 }
 
-
-
 void CDemoRecord::IR_OnKeyboardHold(int dik)
 {
     if (m_b_redirect_input_to_level)
@@ -513,7 +510,6 @@ void CDemoRecord::IR_OnKeyboardHold(int dik)
 
     update_whith_timescale(m_vT, vT_delta);
     update_whith_timescale(m_vR, vR_delta);
-
 }
 
 void CDemoRecord::IR_OnMouseMove(int dx, int dy)

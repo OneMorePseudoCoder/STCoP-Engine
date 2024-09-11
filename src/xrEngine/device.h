@@ -10,11 +10,8 @@
 //class ENGINE_API CGammaControl;
 
 #include "pure.h"
-//#include "hw.h"
 #include "../xrcore/ftimer.h"
 #include "stats.h"
-//#include "shader.h"
-//#include "R_Backend.h"
 
 extern ENGINE_API float VIEWPORT_NEAR;
 #define VIEWPORT_NEAR_HUD 0.01f
@@ -362,9 +359,6 @@ extern ENGINE_API CRenderDevice Device;
 #else
 #define RDEVICE EDevice
 #endif
-
-
-extern ENGINE_API bool g_bBenchmark;
 
 typedef fastdelegate::FastDelegate0<bool> LOADING_EVENT;
 extern ENGINE_API xr_list<LOADING_EVENT> g_loading_events;

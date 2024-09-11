@@ -187,7 +187,6 @@ void IGame_Persistent::OnFrame()
     // Destroy inactive particle systems
     while (ps_destroy.size())
     {
-        // u32 cnt = ps_destroy.size();
         CPS_Instance* psi = ps_destroy.back();
         VERIFY(psi);
         if (psi->Locked())

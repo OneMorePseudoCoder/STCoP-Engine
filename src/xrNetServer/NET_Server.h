@@ -163,9 +163,7 @@ protected:
 	NET_Compressor			net_Compressor;
 
 	PlayersMonitor			net_players;
-	//xrCriticalSection		csPlayers;
-	//xr_vector<IClient*>	net_Players;
-	//xr_vector<IClient*>	net_Players_disconnected;
+
 	IClient*				SV_Client;
 
 	int						psNET_Port;	
@@ -183,7 +181,6 @@ protected:
 	// Statistic
 	IServerStatistic		stats;
 	CTimer*					device_timer;
-	BOOL					m_bDedicated;
 
 	IClient*				ID_to_client		(ClientID ID, bool ScanAll = false);
 	
@@ -230,17 +227,10 @@ public:
 	virtual void			client_Replicate	()				= 0;			// replicate current state to client
 	virtual void			client_Destroy		(IClient* C)	= 0;			// destroy client info
 
-	//IC u32					client_Count		()			{ return net_Players.size(); }
-	//IC IClient*				client_Get			(u32 num)	{ return net_Players[num]; }
-
-	//IC u32					disconnected_client_Count		()			{ return net_Players_disconnected.size(); }
-	//IC IClient*				disconnected_client_Get			(u32 num)	{ return net_Players_disconnected[num]; }
-	
 	BOOL					HasBandwidth			(IClient* C);
 
 	IC int					GetPort					()				{ return psNET_Port; };
 			bool			GetClientAddress		(ClientID ID, ip_address& Address, DWORD* pPort = NULL);	
-//			bool			DisconnectClient		(IClient* C);
 	virtual bool			DisconnectClient		(IClient* C, LPCSTR Reason);
 	virtual bool			DisconnectAddress		(const ip_address& Address, LPCSTR reason);
 	virtual void			BanClient				(IClient* C, u32 BanTime);

@@ -10,26 +10,34 @@ void CFrustum::fplane::cache()
     {
         if (positive(n.y))
         {
-            if (positive(n.z)) aabb_overlap_id = 0;
-            else aabb_overlap_id = 1;
+            if (positive(n.z)) 
+				aabb_overlap_id = 0;
+            else 
+				aabb_overlap_id = 1;
         }
         else
         {
-            if (positive(n.z)) aabb_overlap_id = 2;
-            else aabb_overlap_id = 3;
+            if (positive(n.z)) 
+				aabb_overlap_id = 2;
+            else 
+				aabb_overlap_id = 3;
         }
     }
     else
     {
         if (positive(n.y))
         {
-            if (positive(n.z)) aabb_overlap_id = 4;
-            else aabb_overlap_id = 5;
+            if (positive(n.z)) 
+				aabb_overlap_id = 4;
+            else 
+				aabb_overlap_id = 5;
         }
         else
         {
-            if (positive(n.z)) aabb_overlap_id = 6;
-            else aabb_overlap_id = 7;
+            if (positive(n.z)) 
+				aabb_overlap_id = 6;
+            else 
+				aabb_overlap_id = 7;
         }
     }
 }
@@ -145,13 +153,24 @@ EFC_Visible CFrustum::testSAABB(Fvector& c, float r, const float* mM, u32& test_
         if (test_mask&bit)
         {
             float cls = planes[i].classify(c);
-            if (cls > r) { test_mask = 0; return fcvNone; } // none - return
-            if (_abs(cls) >= r) test_mask &= ~bit; // fully - no need to test this plane
+            if (cls > r) 
+			{ 
+				test_mask = 0; 
+				return fcvNone; 
+			}
+
+            if (_abs(cls) >= r)
+				test_mask &= ~bit;
             else
             {
                 EFC_Visible r = AABB_OverlapPlane(planes[i], mM);
-                if (fcvFully == r) test_mask &= ~bit; // fully - no need to test this plane
-                else if (fcvNone == r) { test_mask = 0; return fcvNone; } // none - return
+                if (fcvFully == r) 
+					test_mask &= ~bit;
+                else if (fcvNone == r) 
+				{ 
+					test_mask = 0; 
+					return fcvNone; 
+				}
             }
         }
     }
@@ -205,7 +224,7 @@ void CFrustum::CreateFromPortal(sPoly* poly, Fvector& vPN, Fvector& vBase, Fmatr
     Fplane P;
     P.build_precise((*poly)[0], (*poly)[1], (*poly)[2]);
 
-    if (poly->size()>6)
+    if (poly->size() > 6)
     {
         SimplifyPoly_AABB(poly, P);
         P.build_precise((*poly)[0], (*poly)[1], (*poly)[2]);
@@ -359,7 +378,7 @@ sPoly* CFrustum::ClipPoly(sPoly& S, sPoly& D) const
                     denum = P.n.dotproduct(D);
                     if (denum != 0)
                     {
-                        t = -cls[j] / denum; //VERIFY(t<=1.f && t>=0);
+                        t = -cls[j] / denum;
                         dest->last().mad((*src)[j], D, t);
                         dest->inc();
                     }
@@ -385,7 +404,8 @@ sPoly* CFrustum::ClipPoly(sPoly& S, sPoly& D) const
         }
 
         // here we end up with complete polygon in 'dest' which is inside plane #i
-        if (dest->size() < 3) return 0;
+        if (dest->size() < 3) 
+			return 0;
     }
     return dest;
 }

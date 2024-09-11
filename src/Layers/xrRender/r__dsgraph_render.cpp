@@ -15,7 +15,7 @@ extern float		r_ssaDONTSORT;
 extern float		r_ssaHZBvsTEX;
 extern float		r_ssaGLOD_start,	r_ssaGLOD_end;
 
-ICF float calcLOD	(float ssa/*fDistSq*/, float R)
+ICF float calcLOD	(float ssa, float R)
 {
 	return			_sqrt(clampr((ssa - r_ssaGLOD_end)/(r_ssaGLOD_start-r_ssaGLOD_end),0.f,1.f));
 }
@@ -470,7 +470,6 @@ class hud_transform_helper
 {
 	Fmatrix Pold;
 	Fmatrix FTold;
-	//Fmatrix Vold;
 
 public:
 	hud_transform_helper()
@@ -481,13 +480,10 @@ public:
 		Pold = Device.mProject;
 		FTold = Device.mFullTransform;
 
-		//Vold = Device.mView;
-		//Device.mView.build_camera_dir(Fvector().set(0.f, 0.f, 0.f), Device.vCameraDirection, Device.vCameraTop);
-
 		Device.mProject.build_projection(deg2rad(psHUD_FOV * Device.fFOV /* *Device.fASPECT*/), Device.fASPECT, VIEWPORT_NEAR_HUD, g_pGamePersistent->Environment().CurrentEnv->far_plane);
 
 		Device.mFullTransform.mul(Device.mProject, Device.mView);
-		//RCache.set_xform_view(Device.mView);
+
 		RCache.set_xform_project(Device.mProject);
 
 		RImplementation.rmNear();
@@ -500,8 +496,6 @@ public:
 		// Restore projection
 		Device.mProject = Pold;
 		Device.mFullTransform = FTold;
-		//Device.mView = Vold;
-		//RCache.set_xform_view(Device.mView);
 		RCache.set_xform_project(Device.mProject);
 	}
 };
@@ -658,7 +652,8 @@ void	R_dsgraph_structure::r_dsgraph_render_subspace	(IRender_Sector* _sector, CF
 	ViewBase						= *_frustum;
 	View							= &ViewBase;
 
-	if (_precise_portals && RImplementation.rmPortals)		{
+	if (_precise_portals && RImplementation.rmPortals)		
+	{
 		// Check if camera is too near to some portal - if so force DualRender
 		Fvector box_radius;		box_radius.set	(EPS_L*20,EPS_L*20,EPS_L*20);
 		RImplementation.Sectors_xrc.box_options	(CDB::OPT_FULL_TEST);
@@ -678,7 +673,8 @@ void	R_dsgraph_structure::r_dsgraph_render_subspace	(IRender_Sector* _sector, CF
 	{
 		CSector*	sector		= (CSector*)PortalTraverser.r_sectors[s_it];
 		dxRender_Visual*	root	= sector->root();
-		for (u32 v_it=0; v_it<sector->r_frustums.size(); v_it++)	{
+		for (u32 v_it=0; v_it<sector->r_frustums.size(); v_it++)	
+		{
 			set_Frustum			(&(sector->r_frustums[v_it]));
 			add_Geometry		(root);
 		}
@@ -689,13 +685,7 @@ void	R_dsgraph_structure::r_dsgraph_render_subspace	(IRender_Sector* _sector, CF
 		set_Object						(0);
 
 		// Traverse object database
-		g_SpatialSpace->q_frustum
-			(
-			lstRenderables,
-			ISpatial_DB::O_ORDERED,
-			STYPE_RENDERABLE,
-			ViewBase
-			);
+		g_SpatialSpace->q_frustum(lstRenderables, ISpatial_DB::O_ORDERED, STYPE_RENDERABLE, ViewBase);
 
 		// Determine visibility for dynamic part of scene
 		for (u32 o_it=0; o_it<lstRenderables.size(); o_it++)
@@ -741,7 +731,8 @@ void	R_dsgraph_structure::r_dsgraph_render_R1_box	(IRender_Sector* _S, Fbox& BB,
 		// Visual is 100% visible - simply add it
 		xr_vector<dxRender_Visual*>::iterator I,E;	// it may be usefull for 'hierrarhy' visuals
 		
-		switch (V->Type) {
+		switch (V->Type) 
+		{
 		case MT_HIERRARHY:
 			{
 				// Add all children

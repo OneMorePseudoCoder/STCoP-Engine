@@ -164,7 +164,6 @@ u32 CTheoraSurface::Width(bool bRealSize)
         return m_rgb->t_info.frame_width;
     else
         return btwPow2_Ceil((u32)m_rgb->t_info.frame_width);
-
 }
 
 u32 CTheoraSurface::Height(bool bRealSize)
@@ -197,7 +196,6 @@ void CTheoraSurface::DecompressFrame(u32* data, u32 _width, int& _pos)
         {
             for (u32 h = 0; h < height; ++h)
             {
-
                 u32 uv_stride_add = yuv.uv_stride * (h >> 1);
                 u8* Y = yuv.y + yuv.y_stride * h;
                 u8* U = yuv.u + uv_stride_add;
@@ -228,13 +226,11 @@ void CTheoraSurface::DecompressFrame(u32* data, u32 _width, int& _pos)
         }
         else
         {
-
             u32 buff_step = width + _width;
             u32 buff_double_step = buff_step << 1;
 
             for (u32 y_h = 0, uv_h = 0; y_h < height; y_h += 2, ++uv_h, pos += buff_double_step)
             {
-
                 u32 uv_stride_add = yuv.uv_stride * uv_h;
                 u8* Y0 = yuv.y + yuv.y_stride * y_h;
                 u8* U = yuv.u + uv_stride_add;
@@ -243,7 +239,6 @@ void CTheoraSurface::DecompressFrame(u32* data, u32 _width, int& _pos)
 
                 for (u32 y_w = 0, uv_w = 0; y_w < width; y_w += 2, ++uv_w)
                 {
-
                     u32 y00 = Y0[y_w] << 16;
                     u32 y01 = Y0[y_w + 1] << 16;
 
@@ -330,8 +325,10 @@ void CTheoraSurface::write_sdl_video()
     int crop_offset;
     // Lock SDL_yuv_overlay
     if ( SDL_MUSTLOCK(sdl_screen) )
-        if ( SDL_LockSurface(sdl_screen) < 0 ) return;
-    if (SDL_LockYUVOverlay(sdl_yuv_overlay) < 0) return;
+        if ( SDL_LockSurface(sdl_screen) < 0 ) 
+			return;
+    if (SDL_LockYUVOverlay(sdl_yuv_overlay) < 0) 
+		return;
     // let's draw the data (*yuv[3]) on a SDL screen (*screen)
     // deal with border stride
     // reverse u and v for SDL

@@ -39,6 +39,7 @@ const Fvector hemi_1[HEMI1_VERTS] =
     {0.587788, 0.000000, -0.809013},
     {0.951057, 0.000000, -0.309017},
 };
+
 const u16 hemi_1v[HEMI1_FACES * 3] =
 {
     0, 1, 2,

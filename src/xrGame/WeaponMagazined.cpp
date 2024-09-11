@@ -59,6 +59,15 @@ void CWeaponMagazined::net_Destroy()
 	inherited::net_Destroy();
 }
 
+BOOL CWeaponMagazined::net_Spawn(CSE_Abstract* DC)
+{
+	BOOL bRes = inherited::net_Spawn(DC);
+	CSE_ALifeItemWeaponMagazined* const wpn = smart_cast<CSE_ALifeItemWeaponMagazined*>(DC);
+	m_iCurFireMode = wpn->m_u8CurFireMode;
+	SetQueueSize(GetCurrentFireMode());
+	return bRes;
+}
+
 void CWeaponMagazined::Load	(LPCSTR section)
 {
 	inherited::Load		(section);
@@ -264,7 +273,7 @@ bool CWeaponMagazined::TryReload()
 			m_pCurrentAmmo = smart_cast<CWeaponAmmo*>(m_pInventory->GetAny( m_ammoTypes[i].c_str() ));
 			if(m_pCurrentAmmo) 
 			{ 
-				m_ammoType			= i; 
+				m_set_next_ammoType_on_reload = i; 
 				SetPending			(TRUE);
 				SwitchState			(eReload);
 				return				true;

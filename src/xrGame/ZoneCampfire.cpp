@@ -3,22 +3,9 @@
 #include "ParticlesObject.h"
 #include "GamePersistent.h"
 #include "../xrEngine/LightAnimLibrary.h"
-/*
-CZoneCampfire* g_zone = NULL;
-void turn_zone()
-{
-	if(!g_zone) return;
-	if(g_zone->is_on())
-		g_zone->turn_off_script();
-	else
-		g_zone->turn_on_script();
-}
-*/
-CZoneCampfire::CZoneCampfire()
-:m_pDisabledParticles(NULL),m_pEnablingParticles(NULL),m_turned_on(true),m_turn_time(0)
-{
-//.	g_zone = this;
-}
+
+CZoneCampfire::CZoneCampfire() : m_pDisabledParticles(NULL), m_pEnablingParticles(NULL), m_turned_on(true), m_turn_time(0)
+{}
 
 CZoneCampfire::~CZoneCampfire()
 {
@@ -61,7 +48,6 @@ void CZoneCampfire::GoDisabledState()
 	m_pDisabledParticles->UpdateParent	(XFORM(),zero_vel);
 	m_pDisabledParticles->Play			(false);
 	
-	
 	str = pSettings->r_string		(cNameSect(),"disabled_sound");
 	m_disabled_sound.create			(str, st_Effect,sg_SourceType);
 	m_disabled_sound.play_at_pos	(0, Position(), true);
@@ -100,7 +86,7 @@ void CZoneCampfire::shedule_Update(u32	dt)
 		UpdateWorkload	(dt);
 	}
 
-	if(m_pIdleParticles)
+	if (m_pIdleParticles)
 	{
 		Fvector vel;
 		vel.mul(GamePersistent().Environment().wind_blast_direction,GamePersistent().Environment().wind_strength_factor);
@@ -109,13 +95,12 @@ void CZoneCampfire::shedule_Update(u32	dt)
 	inherited::shedule_Update(dt);
 }
 
-
 void CZoneCampfire::PlayIdleParticles(bool bIdleLight)
 {
-	if(m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-2000))
+	if (m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-2000))
 	{
 		inherited::PlayIdleParticles(bIdleLight);
-		if(m_pEnablingParticles)
+		if (m_pEnablingParticles)
 		{
 			m_pEnablingParticles->Stop	(FALSE);
 			CParticlesObject::Destroy	(m_pEnablingParticles);
@@ -125,7 +110,7 @@ void CZoneCampfire::PlayIdleParticles(bool bIdleLight)
 
 void CZoneCampfire::StopIdleParticles(bool bIdleLight)
 {
-	if(m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-500))
+	if (m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-500))
 		inherited::StopIdleParticles(bIdleLight);
 }
 
@@ -149,7 +134,8 @@ void CZoneCampfire::UpdateWorkload(u32 dt)
 			k = 1.0f-k;
 			PlayIdleParticles	(true);
 			StartIdleLight		();
-		}else
+		}
+		else
 		{
 			StopIdleParticles	(false);
 		}
@@ -158,29 +144,25 @@ void CZoneCampfire::UpdateWorkload(u32 dt)
 		{
 			VERIFY(m_pIdleLAnim);
 			int frame = 0;
-			u32 clr		= m_pIdleLAnim->CalculateBGR(Device.fTimeGlobal,frame);
-			Fcolor		fclr;
-			fclr.set	(	((float)color_get_B(clr)/255.f)*k,
-							((float)color_get_G(clr)/255.f)*k,
-							((float)color_get_R(clr)/255.f)*k,
-							1.f);
+			u32 clr	= m_pIdleLAnim->CalculateBGR(Device.fTimeGlobal,frame);
+			Fcolor fclr;
+			fclr.set(((float)color_get_B(clr)/255.f)*k, ((float)color_get_G(clr)/255.f)*k, ((float)color_get_R(clr)/255.f)*k, 1.f);
 			
 			float range = m_fIdleLightRange + 0.25f*::Random.randF(-1.f,1.f);
-			range	*= k;
+			range *= k;
 
 			m_pIdleLight->set_range	(range);
 			m_pIdleLight->set_color	(fclr);
 		}
-
-
-	}else
-	if(m_turn_time)
+	}
+	else if(m_turn_time)
 	{
 		m_turn_time = 0;
-		if(m_turned_on)
+		if (m_turned_on)
 		{
 			PlayIdleParticles(true);
-		}else
+		}
+		else
 		{
 			StopIdleParticles(true);
 		}

@@ -809,7 +809,8 @@ void CWeapon::net_Destroy()
 	StopLight();
 	Light_Destroy();
 
-	while (m_magazine.size()) m_magazine.pop_back();
+	m_magazine.clear();
+	m_magazine.shrink_to_fit();
 }
 
 BOOL CWeapon::IsUpdating()
@@ -913,7 +914,6 @@ void CWeapon::load(IReader& input_packet)
 	load_data(iAmmoElapsed, input_packet);
 	load_data(m_cur_scope, input_packet);
 	load_data(m_flagsAddOnState, input_packet);
-	UpdateAddonsVisibility();
 	load_data(m_ammoType, input_packet);
 	load_data(m_zoom_params.m_bIsZoomModeNow, input_packet);
 

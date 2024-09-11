@@ -355,13 +355,15 @@ float CGameFont::SizeOf_(const wide_char* wsStr)
     float X = 0.0f, fDelta = 0.0f;
 
     if (len)
+	{
         for (unsigned int j = 1; j <= len; j++)
         {
-        fDelta = GetCharTC(wsStr[j]).z - 2;
-        if (IsNeedSpaceCharacter(wsStr[j]))
-            fDelta += fXStep;
-        X += fDelta;
+			fDelta = GetCharTC(wsStr[j]).z - 2;
+			if (IsNeedSpaceCharacter(wsStr[j]))
+				fDelta += fXStep;
+			X += fDelta;
         }
+	}
 
     return (X * vInterval.x);
 }

@@ -317,6 +317,7 @@ CCC_LoadCFG_custom::CCC_LoadCFG_custom(LPCSTR cmd) : CCC_LoadCFG(cmd)
 {
     xr_strcpy(m_cmd, cmd);
 };
+
 bool CCC_LoadCFG_custom::allow(LPCSTR cmd)
 {
     return (cmd == strstr(cmd, m_cmd));
@@ -736,7 +737,7 @@ void CCC_Register()
     CMD3(CCC_Mask, "rs_detail", &psDeviceFlags, rsDetails);
     //CMD4(CCC_Float, "r__dtex_range", &r__dtex_range, 5, 175 );
 
-    // CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS );
+    CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS);
     CMD3(CCC_Mask, "rs_render_statics", &psDeviceFlags, rsDrawStatic);
     CMD3(CCC_Mask, "rs_render_dynamics", &psDeviceFlags, rsDrawDynamic);
 #endif
@@ -846,12 +847,6 @@ void CCC_Register()
     CMD4(CCC_Float, "adjust_delta_rot", &adj_delta_rot, -10.f, 10.f);
 
     CMD1(CCC_ExclusiveMode, "input_exclusive_mode");
-
-    extern int g_svTextConsoleUpdateRate;
-    CMD4(CCC_Integer, "sv_console_update_rate", &g_svTextConsoleUpdateRate, 1, 100);
-
-    extern int g_svDedicateServerUpdateReate;
-    CMD4(CCC_Integer, "sv_dedicated_server_update_rate", &g_svDedicateServerUpdateReate, 1, 1000);
 
     CMD1(CCC_HideConsole, "hide");
 

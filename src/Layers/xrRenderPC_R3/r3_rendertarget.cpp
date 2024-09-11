@@ -314,6 +314,11 @@ CRenderTarget::CRenderTarget		()
 		b_bloom_msaa			= xr_new<CBlender_bloom_build_msaa>		();
 		b_postprocess_msaa	= xr_new<CBlender_postprocess_msaa>	();
 	}
+	else
+	{
+        b_bloom_msaa = nullptr;
+        b_postprocess_msaa = nullptr;		
+	}
 	b_luminance				= xr_new<CBlender_luminance>			();
 	b_combine				= xr_new<CBlender_combine>				();
 	b_ssao					= xr_new<CBlender_SSAO_noMSAA>			();
@@ -398,12 +403,12 @@ CRenderTarget::CRenderTarget		()
 		// generic(LDR) RTs
 		rt_Generic_0.create		(r2_RT_generic0, vp_params_main_secondary,D3DFMT_A8R8G8B8, 1		);
 		rt_Generic_1.create		(r2_RT_generic1, vp_params_main_secondary,D3DFMT_A8R8G8B8, 1		);
+		rt_Generic.create	 	(r2_RT_generic, vp_params_main_secondary,   D3DFMT_A8R8G8B8, 1		);
 		rt_secondVP.create		(r2_RT_secondVP, RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, MAIN_VIEWPORT),D3DFMT_A8R8G8B8, 1		); //--#SM+#-- +SecondVP+
 		if( RImplementation.o.dx10_msaa )
 		{
 			rt_Generic_0_r.create(r2_RT_generic0_r, vp_params_main_secondary,D3DFMT_A8R8G8B8, SampleCount	);
 			rt_Generic_1_r.create(r2_RT_generic1_r, vp_params_main_secondary,D3DFMT_A8R8G8B8, SampleCount		);
-			rt_Generic.create	 (r2_RT_generic, vp_params_main_secondary,   D3DFMT_A8R8G8B8, 1		);
 		}
 		//	Igor: for volumetric lights
 		//rt_Generic_2.create			(r2_RT_generic2,w,h,D3DFMT_A8R8G8B8		);
@@ -1033,33 +1038,34 @@ CRenderTarget::~CRenderTarget	()
 	xr_delete					(b_accum_direct			);
 	xr_delete					(b_ssao					);
 
-   if( RImplementation.o.dx10_msaa )
-   {
-      int bound = RImplementation.o.dx10_msaa_samples;
+	if (RImplementation.o.dx10_msaa)
+	{
+		int bound = RImplementation.o.dx10_msaa_samples;
 
-      if( RImplementation.o.dx10_msaa_opt )
-         bound = 1;
+		if (RImplementation.o.dx10_msaa_opt)
+			bound = 1;
 
-	  for( int i = 0; i < bound; ++i )
-	  {
-		  xr_delete					(b_combine_msaa[i]);
-		  xr_delete					(b_accum_direct_msaa[i]);
-		  xr_delete					(b_accum_mask_msaa[i]);
-		  xr_delete					(b_accum_direct_volumetric_msaa[i]);
-		  //xr_delete					(b_accum_direct_volumetric_sun_msaa[i]);
-		  xr_delete					(b_accum_spot_msaa[i]);
-		  xr_delete					(b_accum_volumetric_msaa[i]);
-		  xr_delete					(b_accum_point_msaa[i]);
-		  xr_delete					(b_accum_reflected_msaa[i]);
-		  xr_delete					(b_ssao_msaa[i]);
-	  }
-   }
-    xr_delete					(b_cut					);
-	xr_delete					(b_accum_mask			);
-	xr_delete					(b_occq					);
+		for (int i = 0; i < bound; ++i)
+		{
+			xr_delete(b_combine_msaa[i]);
+			xr_delete(b_accum_direct_msaa[i]);
+			xr_delete(b_accum_mask_msaa[i]);
+			xr_delete(b_accum_direct_volumetric_msaa[i]);
+			xr_delete(b_accum_spot_msaa[i]);
+			xr_delete(b_accum_volumetric_msaa[i]);
+			xr_delete(b_accum_point_msaa[i]);
+			xr_delete(b_accum_reflected_msaa[i]);
+			xr_delete(b_ssao_msaa[i]);
+		}
+		xr_delete(b_postprocess_msaa);
+		xr_delete(b_bloom_msaa);
+	}
+    xr_delete(b_cut);
+	xr_delete(b_accum_mask);
+	xr_delete(b_occq);
 }
 
-void CRenderTarget::reset_light_marker( bool bResetStencil)
+void CRenderTarget::reset_light_marker(bool bResetStencil)
 {
 	dwLightMarkerID = 5;
 	if (bResetStencil)
@@ -1087,7 +1093,6 @@ void CRenderTarget::increment_light_marker()
 {
 	dwLightMarkerID += 2;
 
-	//if (dwLightMarkerID>10)
 	const u32 iMaxMarkerValue = RImplementation.o.dx10_msaa ? 127 : 255;
 	
 	if ( dwLightMarkerID > iMaxMarkerValue )
@@ -1103,7 +1108,8 @@ bool CRenderTarget::need_to_render_sunshafts()
 		CEnvDescriptor&	E = *g_pGamePersistent->Environment().CurrentEnv;
 		float fValue = E.m_fSunShaftsIntensity;
 		//	TODO: add multiplication by sun color here
-		if (fValue<0.0001) return false;
+		if (fValue<0.0001) 
+			return false;
 	}
 
 	return true;
@@ -1119,16 +1125,13 @@ bool CRenderTarget::use_minmax_sm_this_frame()
 		return need_to_render_sunshafts();
 	case CRender::MMSM_AUTODETECT:
 		{
-			u32 dwScreenArea = 
-				HW.m_ChainDesc.BufferDesc.Width*
-				HW.m_ChainDesc.BufferDesc.Height;
+			u32 dwScreenArea = HW.m_ChainDesc.BufferDesc.Width * HW.m_ChainDesc.BufferDesc.Height;
 
-			if ( ( dwScreenArea >=RImplementation.o.dx10_minmax_sm_screenarea_threshold))
+			if ((dwScreenArea >= RImplementation.o.dx10_minmax_sm_screenarea_threshold))
 				return need_to_render_sunshafts();
 			else 
 				return false;
 		}
-		
 	default:
 		return false;
 	}

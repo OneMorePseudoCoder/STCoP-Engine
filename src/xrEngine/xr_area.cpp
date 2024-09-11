@@ -14,10 +14,20 @@ extern BOOL g_bLoaded;
 
 void IGame_Level::SoundEvent_Register(ref_sound_data_ptr S, float range)
 {
-    if (!g_bLoaded) return;
-    if (!S) return;
-    if (S->g_object && S->g_object->getDestroy()) { S->g_object = 0; return; }
-    if (0 == S->feedback) return;
+    if (!g_bLoaded) 
+		return;
+
+    if (!S) 
+		return;
+
+    if (S->g_object && S->g_object->getDestroy()) 
+	{ 
+		S->g_object = 0; 
+		return; 
+	}
+
+    if (0 == S->feedback) 
+		return;
 
     clamp(range, 0.1f, 500.f);
 
@@ -80,13 +90,7 @@ void IGame_Level::SoundEvent_Dispatch()
         VERIFY(D.dest && D.source);
         if (D.source->feedback)
         {
-            D.dest->feel_sound_new(
-                D.source->g_object,
-                D.source->g_type,
-                D.source->g_userdata,
-                D.source->feedback->get_params()->position,
-                D.power
-            );
+            D.dest->feel_sound_new(D.source->g_object, D.source->g_type, D.source->g_userdata, D.source->feedback->get_params()->position, D.power);
         }
         snd_Events.pop_back();
     }
@@ -108,13 +112,13 @@ void IGame_Level::SoundEvent_OnDestDestroy(Feel::Sound* obj)
         Feel::Sound* m_obj;
     };
 
-    snd_Events.erase(std::remove_if(snd_Events.begin(), snd_Events.end(), rem_pred(obj)),
-                     snd_Events.end());
+    snd_Events.erase(std::remove_if(snd_Events.begin(), snd_Events.end(), rem_pred(obj)), snd_Events.end());
 }
 
 void __stdcall _sound_event(ref_sound_data_ptr S, float range)
 {
-    if (g_pGameLevel && S && S->feedback) g_pGameLevel->SoundEvent_Register(S, range);
+    if (g_pGameLevel && S && S->feedback) 
+		g_pGameLevel->SoundEvent_Register(S, range);
 }
 
 //----------------------------------------------------------------------
@@ -126,9 +130,6 @@ CObjectSpace::CObjectSpace()
     :Lock(MUTEX_PROFILE_ID(CObjectSpace::Lock))
 #endif // PROFILE_CRITICAL_SECTIONS
 {
-#ifdef DEBUG
-    //sh_debug.create ("debug\\wireframe","$null");
-#endif
     m_BoundingVolume.invalidate();
 }
 //----------------------------------------------------------------------
@@ -136,9 +137,6 @@ CObjectSpace::~CObjectSpace()
 {
     Sound->set_geometry_occ(NULL);
     Sound->set_handler(NULL);
-#ifdef DEBUG
-    //sh_debug.destroy ();
-#endif
 }
 //----------------------------------------------------------------------
 
@@ -172,15 +170,7 @@ int CObjectSpace::GetNearest(xr_vector<ISpatial*>& q_spatial, xr_vector<CObject*
 //----------------------------------------------------------------------
 IC int CObjectSpace::GetNearest(xr_vector<CObject*>& q_nearest, const Fvector& point, float range, CObject* ignore_object)
 {
-    return (
-               GetNearest(
-                   r_spatial,
-                   q_nearest,
-                   point,
-                   range,
-                   ignore_object
-               )
-           );
+    return (GetNearest(r_spatial, q_nearest, point, range, ignore_object));
 }
 
 //----------------------------------------------------------------------
@@ -221,34 +211,4 @@ void CObjectSpace::dbgRender()
 {
     m_pRender->dbgRender();
 }
-/*
-void CObjectSpace::dbgRender()
-{
-R_ASSERT(bDebug);
-
-RCache.set_Shader(sh_debug);
-for (u32 i=0; i<q_debug.boxes.size(); i++)
-{
-Fobb& obb = q_debug.boxes[i];
-Fmatrix X,S,R;
-obb.xform_get(X);
-RCache.dbg_DrawOBB(X,obb.m_halfsize,D3DCOLOR_XRGB(255,0,0));
-S.scale (obb.m_halfsize);
-R.mul (X,S);
-RCache.dbg_DrawEllipse(R,D3DCOLOR_XRGB(0,0,255));
-}
-q_debug.boxes.clear();
-
-for (i=0; i<dbg_S.size(); i++)
-{
-std::pair<Fsphere,u32>& P = dbg_S[i];
-Fsphere& S = P.first;
-Fmatrix M;
-M.scale (S.R,S.R,S.R);
-M.translate_over(S.P);
-RCache.dbg_DrawEllipse(M,P.second);
-}
-dbg_S.clear();
-}
-*/
 #endif

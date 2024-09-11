@@ -575,7 +575,10 @@ void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
 		tNetPacket.r_u8			(ammo_type);
 	
 	if (m_wVersion > 122)
-		a_elapsed_grenades.unpack_from_byte(tNetPacket.r_u8());
+	{
+		tNetPacket.r_u8(a_elapsed_grenades.grenades_count);
+		tNetPacket.r_u8(a_elapsed_grenades.grenades_type);
+	}
 
 	if (m_wVersion > 128)
 		tNetPacket.r_u8(cur_scope);
@@ -589,14 +592,16 @@ void CSE_ALifeItemWeapon::STATE_Write		(NET_Packet	&tNetPacket)
 	tNetPacket.w_u8				(wpn_state);
 	tNetPacket.w_u8				(m_addon_flags.get());
 	tNetPacket.w_u8				(ammo_type);
-	tNetPacket.w_u8				(a_elapsed_grenades.pack_to_byte());
+	tNetPacket.w_u8				(a_elapsed_grenades.grenades_count);
+	tNetPacket.w_u8				(a_elapsed_grenades.grenades_type);
 	tNetPacket.w_u8             (cur_scope);
 }
 
 void CSE_ALifeItemWeapon::OnEvent			(NET_Packet	&tNetPacket, u16 type, u32 time, ClientID sender )
 {
 	inherited::OnEvent			(tNetPacket,type,time,sender);
-	switch (type) {
+	switch (type) 
+	{
 		case GE_WPN_STATE_CHANGE:
 			{			
 				tNetPacket.r_u8	(wpn_state);			

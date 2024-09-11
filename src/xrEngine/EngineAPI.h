@@ -48,8 +48,6 @@ public:
     VTResume* tune_resume;
     void Initialize();
 
-    void InitializeNotDedicated();
-
     void Destroy();
 
     void CreateRendererList();

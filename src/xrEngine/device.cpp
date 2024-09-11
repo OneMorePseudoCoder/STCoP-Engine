@@ -2,13 +2,12 @@
 #include "../xrCDB/frustum.h"
 
 #pragma warning(disable:4995)
-// mmsystem.h
+
 #define MMNOSOUND
 #define MMNOMIDI
 #define MMNOAUX
 #define MMNOMIXER
 #define MMNOJOY
-//#define OPT_Z
 #include <mmsystem.h>
 // d3dx9.h
 #include <d3dx9.h>
@@ -26,12 +25,10 @@
 # include "engine_impl.hpp"
 #endif // #ifdef INGAME_EDITOR
 
-#include "xrSash.h"
 #include "igame_persistent.h"
 
 ENGINE_API CRenderDevice Device;
 ENGINE_API CLoadScreenRenderer load_screen_renderer;
-
 
 ENGINE_API BOOL g_bRendering = FALSE;
 
@@ -92,13 +89,13 @@ void CRenderDevice::End(void)
 #ifdef INGAME_EDITOR
             load_finished = true;
 #endif // #ifdef INGAME_EDITOR
-            //Gamma.Update ();
             m_pRender->updateGamma();
 
-            if (precache_light) precache_light->set_active(false);
-            if (precache_light) precache_light.destroy();
+            if (precache_light) 
+				precache_light->set_active(false);
+            if (precache_light) 
+				precache_light.destroy();
             ::Sound->set_master_volume(1.f);
-            // pApp->destroy_loading_shaders ();
 
             m_pRender->ResourcesDestroyNecessaryTextures();
             Memory.mem_compact();
@@ -125,8 +122,6 @@ void CRenderDevice::End(void)
     // end scene
 
     // Present goes here, so call OA Frame end.
-    if (g_SASH.IsBenchmarkRunning())
-        g_SASH.DisplayFrame(Device.fTimeGlobal);
     m_pRender->End();
 
 # ifdef INGAME_EDITOR
@@ -178,8 +173,6 @@ void CRenderDevice::PreCache(u32 amount, bool b_draw_loadscreen, bool b_wait_use
     }
 }
 
-int g_svDedicateServerUpdateReate = 100;
-
 ENGINE_API xr_list<LOADING_EVENT> g_loading_events;
 
 #include "render.h"
@@ -215,10 +208,6 @@ void CRenderDevice::on_idle()
     }
     else
     {
-        if ((!Device.dwPrecacheFrame) && (!g_SASH.IsBenchmarkRunning())
-            && g_bLoaded)
-            g_SASH.StartBenchmark();
-
         FrameMove();
     }
 
@@ -495,9 +484,6 @@ ENGINE_API BOOL bShowPauseString = TRUE;
 void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
     static int snd_emitters_ = -1;
-
-    if (g_bBenchmark) 
-		return;
 
     if (bOn)
     {

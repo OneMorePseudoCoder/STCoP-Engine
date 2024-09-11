@@ -49,10 +49,12 @@ void Surface_FormatExt(FREE_IMAGE_FORMAT f)
                 cur = ++ext;
             }
         }
-        if (cur&&cur[0]) formats.format_register(cur);
+        if (cur&&cur[0]) 
+			formats.format_register(cur);
         xr_free(base);
     }
 }
+
 void Surface_Init()
 {
     Msg("* ImageLibrary version: %s", FreeImage_GetVersion());
@@ -102,22 +104,27 @@ FIBITMAP* Surface_Load(char* full_name)
     // load
     FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(full_name);
     FIBITMAP* map = FreeImage_Load(fif, full_name);
-    if (0 == map) return NULL;
+    if (0 == map) 
+		return NULL;
 
     // check if already 32bpp
-    if (32 == FreeImage_GetBPP(map)) return map;
+    if (32 == FreeImage_GetBPP(map)) 
+		return map;
 
     // convert
     FIBITMAP* map32 = FreeImage_ConvertTo32Bits(map);
-    if (0 == map32) map32 = map;
-    else FreeImage_Unload(map);
+    if (0 == map32) 
+		map32 = map;
+    else 
+		FreeImage_Unload(map);
 
     return map32;
 }
 
 u32* Surface_Load(char* name, u32& w, u32& h)
 {
-    if (strchr(name, '.')) *(strchr(name, '.')) = 0;
+    if (strchr(name, '.')) 
+		*(strchr(name, '.')) = 0;
 
     // detect format
     string_path full;

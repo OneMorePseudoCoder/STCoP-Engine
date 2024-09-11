@@ -61,9 +61,6 @@ protected:
     u32 rect_color;
     u32 back_color;
     FactoryPtr<IStatGraphRender> m_pRender;
-    //ref_geom hGeomTri;
-    //ref_geom hGeomLine;
-
 
     struct SMarker
     {
@@ -77,14 +74,6 @@ protected:
 
     MarkersDeq m_Markers;
 
-protected:
-    // virtual void RenderBack ();
-
-    // virtual void RenderBars ( FVF::TL0uv** ppv, ElementsDeq* pelements );
-    // virtual void RenderLines ( FVF::TL0uv** ppv, ElementsDeq* pelements );
-    // virtual void RenderBarLines ( FVF::TL0uv** ppv, ElementsDeq* pelements );
-    //// virtual void RenderPoints ( FVF::TL0uv** ppv, ElementsDeq* pelements );
-    // virtual void RenderMarkers ( FVF::TL0uv** ppv, MarkersDeq* pmarkers );
 public:
     CStatGraph();
     ~CStatGraph();

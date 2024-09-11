@@ -41,7 +41,6 @@ weapon::weapon				(
 
 	compute_bone			( bone_id0 );
 
-#if 1
 	Fmatrix&				bone_0 = m_result[bone_id0];
 	VERIFY				( _valid(bone_0) );
 	Fvector					angles;
@@ -59,9 +58,6 @@ weapon::weapon				(
 	compute_bone			( bone_id1 );
 
 	bone.set_callback		( bctCustom, old_callback, old_callback_param );
-#else // #if 0
-	m_result[bone_id1]		= Fidentity;
-#endif // #if 0
 }
 
 void weapon::compute_bone	(u32 const bone_id)

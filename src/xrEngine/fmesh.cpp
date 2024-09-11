@@ -16,6 +16,7 @@ void ogf_desc::Load(IReader& F)
     F.r_stringZ(modif_name);
     F.r(&modif_time, sizeof(modif_time));
 }
+
 void ogf_desc::Save(IWriter& F)
 {
     F.w_stringZ(source_file);

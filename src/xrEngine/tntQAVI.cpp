@@ -29,15 +29,18 @@ CAviPlayerCustom::~CAviPlayerCustom()
 {
     if (m_aviIC)
     {
-
         ICDecompressEnd(m_aviIC);
         ICClose(m_aviIC);
     }
 
-    if (m_pDecompressedBuf) xr_free(m_pDecompressedBuf);
+    if (m_pDecompressedBuf)
+		xr_free(m_pDecompressedBuf);
 
-    if (m_pMovieData) xr_free(m_pMovieData);
-    if (m_pMovieIndex) xr_free(m_pMovieIndex);
+    if (m_pMovieData) 
+		xr_free(m_pMovieData);
+
+    if (m_pMovieIndex)
+		xr_free(m_pMovieIndex);
 
     xr_delete(alpha);
 }
@@ -58,7 +61,6 @@ BOOL CAviPlayerCustom::Load(char* fname)
     HMMIO hmmioFile = mmioOpen(fname, NULL, MMIO_READ);
     if (hmmioFile == NULL)
     {
-
         return FALSE;
     }
 
@@ -69,7 +71,6 @@ BOOL CAviPlayerCustom::Load(char* fname)
     MMRESULT res;
     if (MMSYSERR_NOERROR != (res = mmioDescend(hmmioFile, &mmckinfoParent, NULL, MMIO_FINDRIFF)))
     {
-
         mmioClose(hmmioFile, 0);
         return FALSE;
     }
@@ -78,7 +79,6 @@ BOOL CAviPlayerCustom::Load(char* fname)
     mmckinfoParent.fccType = mmioFOURCC('h', 'd', 'r', 'l');
     if (MMSYSERR_NOERROR != (res = mmioDescend(hmmioFile, &mmckinfoParent, NULL, MMIO_FINDLIST)))
     {
-
         mmioClose(hmmioFile, 0);
         return FALSE;
     }
@@ -88,7 +88,6 @@ BOOL CAviPlayerCustom::Load(char* fname)
     mmckinfoParent.fccType = mmioFOURCC('s', 't', 'r', 'l');
     if (MMSYSERR_NOERROR != (res = mmioDescend(hmmioFile, &mmckinfoParent, NULL, MMIO_FINDLIST)))
     {
-
         mmioClose(hmmioFile, 0);
         return FALSE;
     }
@@ -98,7 +97,6 @@ BOOL CAviPlayerCustom::Load(char* fname)
     mmckinfoParent.fccType = mmioFOURCC('s', 't', 'r', 'h');
     if (MMSYSERR_NOERROR != (res = mmioDescend(hmmioFile, &mmckinfoParent, NULL, MMIO_FINDCHUNK)))
     {
-
         mmioClose(hmmioFile, 0);
         return FALSE;
     }
@@ -107,14 +105,14 @@ BOOL CAviPlayerCustom::Load(char* fname)
     ZeroMemory(&strh, sizeof(strh));
     if (mmckinfoParent.cksize != (DWORD)mmioRead(hmmioFile, (HPSTR)&strh, mmckinfoParent.cksize))
     {
-
         mmioClose(hmmioFile, 0);
         return FALSE;
     }
 
     AVIFileInit();
     PAVIFILE aviFile = 0;
-    if (AVIERR_OK != AVIFileOpen(&aviFile, fname, OF_READ, 0)) return FALSE;
+    if (AVIERR_OK != AVIFileOpen(&aviFile, fname, OF_READ, 0)) 
+		return FALSE;
 
     AVIFILEINFO aviInfo;
     ZeroMemory(&aviInfo, sizeof(aviInfo));

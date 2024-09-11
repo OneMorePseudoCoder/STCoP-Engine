@@ -3,7 +3,6 @@
 #pragma hdrstop
 
 #include "SkeletonMotions.h"
-//#include "SkeletonAnimated.h"
 #include "Fmesh.h"
 #include "motion.h"
 #include "..\Include\xrRender\Kinematics.h"
@@ -107,7 +106,7 @@ BOOL motions_value::load(LPCSTR N, IReader* data, vecBones* bones)
                 u16 m_idx = u16(MP->r_u32());
                 *b_it = find_bone_id(bones, buf);
 #ifdef _EDITOR
-                if (*b_it==BI_NONE )
+                if (*b_it == BI_NONE)
                 {
                     bRes = false;
                     Msg ("!Can't find bone: '%s'", buf);
@@ -121,7 +120,8 @@ BOOL motions_value::load(LPCSTR N, IReader* data, vecBones* bones)
 #else
                 VERIFY3(*b_it != BI_NONE, "Can't find bone:", buf);
 #endif
-                if (bRes) rm_bones[m_idx] = u16(*b_it);
+                if (bRes) 
+					rm_bones[m_idx] = u16(*b_it);
             }
             part_bone_cnt = u16(part_bone_cnt + (u16)PART.bones.size());
         }
@@ -266,7 +266,7 @@ BOOL motions_value::load(LPCSTR N, IReader* data, vecBones* bones)
             
         }
     }
-    // Msg("Motions %d/%d %4d/%4d/%d, %s",p_cnt,m_cnt, m_load,m_total,m_r,N);
+
     MS->close();
 
     return bRes;
@@ -275,7 +275,6 @@ BOOL motions_value::load(LPCSTR N, IReader* data, vecBones* bones)
 MotionVec* motions_value::bone_motions(shared_str bone_name)
 {
     BoneMotionMapIt I = m_motions.find(bone_name);
-    // VERIFY (I != m_motions.end());
     if (I == m_motions.end())
         return (0);
 
@@ -285,15 +284,10 @@ MotionVec* motions_value::bone_motions(shared_str bone_name)
 motions_container::motions_container()
 {
 }
-//extern shared_str s_bones_array_const;
+
 motions_container::~motions_container()
 {
-    // clean (false);
-    // clean (true);
-    // dump ();
     VERIFY(container.empty());
-    // Igor:
-    //s_bones_array_const = 0;
 }
 
 bool motions_container::has(shared_str key)
@@ -305,7 +299,8 @@ motions_value* motions_container::dock(shared_str key, IReader* data, vecBones* 
 {
     motions_value* result = 0;
     SharedMotionsMapIt I = container.find(key);
-    if (I != container.end()) result = I->second;
+    if (I != container.end()) 
+		result = I->second;
     if (0 == result)
     {
         // loading motions
@@ -320,6 +315,7 @@ motions_value* motions_container::dock(shared_str key, IReader* data, vecBones* 
     }
     return result;
 }
+
 void motions_container::clean(bool force_destroy)
 {
     SharedMotionsMapIt it = container.begin();
@@ -353,6 +349,7 @@ void motions_container::clean(bool force_destroy)
         }
     }
 }
+
 void motions_container::dump()
 {
     SharedMotionsMapIt it = container.begin();
@@ -373,8 +370,8 @@ void motions_container::dump()
 void CMotionDef::Load(IReader* MP, u32 fl, u16 version)
 {
     // params
-    bone_or_part = MP->r_u16(); // bCycle?part_id:bone_id;
-    motion = MP->r_u16(); // motion_id
+    bone_or_part = MP->r_u16();
+    motion = MP->r_u16();
     speed = Quantize(MP->r_float());
     power = Quantize(MP->r_float());
     accrue = Quantize(MP->r_float());
@@ -501,6 +498,7 @@ void ENGINE_API motion_marks::Load(IReader* R)
         item.second = R->r_float();
     }
 }
+
 #ifdef _EDITOR
 void motion_marks::Save(IWriter* W)
 {

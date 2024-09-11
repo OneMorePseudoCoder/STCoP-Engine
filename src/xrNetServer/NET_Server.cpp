@@ -344,7 +344,7 @@ if(!psNET_direct_connect)
     dpAppDesc.dwFlags			= DPNSESSION_CLIENT_SERVER | DPNSESSION_NODPNSVR;
     dpAppDesc.guidApplication	= NET_GUID;
     dpAppDesc.pwszSessionName	= SessionNameUNICODE;
-	dpAppDesc.dwMaxPlayers		= (m_bDedicated) ? (dwMaxPlayers+2) : (dwMaxPlayers+1);
+	dpAppDesc.dwMaxPlayers		= dwMaxPlayers + 1;
 	dpAppDesc.pvApplicationReservedData	= &game_descr;
 	dpAppDesc.dwApplicationReservedDataSize = sizeof(game_descr);
 

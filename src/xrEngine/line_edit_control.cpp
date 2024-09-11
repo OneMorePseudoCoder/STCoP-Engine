@@ -97,13 +97,7 @@ line_edit_control::~line_edit_control()
     size_t const array_size = sizeof(m_actions)/sizeof(m_actions[0]);
     buffer_vector<Base*> actions(m_actions, array_size, &m_actions[0], &m_actions[0] + array_size);
     std::sort (actions.begin(), actions.end());
-    actions.erase (
-        std::unique(
-        actions.begin(),
-        actions.end()
-        ),
-        actions.end()
-        );
+    actions.erase(std::unique(actions.begin(), actions.end()), actions.end());
     delete_data(actions);
 }
 
@@ -371,10 +365,6 @@ void line_edit_control::assign_char_pairs(init_mode mode)
 void line_edit_control::create_key_state(u32 const dik, key_state state)
 {
     Base* prev = m_actions[dik];
-    //if ( m_actions[dik] )
-    //{
-    // xr_delete( m_actions[dik] );
-    //}
     m_actions[dik] = xr_new<text_editor::key_state_base>(state, prev);
 }
 
@@ -525,11 +515,19 @@ void line_edit_control::on_frame()
     m_cur_time += dt;
 
     m_cursor_view = true;
-    if (m_cur_time > 0.3f) { m_cursor_view = false; }
-    if (m_cur_time > 0.4f) { m_cur_time = 0.0f; }
+
+    if (m_cur_time > 0.3f) 
+	{ 
+		m_cursor_view = false; 
+	}
+
+    if (m_cur_time > 0.4f) 
+	{ 
+		m_cur_time = 0.0f; 
+	}
 
     m_rep_time += dt * m_accel;
-    if (m_rep_time > g_console_sensitive)//0.2
+    if (m_rep_time > g_console_sensitive)
     {
         m_rep_time = 0.0f;
         m_repeat_mode = true;
@@ -541,11 +539,6 @@ void line_edit_control::on_frame()
     {
         m_need_update = false;
     }
-
-    /*if ( Device.dwFrame % 100 == 0 )
-    {
-    Msg( " cur_time=%.2f re=%d acc=%.2f rep_time=%.2f", cur_time, bRepeat, fAccel, rep_time );
-    }*/
 }
 
 void line_edit_control::update_bufs()
@@ -565,8 +558,6 @@ void line_edit_control::update_bufs()
 
     m_need_update = true;
     m_last_changed_frame = Device.dwFrame;
-    // if ( m_cursor_view ) {
-    // Msg( " m_p1=%d m_p2=%d cur=%d sstart=%d", m_p1, m_p2, m_cur_pos, m_select_start ); }
 }
 
 void line_edit_control::add_inserted_text()

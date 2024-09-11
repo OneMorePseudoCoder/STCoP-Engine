@@ -210,7 +210,8 @@ BOOL CTheoraStream::Decode(u32 in_tm_play)
                     if (d_frame >= t_frame) 
 						result = TRUE;
                 }
-                else break;
+                else 
+					break;
             }
             // check eof
             VERIFY(!(FALSE == result&&source->eof()));

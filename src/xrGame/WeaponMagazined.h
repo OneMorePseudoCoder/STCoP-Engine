@@ -10,7 +10,6 @@ class ENGINE_API CMotionDef;
 //заканчиваем стрельбу, только, если кончились патроны
 #define WEAPON_ININITE_QUEUE -1
 
-
 class CWeaponMagazined: public CWeapon
 {
 private:
@@ -90,6 +89,7 @@ public:
 	
 
 	virtual	void	UpdateCL		();
+	virtual BOOL	net_Spawn		(CSE_Abstract* DC);
 	virtual void	net_Destroy		();
 	virtual void	net_Export		(NET_Packet& P);
 	virtual void	net_Import		(NET_Packet& P);

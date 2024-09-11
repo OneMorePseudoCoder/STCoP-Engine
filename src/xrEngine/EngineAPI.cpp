@@ -50,8 +50,11 @@ ENGINE_API bool is_enough_address_space_available()
     return (*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
 
-void CEngineAPI::InitializeNotDedicated()
+void CEngineAPI::Initialize(void)
 {
+    //////////////////////////////////////////////////////////////////////////
+    // render
+    LPCSTR r1_name = "xrRender_R1.dll";
     LPCSTR r2_name = "xrRender_R2.dll";
     LPCSTR r3_name = "xrRender_R3.dll";
     LPCSTR r4_name = "xrRender_R4.dll";
@@ -99,15 +102,6 @@ void CEngineAPI::InitializeNotDedicated()
         else
             g_current_renderer = 2;
     }
-}
-
-void CEngineAPI::Initialize(void)
-{
-    //////////////////////////////////////////////////////////////////////////
-    // render
-    LPCSTR r1_name = "xrRender_R1.dll";
-
-    InitializeNotDedicated();
 
     if (0 == hRender)
     {
@@ -119,7 +113,8 @@ void CEngineAPI::Initialize(void)
 
         Log("Loading DLL:", r1_name);
         hRender = LoadLibrary(r1_name);
-        if (0 == hRender) R_CHK(GetLastError());
+        if (0 == hRender) 
+            R_CHK(GetLastError());
         R_ASSERT(hRender);
         g_current_renderer = 1;
     }

@@ -67,8 +67,10 @@ void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
 				if (nullptr != strstr(V, "scope="))
 					cur_scope = atoi(strstr(V, "scope=") + 6);
 			}
-			for (u32 i=0; i<j; ++i) {
-				if (randF(1.f) < p) {
+			for (u32 i=0; i<j; ++i) 
+			{
+				if (randF(1.f) < p) 
+				{
 					CSE_Abstract* E = alife().spawn_item	(N,o_Position,m_tNodeID,m_tGraphID,ID);
 					//подсоединить аддоны к оружию, если включены соответствующие флажки
 					CSE_ALifeItemWeapon* W =  smart_cast<CSE_ALifeItemWeapon*>(E);

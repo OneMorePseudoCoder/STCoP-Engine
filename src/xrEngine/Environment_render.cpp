@@ -17,11 +17,12 @@
 // Environment render
 //-----------------------------------------------------------------------------
 extern ENGINE_API float psHUD_FOV;
-//BOOL bNeed_re_create_env = FALSE;
+
 void CEnvironment::RenderSky()
 {
 #ifndef _EDITOR
-    if (0 == g_pGameLevel) return;
+    if (0 == g_pGameLevel) 
+		return;
 #endif
 
     m_pRender->RenderSky(*this);
@@ -30,10 +31,12 @@ void CEnvironment::RenderSky()
 void CEnvironment::RenderClouds()
 {
 #ifndef _EDITOR
-    if (0 == g_pGameLevel) return;
+    if (0 == g_pGameLevel) 
+		return;
 #endif
     // draw clouds
-    if (fis_zero(CurrentEnv->clouds_color.w, EPS_L)) return;
+    if (fis_zero(CurrentEnv->clouds_color.w, EPS_L)) 
+		return;
 
     m_pRender->RenderClouds(*this);
 }
@@ -41,7 +44,8 @@ void CEnvironment::RenderClouds()
 void CEnvironment::RenderFlares()
 {
 #ifndef _EDITOR
-    if (0 == g_pGameLevel) return;
+    if (0 == g_pGameLevel) 
+		return;
 #endif
     // 1
     eff_LensFlare->Render(FALSE, TRUE, TRUE);
@@ -50,7 +54,8 @@ void CEnvironment::RenderFlares()
 void CEnvironment::RenderLast()
 {
 #ifndef _EDITOR
-    if (0 == g_pGameLevel) return;
+    if (0 == g_pGameLevel) 
+		return;
 #endif
     // 2
     eff_Rain->Render();
@@ -79,7 +84,6 @@ void CEnvironment::OnDeviceCreate()
             for (EnvIt it = _I->second.begin(); it != _I->second.end(); it++)
                 (*it)->on_device_create();
     }
-
 
     Invalidate();
     OnFrame();

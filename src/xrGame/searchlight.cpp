@@ -106,7 +106,6 @@ BOOL CProjector::net_Spawn(CSE_Abstract* DC)
 void CProjector::shedule_Update	(u32 dt)
 {
 	inherited::shedule_Update(dt);
-
 }
 
 void CProjector::TurnOn()
@@ -161,7 +160,6 @@ void CProjector::UpdateCL	()
 		light_render->set_position	(M.c);
 		glow_render->set_position	(M.c);
 		glow_render->set_direction	(M.k);
-
 	}
 
 	// Update searchlight 

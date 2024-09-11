@@ -18,11 +18,8 @@
 #include "resource.h"
 #include "LightAnimLibrary.h"
 #include "../xrcdb/ispatial.h"
-#include "Text_Console.h"
 #include <process.h>
 #include <locale.h>
-
-#include "xrSash.h"
 
 //---------------------------------------------------------------------
 ENGINE_API CInifile* pGameIni = NULL;
@@ -154,7 +151,6 @@ struct _SoundProcessor : public pureFrame
 {
     virtual void _BCL OnFrame()
     {
-        //Msg ("------------- sound: %d [%3.2f,%3.2f,%3.2f]",u32(Device.dwFrame),VPUSH(Device.vCameraPosition));
         Device.Statistic->Sound.Begin();
         ::Sound->update(Device.vCameraPosition, Device.vCameraDirection, Device.vCameraTop);
         Device.Statistic->Sound.End();
@@ -166,11 +162,6 @@ SoundProcessor;
 // global variables
 ENGINE_API CApplication* pApp = NULL;
 static HWND logoWindow = NULL;
-
-int doLauncher();
-void doBenchmark(LPCSTR name);
-ENGINE_API bool g_bBenchmark = false;
-string512 g_sBenchmarkName;
 
 ENGINE_API string512 g_sLaunchOnExit_params;
 ENGINE_API string512 g_sLaunchOnExit_app;
@@ -376,15 +367,11 @@ void Startup()
     // Destroying
     destroyInput();
 
-    if (!g_bBenchmark && !g_SASH.IsRunning())
-        destroySettings();
+    destroySettings();
 
     LALib.OnDestroy();
 
-    if (!g_bBenchmark && !g_SASH.IsRunning())
-        destroyConsole();
-    else
-        Console->Destroy();
+    destroyConsole();
 
     destroySound();
 
@@ -742,34 +729,7 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lp
 
         Engine.External.CreateRendererList();
 
-        LPCSTR benchName = "-batch_benchmark ";
-        if (strstr(lpCmdLine, benchName))
-        {
-            int sz = xr_strlen(benchName);
-            string64 b_name;
-            sscanf(strstr(Core.Params, benchName) + sz, "%[^ ] ", b_name);
-            doBenchmark(b_name);
-            return 0;
-        }
-
         Msg("command line %s", lpCmdLine);
-        LPCSTR sashName = "-openautomate ";
-        if (strstr(lpCmdLine, sashName))
-        {
-            int sz = xr_strlen(sashName);
-            string512 sash_arg;
-            sscanf(strstr(Core.Params, sashName) + sz, "%[^ ] ", sash_arg);
-            g_SASH.Init(sash_arg);
-            g_SASH.MainLoop();
-            return 0;
-        }
-
-        if (strstr(lpCmdLine, "-launcher"))
-        {
-            int l_res = doLauncher();
-            if (l_res != 0)
-                return 0;
-        };
 
         if (strstr(Core.Params, "-r2a"))
             Console->Execute("renderer renderer_r2a");
@@ -953,8 +913,6 @@ void CApplication::OnEvent(EVENT E, u64 P1, u64 P2)
 {
     if (E == eQuit)
     {
-        g_SASH.EndBenchmark();
-
         PostQuitMessage(0);
 
         for (u32 i = 0; i < Levels.size(); i++)
@@ -1329,82 +1287,6 @@ BOOL IsPCAccessAllowed()
     FreeLibrary(hPCtrlChk);
 
     return bAllowed;
-}
-
-//launcher stuff----------------------------
-extern "C" 
-{
-    typedef int __cdecl LauncherFunc(int);
-}
-
-HMODULE hLauncher = NULL;
-LauncherFunc* pLauncher = NULL;
-
-void InitLauncher()
-{
-    if (hLauncher)
-        return;
-    hLauncher = LoadLibrary("xrLauncher.dll");
-    if (0 == hLauncher) R_CHK(GetLastError());
-    R_ASSERT2(hLauncher, "xrLauncher DLL raised exception during loading or there is no xrLauncher.dll at all");
-
-    pLauncher = (LauncherFunc*)GetProcAddress(hLauncher, "RunXRLauncher");
-    R_ASSERT2(pLauncher, "Cannot obtain RunXRLauncher function from xrLauncher.dll");
-};
-
-void FreeLauncher()
-{
-    if (hLauncher)
-    {
-        FreeLibrary(hLauncher);
-        hLauncher = NULL;
-        pLauncher = NULL;
-    };
-}
-
-int doLauncher()
-{
-    return 0;
-}
-
-void doBenchmark(LPCSTR name)
-{
-    g_bBenchmark = true;
-    string_path in_file;
-    FS.update_path(in_file, "$app_data_root$", name);
-    CInifile ini(in_file);
-    int test_count = ini.line_count("benchmark");
-    LPCSTR test_name, t;
-    shared_str test_command;
-    for (int i = 0; i < test_count; ++i)
-    {
-        ini.r_line("benchmark", i, &test_name, &t);
-        xr_strcpy(g_sBenchmarkName, test_name);
-
-        test_command = ini.r_string_wb("benchmark", test_name);
-        u32 cmdSize = test_command.size() + 1;
-        Core.Params = (char*)xr_realloc(Core.Params, cmdSize);
-        xr_strcpy(Core.Params, cmdSize, test_command.c_str());
-        xr_strlwr(Core.Params);
-
-        InitInput();
-        if (i)
-        {
-            InitEngine();
-        }
-
-        Engine.External.Initialize();
-
-        xr_strcpy(Console->ConfigFile, "user.ltx");
-        if (strstr(Core.Params, "-ltx "))
-        {
-            string64 c_name;
-            sscanf(strstr(Core.Params, "-ltx ") + 5, "%[^ ] ", c_name);
-            xr_strcpy(Console->ConfigFile, c_name);
-        }
-
-        Startup();
-    }
 }
 
 #pragma optimize("g", off)

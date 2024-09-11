@@ -26,6 +26,7 @@ ICF	float	CalcSSA				(float& distSQ, Fvector& C, dxRender_Visual* V)
 	distSQ	= Device.vCameraPosition.distance_to_sqr(C)+EPS;
 	return	R/distSQ;
 }
+
 ICF	float	CalcSSA				(float& distSQ, Fvector& C, float R)
 {
 	distSQ	= Device.vCameraPosition.distance_to_sqr(C)+EPS;
@@ -77,8 +78,10 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 
 	// Select shader
 	ShaderElement*	sh		=	RImplementation.rimp_select_sh_dynamic	(pVisual,distSQ);
-	if (0==sh)								return;
-	if (!pmask[sh->flags.iPriority/2])		return;
+	if (0==sh)								
+		return;
+	if (!pmask[sh->flags.iPriority/2])		
+		return;
 
 	// Create common node
 	// NOTE: Invisible elements exist only in R1
@@ -812,15 +815,6 @@ BOOL CRender::add_Dynamic(dxRender_Visual *pVisual, u32 planes)
 				E = pV->children.end		();
 				for (; I!=E; ++I)	add_leafs_Dynamic	(*I);
 			}
-			/*
-			I = pV->children.begin		();
-			E = pV->children.end		();
-			if (fcvPartial==VIS) {
-				for (; I!=E; I++)	add_Dynamic			(*I,planes);
-			} else {
-				for (; I!=E; I++)	add_leafs_Dynamic	(*I);
-			}
-			*/
 		}
 		break;
 	default:
@@ -837,7 +831,6 @@ void CRender::add_StaticForCulling(dxRender_Visual* pVisual, CSector* sector)
 {
 	//Нужно проверить производиельность такого метода, может быть с ним будет хуже
 	//Чем в оригинале
-
 	for (u32 v_it = 0; v_it < sector->r_frustums.size(); v_it++)
 	{
 		u32 plane = sector->r_frustums[v_it].getMask();
@@ -859,20 +852,10 @@ void CRender::add_StaticForCulling(dxRender_Visual* pVisual, CSector* sector)
 		}
 
 	}
-	
 }
 
 void CRender::add_Static(dxRender_Visual *pVisual, u32 planes)
 {
-
-/*#if RENDER!=R_R1
-	if (!IsValuableToRender(pVisual, phase == PHASE_SMAP))
-		return;
-#else
-	if (!IsValuableToRender(pVisual, false))
-		return;
-#endif*/
-
 	// Check frustum visibility and calculate distance to visual's center
 	EFC_Visible	VIS;
 	vis_data&	vis			= pVisual->vis;
@@ -886,7 +869,8 @@ void CRender::add_Static(dxRender_Visual *pVisual, u32 planes)
 	// If we get here visual is visible or partially visible
 	xr_vector<dxRender_Visual*>::iterator I,E;	// it may be usefull for 'hierrarhy' visuals
 
-	switch (pVisual->Type) {
+	switch (pVisual->Type) 
+	{
 	case MT_PARTICLE_GROUP:
 		{
 			// Add all children, doesn't perform any tests
